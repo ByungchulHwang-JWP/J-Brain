@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사내 지식 챗봇 플랫폼 - 지식 관리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', 'Noto Sans KR', sans-serif; background: #F5F6FA; color: #1d1d1d; min-height: 100vh; display: flex; flex-direction: column; }
+    .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #fff; border-bottom: 1px solid #ebebeb; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 72px; height: 24px; background: #031B4B; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    .header-title { font-size: 15px; font-weight: 600; color: #1d1d1d; }
+    .header-right { display: flex; align-items: center; gap: 16px; font-size: 14px; color: #4d4d4d; }
+    .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #3069B3; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; }
+    .layout { display: flex; margin-top: 56px; min-height: calc(100vh - 56px - 52px); }
+    .lnb { width: 240px; min-width: 240px; background: #031B4B; padding: 20px 0; display: flex; flex-direction: column; }
+    .lnb-group { margin-bottom: 4px; }
+    .lnb-group-title { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; font-size: 14px; font-weight: 600; color: #C7DFF4; cursor: pointer; user-select: none; }
+    .lnb-group-title:hover { background: rgba(255,255,255,0.08); }
+    .lnb-sub { display: flex; flex-direction: column; }
+    .lnb-item { padding: 10px 20px 10px 44px; font-size: 13px; color: #b3c8e0; cursor: pointer; text-decoration: none; display: block; transition: background 0.12s; }
+    .lnb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .lnb-item.active { background: #3069B3; color: #fff; font-weight: 600; }
+    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .breadcrumb { padding: 16px 32px 0; font-size: 12px; color: #808080; display: flex; align-items: center; gap: 4px; }
+    .breadcrumb span { color: #3069B3; }
+    .page-header { padding: 12px 32px 0; font-size: 24px; font-weight: 700; color: #1d1d1d; }
+    .inner { padding: 24px 32px; flex: 1; }
+    .footer { background: #fff; border-top: 1px solid #ebebeb; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #b3b3b3; }
+
+    /* Search/Filter Bar */
+    .filter-bar {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 8px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    .filter-label { font-size: 12px; color: #808080; }
+    select, .input-field {
+      height: 40px;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      font-family: inherit;
+    }
+    select:focus, .input-field:focus { border-color: #3069B3; }
+    .search-wrapper { display: flex; gap: 0; }
+    .search-input { height: 40px; border: 1px solid #cccccc; border-right: none; border-radius: 6px 0 0 6px; padding: 0 14px; font-size: 14px; width: 240px; outline: none; }
+    .search-btn { height: 40px; width: 40px; background: #031B4B; border: none; border-radius: 0 6px 6px 0; cursor: pointer; color: #fff; font-size: 16px; }
+    .filter-spacer { flex: 1; }
+
+    /* Buttons */
+    .btn-primary { height: 48px; padding: 0 24px; background: #031B4B; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; font-family: inherit; }
+    .btn-primary:hover { background: #03428E; }
+    .btn-secondary { height: 48px; padding: 0 20px; background: #fff; color: #031B4B; border: 1.5px solid #031B4B; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-table { height: 32px; padding: 0 12px; background: #fff; color: #333; border: 1px solid #cccccc; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: inherit; }
+    .btn-table.danger { color: #EC193A; border-color: #EC193A; }
+    .btn-table.primary { color: #3069B3; border-color: #3069B3; }
+
+    /* Table area */
+    .table-area {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ebebeb;
+    }
+    .table-count { font-size: 14px; color: #4d4d4d; }
+    .table-count strong { color: #031B4B; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #4d4d4d; background: #f8f8f8; border-bottom: 1px solid #ebebeb; white-space: nowrap; }
+    tbody td { padding: 12px 16px; font-size: 13px; color: #333; border-bottom: 1px solid #ebebeb; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #F5F6FA; }
+    tbody tr.selected { background: #EEF4FF; }
+    .checkbox-col { width: 44px; text-align: center; }
+    input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3069B3; cursor: pointer; }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .badge.uploaded { background: #edeff5; color: #4d4d4d; }
+    .badge.processing { background: #FFF8E1; color: #f59e0b; }
+    .badge.completed { background: #e6f7f6; color: #119891; }
+    .badge.failed { background: #fff0f2; color: #EC193A; }
+
+    /* Progress bar */
+    .progress-wrap { display: flex; align-items: center; gap: 8px; }
+    .progress-bar-bg { flex: 1; height: 6px; background: #ebebeb; border-radius: 3px; }
+    .progress-bar-fill { height: 6px; border-radius: 3px; background: #3069B3; }
+    .progress-pct { font-size: 12px; color: #808080; white-space: nowrap; }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 20px; }
+    .page-btn { width: 36px; height: 36px; border-radius: 6px; border: 1px solid #ebebeb; background: #fff; font-size: 13px; color: #4d4d4d; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+    .page-btn.active { background: #031B4B; color: #fff; border-color: #031B4B; font-weight: 700; }
+    .page-btn:hover:not(.active) { background: #edeff5; }
+
+    /* Modal overlay */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 12px; width: 560px; box-shadow: 0 8px 40px rgba(3,27,75,0.18); }
+    .modal-header { padding: 24px 28px 16px; border-bottom: 1px solid #ebebeb; display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: 18px; font-weight: 700; color: #1d1d1d; }
+    .modal-close { font-size: 20px; color: #808080; cursor: pointer; background: none; border: none; }
+    .modal-body { padding: 24px 28px; }
+    .form-row { margin-bottom: 20px; }
+    .form-label { font-size: 13px; color: #4d4d4d; font-weight: 600; margin-bottom: 8px; display: block; }
+    .form-label .req { color: #EC193A; margin-left: 2px; }
+    .upload-area { border: 2px dashed #cccccc; border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; transition: border-color 0.15s; }
+    .upload-area:hover { border-color: #3069B3; background: #EEF4FF; }
+    .upload-icon { font-size: 36px; margin-bottom: 8px; }
+    .upload-text { font-size: 14px; color: #808080; }
+    .upload-hint { font-size: 12px; color: #b3b3b3; margin-top: 4px; }
+    .modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-modal-cancel { height: 48px; padding: 0 24px; background: #fff; color: #4d4d4d; border: 1.5px solid #cccccc; border-radius: 6px; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .btn-modal-ok { height: 48px; padding: 0 24px; background: #031B4B; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-icon">AI Platform</div>
+      <select style="border:none; outline:none; font-size:15px; font-weight:600; color:#1d1d1d; cursor:pointer; background:transparent;">
+        <option>탄소중립플랫폼 (NETZERO)</option>
+        <option>DPPA 정산플랫폼 (DPPA)</option>
+        <option>K-Ads 운영 (KADS)</option>
+      </select>
+    </div>
+    <div class="header-right">
+      <span style="background:#EEF4FF; color:#3069B3; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">System Admin</span>|
+      <div style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <div class="user-avatar">홍</div>
+        <span style="font-size:14px;font-weight:600;">홍길*(hong***)님 ∨</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- LNB -->
+    <nav class="lnb">
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>📊</span>대시보드</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>🏢</span>Workspace 관리</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>📁</span>지식 관리</span><span>∧</span></div>
+        <div class="lnb-sub">
+          <a class="lnb-item active" href="#">문서(Source) 목록</a>
+          <a class="lnb-item" href="#">인덱싱 작업 현황</a>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>💬</span>테스트/프롬프트</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>⚙️</span>권한 관리</span><span>∨</span></div>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="breadcrumb">
+        <a href="#">🏠</a> › <a href="#">지식 관리</a> › <span>문서(Source) 목록</span>
+      </div>
+      <div class="page-header">지식(Source) 관리</div>
+
+      <div class="inner">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">상태</span>
+            <select>
+              <option>전체</option>
+              <option>UPLOADED</option>
+              <option>PROCESSING</option>
+              <option>COMPLETED</option>
+              <option>FAILED</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">카테고리</span>
+            <select>
+              <option>전체</option>
+              <option>법령/제도</option>
+              <option>가이드라인</option>
+              <option>사내 규정</option>
+              <option>보고서</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">검색</span>
+            <div class="search-wrapper">
+              <input type="text" class="search-input" placeholder="파일명을 입력하세요">
+              <button class="search-btn">🔍</button>
+            </div>
+          </div>
+          <div class="filter-spacer"></div>
+          <button class="btn-primary" onclick="document.getElementById('uploadModal').classList.add('open')">+ 문서 업로드</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-area">
+          <div class="table-header">
+            <span class="table-count">총 <strong>87</strong>건</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-table danger">선택 삭제</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th class="checkbox-col"><input type="checkbox"></th>
+                <th>NO</th>
+                <th>파일명</th>
+                <th>카테고리</th>
+                <th>파일 크기</th>
+                <th>인덱싱 상태</th>
+                <th>진행률</th>
+                <th>등록일</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="selected">
+                <td class="checkbox-col"><input type="checkbox" checked></td>
+                <td>87</td>
+                <td>배출권거래제_운영지침_2026.pdf</td>
+                <td>법령/제도</td>
+                <td>2.4 MB</td>
+                <td><span class="badge processing">PROCESSING</span></td>
+                <td>
+                  <div class="progress-wrap">
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:62%"></div></div>
+                    <span class="progress-pct">62%</span>
+                  </div>
+                </td>
+                <td>2026-06-22</td>
+                <td><button class="btn-table danger">삭제</button></td>
+              </tr>
+              <tr>
+                <td class="checkbox-col"><input type="checkbox"></td>
+                <td>86</td>
+                <td>탄소중립기본법_해설서_v3.pdf</td>
+                <td>법령/제도</td>
+                <td>5.1 MB</td>
+                <td><span class="badge completed">COMPLETED</span></td>
+                <td>
+                  <div class="progress-wrap">
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:#119891;"></div></div>
+                    <span class="progress-pct">완료</span>
+                  </div>
+                </td>
+                <td>2026-06-21</td>
+                <td style="display:flex;gap:6px;">
+                  <button class="btn-table primary">미리보기</button>
+                  <button class="btn-table danger">삭제</button>
+                </td>
+              </tr>
+              <tr>
+                <td class="checkbox-col"><input type="checkbox"></td>
+                <td>85</td>
+                <td>온실가스_감축목표_NDC_2030.docx</td>
+                <td>보고서</td>
+                <td>1.8 MB</td>
+                <td><span class="badge completed">COMPLETED</span></td>
+                <td>
+                  <div class="progress-wrap">
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%;background:#119891;"></div></div>
+                    <span class="progress-pct">완료</span>
+                  </div>
+                </td>
+                <td>2026-06-20</td>
+                <td style="display:flex;gap:6px;">
+                  <button class="btn-table primary">미리보기</button>
+                  <button class="btn-table danger">삭제</button>
+                </td>
+              </tr>
+              <tr>
+                <td class="checkbox-col"><input type="checkbox"></td>
+                <td>84</td>
+                <td>CBAM_대응전략_사내가이드.pdf</td>
+                <td>사내 규정</td>
+                <td>0.9 MB</td>
+                <td><span class="badge failed">FAILED</span></td>
+                <td>
+                  <div class="progress-wrap">
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:35%;background:#EC193A;"></div></div>
+                    <span class="progress-pct" style="color:#EC193A;">오류</span>
+                  </div>
+                </td>
+                <td>2026-06-19</td>
+                <td style="display:flex;gap:6px;">
+                  <button class="btn-table primary" style="color:#f59e0b;border-color:#f59e0b;">재시도</button>
+                  <button class="btn-table danger">삭제</button>
+                </td>
+              </tr>
+              <tr>
+                <td class="checkbox-col"><input type="checkbox"></td>
+                <td>83</td>
+                <td>탄소배출권_거래소_이용안내.pdf</td>
+                <td>가이드라인</td>
+                <td>3.2 MB</td>
+                <td><span class="badge uploaded">UPLOADED</span></td>
+                <td>
+                  <div class="progress-wrap">
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%"></div></div>
+                    <span class="progress-pct">대기중</span>
+                  </div>
+                </td>
+                <td>2026-06-18</td>
+                <td style="display:flex;gap:6px;">
+                  <button class="btn-table primary">인덱싱 실행</button>
+                  <button class="btn-table danger">삭제</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          <div class="pagination">
+            <button class="page-btn">≪</button>
+            <button class="page-btn">〈</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <button class="page-btn">〉</button>
+            <button class="page-btn">≫</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-overlay" id="uploadModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">문서 업로드</span>
+        <button class="modal-close" onclick="document.getElementById('uploadModal').classList.remove('open')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label class="form-label">파일 선택 <span class="req">*</span></label>
+          <div class="upload-area">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">클릭하거나 파일을 드래그하여 업로드</div>
+            <div class="upload-hint">PDF, DOCX, TXT 지원 · 최대 50MB</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">카테고리 <span class="req">*</span></label>
+          <select style="width:100%;height:40px;border-radius:6px;border:1px solid #cccccc;padding:0 12px;font-size:14px;font-family:inherit;">
+            <option value="">카테고리를 선택하세요</option>
+            <option>법령/제도</option>
+            <option>가이드라인</option>
+            <option>사내 규정</option>
+            <option>보고서</option>
+          </select>
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="form-label">설명 (선택)</label>
+          <textarea style="width:100%;height:80px;border:1px solid #cccccc;border-radius:6px;padding:12px;font-size:14px;resize:none;font-family:inherit;" placeholder="문서에 대한 간단한 설명을 입력하세요"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="document.getElementById('uploadModal').classList.remove('open')">취소</button>
+        <button class="btn-modal-ok">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">Copyright © 2025 KICOX corp. All rights reserved.</footer>
+</body>
+</html>

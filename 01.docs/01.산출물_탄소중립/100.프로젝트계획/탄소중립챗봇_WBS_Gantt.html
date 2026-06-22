@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>탄소 중립플랫폼 챗봇 전체 WBS 간트차트</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --line: #d7dde8;
+      --week-line: #edf1f7;
+      --complete: #2563eb;
+      --next: #0f766e;
+      --pending: #94a3b8;
+      --hold: #b45309;
+      --level2: #3b82f6;
+      --level3: #60a5fa;
+      --label-w: 360px;
+      --week-w: 82px;
+      --row-h: 38px;
+      --radius: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      padding: 28px 32px 18px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 25px;
+      letter-spacing: 0;
+    }
+
+    .meta,
+    .legend,
+    .hint {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      padding: 22px 32px 36px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #f1f5fb;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .chart-wrap {
+      overflow-x: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .chart {
+      min-width: calc(var(--label-w) + var(--week-w) * 13);
+      display: grid;
+      grid-template-columns: var(--label-w) repeat(13, var(--week-w));
+    }
+
+    .cell {
+      min-height: var(--row-h);
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--week-line);
+      padding: 8px 9px;
+      font-size: 13px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .head {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: #eef3fb;
+      font-weight: 700;
+      color: #344054;
+      text-align: center;
+    }
+
+    .label {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #fff;
+      font-weight: 700;
+      overflow: visible;
+    }
+
+    .head.label {
+      z-index: 4;
+      background: #e6edf8;
+      text-align: left;
+    }
+
+    .task-button {
+      width: 100%;
+      min-height: 22px;
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 6px;
+      align-items: start;
+      border: 0;
+      padding: 0;
+      text-align: left;
+      background: transparent;
+      color: inherit;
+      font-weight: inherit;
+    }
+
+    .task-button:hover {
+      background: transparent;
+    }
+
+    .toggle {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #475569;
+      font-size: 11px;
+      margin-top: 1px;
+    }
+
+    .task-title {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .task-title strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-title small {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .label.level-2 {
+      background: #fbfdff;
+      padding-left: 26px;
+    }
+
+    .label.level-3 {
+      background: #fbfdff;
+      padding-left: 52px;
+      font-weight: 600;
+    }
+
+    .label.level-3 {
+      min-height: 32px;
+      font-size: 12px;
+      color: #344054;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.complete {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge.next {
+      background: #ccfbf1;
+      color: #0f766e;
+    }
+
+    .badge.pending {
+      background: #eef2f7;
+      color: #475569;
+    }
+
+    .bar-cell {
+      position: relative;
+      padding: 7px 5px;
+    }
+
+    .bar {
+      height: 22px;
+      border-radius: 5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .level-2 .bar {
+      height: 20px;
+      font-size: 11px;
+    }
+
+    .level-3 .bar {
+      height: 16px;
+      border-radius: 4px;
+      font-size: 0;
+      opacity: 0.82;
+    }
+
+    .bar.complete {
+      background: var(--complete);
+    }
+
+    .bar.next {
+      background: var(--next);
+    }
+
+    .bar.pending {
+      background: var(--pending);
+    }
+
+    .bar.hold {
+      background: var(--hold);
+    }
+
+    .bar.level2 {
+      background: var(--level2);
+    }
+
+    .bar.level3 {
+      background: var(--level3);
+    }
+
+    .milestone-row {
+      margin-top: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef3fb;
+      color: #344054;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    @media (max-width: 760px) {
+      header,
+      main {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .summary {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      :root {
+        --label-w: 290px;
+        --week-w: 72px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>탄소 중립플랫폼 챗봇 전체 WBS 간트차트</h1>
+    <div class="meta">
+      <span>기준 기간: 2026-06-22 ~ 2026-09-18</span>
+      <span>총 기간: 13주</span>
+      <span>작성일: 2026-06-22</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary" aria-label="진행 요약">
+      <div class="metric"><b>5 / 5</b><span>전체 단계 수</span></div>
+      <div class="metric"><b>20%</b><span>현재 진행률 (1단계 완료)</span></div>
+      <div class="metric"><b>계획 완료</b><span>현재 상태</span></div>
+      <div class="metric"><b>2026-09-18</b><span>전체 종료 목표</span></div>
+    </section>
+
+    <div class="toolbar">
+      <div>
+        <div class="legend" aria-label="범례">
+          <span><i class="swatch" style="background: var(--complete);"></i>완료</span>
+          <span><i class="swatch" style="background: var(--next);"></i>진행중</span>
+          <span><i class="swatch" style="background: var(--pending);"></i>미착수</span>
+          <span><i class="swatch" style="background: var(--level2);"></i>2단계 작업</span>
+          <span><i class="swatch" style="background: var(--level3);"></i>3단계 세부</span>
+        </div>
+        <div class="hint">상위 단계 또는 2단계 작업명을 클릭하면 하위 단계가 열리고 닫힙니다.</div>
+      </div>
+      <div class="controls">
+        <button type="button" id="expandAll">전체 펼치기</button>
+        <button type="button" id="collapseAll">전체 접기</button>
+      </div>
+    </div>
+
+    <section class="chart-wrap" aria-label="WBS 계층형 간트차트">
+      <div class="chart" id="chart"></div>
+    </section>
+
+    <section class="milestone-row" aria-label="마일스톤">
+      <table>
+        <thead>
+          <tr>
+            <th>마일스톤</th>
+            <th>목표일</th>
+            <th>완료 기준</th>
+            <th>현재 상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>M1 프로젝트 계획 확정</td><td>2026-07-03</td><td>계획서, WBS 작성 완료</td><td><span class="badge complete">완료</span></td></tr>
+          <tr><td>M2 아키텍처 및 요구정의 완료</td><td>2026-07-17</td><td>아키텍처정의서, 요구사항정의서 확정</td><td><span class="badge pending">미착수</span></td></tr>
+          <tr><td>M3 분석 및 설계 완료</td><td>2026-07-31</td><td>도메인정의서, API 명세, DB 설계 확정</td><td><span class="badge pending">미착수</span></td></tr>
+          <tr><td>M4 프레임워크 확장 개발 (AI/BE) 완료</td><td>2026-08-28</td><td>챗봇 API 및 GraphRAG 인덱싱 연동</td><td><span class="badge pending">미착수</span></td></tr>
+          <tr><td>M5 위젯 개발 및 통합 완료</td><td>2026-09-04</td><td>사용자 및 관리자 UI 화면 연동 완료</td><td><span class="badge pending">미착수</span></td></tr>
+          <tr><td>M6 테스트 및 결함조치 완료</td><td>2026-09-11</td><td>통합 테스트 시나리오 통과</td><td><span class="badge pending">미착수</span></td></tr>
+          <tr><td>M7 오픈 및 종료 보고</td><td>2026-09-18</td><td>파일럿 검증, 매뉴얼 배포, 완료보고</td><td><span class="badge pending">미착수</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const weeks = [
+      ["W1", "06/22"], ["W2", "06/29"], ["W3", "07/06"], ["W4", "07/13"],
+      ["W5", "07/20"], ["W6", "07/27"], ["W7", "08/03"], ["W8", "08/10"],
+      ["W9", "08/17"], ["W10", "08/24"], ["W11", "08/31"], ["W12", "09/07"],
+      ["W13", "09/14"]
+    ];
+
+    const tasks = [
+      {
+        id: "1.0", name: "계획", startWeek: 1, span: 2, status: "complete",
+        dates: "2026-06-22 ~ 2026-07-03",
+        children: [
+          ["1.1", "프로젝트계획서 작성", 1, 1, "complete", ["목표/범위 정의", "R&R 정의"]],
+          ["1.2", "WBS 작성 및 일정 수립", 2, 1, "complete", ["태스크 분해", "HTML 간트차트 수립"]]
+        ]
+      },
+      {
+        id: "2.0", name: "아키텍처 및 요구정의", startWeek: 3, span: 2, status: "pending",
+        dates: "2026-07-06 ~ 2026-07-17",
+        children: [
+          ["2.1", "시스템아키텍처정의서 작성", 3, 1, "pending", ["인프라 구조 설계", "GraphRAG 연동 구성"]],
+          ["2.2", "요구사항정의서 작성", 4, 1, "pending", ["챗봇 기능 정의", "관리자 화면 요구사항"]]
+        ]
+      },
+      {
+        id: "3.0", name: "분석 및 설계", startWeek: 5, span: 2, status: "pending",
+        dates: "2026-07-20 ~ 2026-07-31",
+        children: [
+          ["3.1", "탄소중립 도메인정의서 작성", 5, 1, "pending", ["Entity 추출 설계", "Graph Relation 설계"]],
+          ["3.2", "API 명세서 설계", 6, 1, "pending", ["Front-Office 챗봇 연동 API", "Back-Office 관리자 API"]],
+          ["3.3", "논리/물리 DB ERD 설계", 6, 1, "pending", ["벡터 스토어(pgvector)", "그래프 스토어 구조"]]
+        ]
+      },
+      {
+        id: "4.0", name: "구현", startWeek: 7, span: 5, status: "pending",
+        dates: "2026-08-03 ~ 2026-09-04",
+        children: [
+          ["4.1", "[AI] 탄소중립 SchemaRegistry 커스텀", 7, 1, "pending", ["Entity/Relation 스키마 확장", "파서 연동"]],
+          ["4.2", "[AI] Document Pipeline 고도화", 8, 2, "pending", ["PDF 파서 구현", "텍스트 정규화 보완"]],
+          ["4.3", "[BE] 챗봇 질의응답 API/세션 구현", 8, 2, "pending", ["FastAPI 연동", "대화이력 저장 로직"]],
+          ["4.4", "[BE] 관리자 API(인덱싱/로그) 구현", 9, 2, "pending", ["지식 등록 API", "프롬프트 관리 API"]],
+          ["4.5", "[FE] 챗봇 위젯 UI 연동", 10, 2, "pending", ["KT Net Zero 사이트 연동", "위젯 통신"]],
+          ["4.6", "[FE] 관리자 지식/테스트 화면 구현", 10, 2, "pending", ["문서 업로드 뷰", "테스트 챗봇 화면"]]
+        ]
+      },
+      {
+        id: "5.0", name: "테스트 및 이행", startWeek: 12, span: 2, status: "pending",
+        dates: "2026-09-07 ~ 2026-09-18",
+        children: [
+          ["5.1", "단위/통합 테스트 수행", 12, 1, "pending", ["할루시네이션 방지 테스트", "성능 테스트"]],
+          ["5.2", "매뉴얼(사용자/운영자) 작성", 12, 1, "pending", ["사용자 가이드", "운영 모니터링 가이드"]],
+          ["5.3", "파일럿 검증 및 모니터링", 13, 1, "pending", ["실환경 테스트", "사용자 피드백 수집"]],
+          ["5.4", "최종 산출물 정리 및 종료보고", 13, 1, "pending", ["최종 검토", "완료보고서 작성"]]
+        ]
+      }
+    ];
+
+    const expanded = new Set();
+    const chart = document.getElementById("chart");
+
+    function statusLabel(status) {
+      if (status === "complete") return "완료";
+      if (status === "next") return "진행중";
+      if (status === "hold") return "보류";
+      return "미착수";
+    }
+
+    function makeCell(className, html) {
+      const cell = document.createElement("div");
+      cell.className = className;
+      cell.innerHTML = html || "";
+      return cell;
+    }
+
+    function addHeader() {
+      chart.appendChild(makeCell("cell head label", "WBS 단계"));
+      weeks.forEach(([week, date]) => {
+        chart.appendChild(makeCell("cell head", `${week}<br>${date}`));
+      });
+    }
+
+    function addBarCells(task, level) {
+      const start = task.startWeek;
+      const span = task.span || 1;
+      for (let week = 1; week <= weeks.length; week += 1) {
+        if (week < start || week >= start + span) {
+          chart.appendChild(makeCell("cell", ""));
+        } else if (week === start) {
+          const barClass = level === 1 ? task.status : level === 2 ? "level2" : "level3";
+          chart.appendChild(makeCell(
+            "cell bar-cell",
+            `<div class="bar ${barClass}">${level === 1 ? statusLabel(task.status) : task.id}</div>`
+          ));
+          if (span > 1) {
+            chart.lastChild.style.gridColumn = `span ${span}`;
+            week += span - 1;
+          }
+        }
+      }
+    }
+
+    function addRow(task, level, parentId) {
+      const rowClass = `level-${level}`;
+      const hasChildren = task.children && task.children.length > 0;
+      const isOpen = expanded.has(task.id);
+      const toggle = hasChildren ? (isOpen ? "−" : "+") : "";
+      const badge = `<span class="badge ${task.status}">${statusLabel(task.status)}</span>`;
+      const label = makeCell(`cell label ${rowClass}`, `
+        <button type="button" class="task-button" data-task-id="${task.id}" ${hasChildren ? "" : "disabled"}>
+          <span class="toggle">${toggle}</span>
+          <span class="task-title">
+            <strong>${task.id} ${task.name}</strong>
+            <small>${task.dates || ""}</small>
+          </span>
+          ${badge}
+        </button>
+      `);
+      if (parentId) label.dataset.parentId = parentId;
+      chart.appendChild(label);
+      addBarCells(task, level);
+    }
+
+    function normalizeChild(parent, child) {
+      return {
+        id: child[0],
+        name: child[1],
+        startWeek: child[2],
+        span: child[3],
+        status: child[4],
+        dates: parent.dates,
+        children: child[5].map((name, index) => ({
+          id: `${child[0]}.${index + 1}`,
+          name,
+          startWeek: child[2],
+          span: child[3],
+          status: child[4],
+          dates: "세부 산출물 / 확인 항목"
+        }))
+      };
+    }
+
+    function render() {
+      chart.innerHTML = "";
+      addHeader();
+      tasks.forEach((task) => {
+        addRow(task, 1);
+        if (expanded.has(task.id)) {
+          task.children.map((child) => normalizeChild(task, child)).forEach((child) => {
+            addRow(child, 2, task.id);
+            if (expanded.has(child.id)) {
+              child.children.forEach((grandChild) => addRow(grandChild, 3, child.id));
+            }
+          });
+        }
+      });
+    }
+
+    chart.addEventListener("click", (event) => {
+      const button = event.target.closest(".task-button");
+      if (!button || button.disabled) return;
+      const id = button.dataset.taskId;
+      if (expanded.has(id)) expanded.delete(id);
+      else expanded.add(id);
+      render();
+    });
+
+    document.getElementById("expandAll").addEventListener("click", () => {
+      tasks.forEach((task) => {
+        expanded.add(task.id);
+        task.children.forEach((child) => expanded.add(child[0]));
+      });
+      render();
+    });
+
+    document.getElementById("collapseAll").addEventListener("click", () => {
+      expanded.clear();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

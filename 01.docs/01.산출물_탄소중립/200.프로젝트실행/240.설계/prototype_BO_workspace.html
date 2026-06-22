@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사내 지식 챗봇 플랫폼 - Workspace 관리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', 'Noto Sans KR', sans-serif; background: #F5F6FA; color: #1d1d1d; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #fff; border-bottom: 1px solid #ebebeb; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 72px; height: 24px; background: #031B4B; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    .header-title { font-size: 15px; font-weight: 600; color: #1d1d1d; }
+    .header-right { display: flex; align-items: center; gap: 16px; font-size: 14px; color: #4d4d4d; }
+    .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #3069B3; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; }
+    
+    .layout { display: flex; margin-top: 56px; min-height: calc(100vh - 56px - 52px); }
+    
+    .lnb { width: 240px; min-width: 240px; background: #031B4B; padding: 20px 0; display: flex; flex-direction: column; }
+    .lnb-group { margin-bottom: 4px; }
+    .lnb-group-title { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; font-size: 14px; font-weight: 600; color: #C7DFF4; cursor: pointer; user-select: none; }
+    .lnb-group-title:hover { background: rgba(255,255,255,0.08); }
+    .lnb-sub { display: flex; flex-direction: column; }
+    .lnb-item { padding: 10px 20px 10px 44px; font-size: 13px; color: #b3c8e0; cursor: pointer; text-decoration: none; display: block; transition: background 0.12s; }
+    .lnb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .lnb-item.active { background: #3069B3; color: #fff; font-weight: 600; }
+    
+    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .breadcrumb { padding: 16px 32px 0; font-size: 12px; color: #808080; display: flex; align-items: center; gap: 4px; }
+    .breadcrumb span { color: #3069B3; }
+    .page-header { padding: 12px 32px 0; font-size: 24px; font-weight: 700; color: #1d1d1d; }
+    .inner { padding: 24px 32px; flex: 1; }
+    .footer { background: #fff; border-top: 1px solid #ebebeb; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #b3b3b3; }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 8px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-label { font-size: 12px; color: #808080; }
+    .input-field {
+      height: 40px; border: 1px solid #cccccc; border-radius: 6px; padding: 0 12px; font-size: 14px; outline: none; font-family: inherit; width: 240px;
+    }
+    .input-field:focus { border-color: #3069B3; }
+    .filter-spacer { flex: 1; }
+    .btn-primary { height: 40px; padding: 0 20px; background: #031B4B; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; font-family: inherit; }
+    .btn-primary:hover { background: #03428E; }
+    
+    /* Table area */
+    .table-area { background: #fff; border: 1px solid #ebebeb; border-radius: 8px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #4d4d4d; background: #f8f8f8; border-bottom: 1px solid #ebebeb; white-space: nowrap; }
+    tbody td { padding: 12px 16px; font-size: 13px; color: #333; border-bottom: 1px solid #ebebeb; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #F5F6FA; }
+    
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .badge.active { background: #e6f7f6; color: #119891; }
+    .badge.inactive { background: #f2f2f2; color: #808080; }
+    
+    .btn-table { height: 32px; padding: 0 12px; background: #fff; color: #333; border: 1px solid #cccccc; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: inherit; }
+    .btn-table.primary { color: #3069B3; border-color: #3069B3; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-icon">AI Platform</div>
+      <select style="border:none; outline:none; font-size:15px; font-weight:600; color:#1d1d1d; cursor:pointer; background:transparent;">
+        <option>모든 워크스페이스 관리 (System Admin)</option>
+      </select>
+    </div>
+    <div class="header-right">
+      <span style="background:#EEF4FF; color:#3069B3; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">System Admin</span>|
+      <div style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <div class="user-avatar">홍</div>
+        <span style="font-size:14px;font-weight:600;">홍길*(hong***)님 ∨</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- LNB -->
+    <nav class="lnb">
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>📊</span>대시보드</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>🏢</span>Workspace 관리</span><span>∧</span></div>
+        <div class="lnb-sub">
+          <a class="lnb-item active" href="#">프로젝트 목록</a>
+          <a class="lnb-item" href="#">공통 환경 설정</a>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>📁</span>지식 관리</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>💬</span>테스트/프롬프트</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span><span>⚙️</span>권한 관리</span><span>∨</span></div>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="breadcrumb">
+        <a href="#">🏠</a> › <a href="#">Workspace 관리</a> › <span>프로젝트 목록</span>
+      </div>
+      <div class="page-header">Workspace(프로젝트) 관리</div>
+
+      <div class="inner">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">프로젝트 이름 검색</span>
+            <input type="text" class="input-field" placeholder="검색어 입력">
+          </div>
+          <div class="filter-spacer"></div>
+          <button class="btn-primary">+ 신규 Workspace 생성</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-area">
+          <table>
+            <thead>
+              <tr>
+                <th>NO</th>
+                <th>Workspace ID</th>
+                <th>프로젝트 명칭</th>
+                <th>상태</th>
+                <th>할당된 관리자 수</th>
+                <th>지식 문서 수</th>
+                <th>생성일</th>
+                <th>설정</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>3</td>
+                <td><strong>ws_netzero</strong></td>
+                <td>탄소중립플랫폼 (NETZERO)</td>
+                <td><span class="badge active">활성</span></td>
+                <td>5 명</td>
+                <td>87 건</td>
+                <td>2026-05-10</td>
+                <td><button class="btn-table primary">관리</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>ws_dppa</strong></td>
+                <td>DPPA 정산플랫폼 (DPPA)</td>
+                <td><span class="badge active">활성</span></td>
+                <td>2 명</td>
+                <td>12 건</td>
+                <td>2026-06-01</td>
+                <td><button class="btn-table primary">관리</button></td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td><strong>ws_kads</strong></td>
+                <td>K-Ads 운영 (KADS)</td>
+                <td><span class="badge inactive">비활성</span></td>
+                <td>1 명</td>
+                <td>0 건</td>
+                <td>2026-06-20</td>
+                <td><button class="btn-table primary">관리</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">Copyright © 2025 KICOX corp. All rights reserved.</footer>
+</body>
+</html>

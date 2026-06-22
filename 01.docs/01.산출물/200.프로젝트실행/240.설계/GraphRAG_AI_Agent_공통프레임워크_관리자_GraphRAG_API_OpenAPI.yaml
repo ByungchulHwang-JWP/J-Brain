@@ -1,0 +1,1496 @@
+openapi: 3.0.3
+info:
+  title: GraphRAG AI Agent Admin and GraphRAG API
+  version: 0.1.0
+  description: |
+    GraphRAG AI Agent 공통 프레임워크의 관리자 및 GraphRAG API OpenAPI 명세이다.
+    Source 관리, IndexJob 실행/상태조회, GraphRAG 검색 테스트, Agent 실행 API를 포함한다.
+  contact:
+    name: GraphRAG AI Agent Framework Team
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.example.com
+    description: Deployment placeholder
+tags:
+  - name: Sources
+    description: 관리자 Source 등록/조회/수정/삭제/Preview API
+  - name: IndexJobs
+    description: 관리자 IndexJob 생성/실행/상태조회/재시도/취소 API
+  - name: RetrievalTests
+    description: 관리자 GraphRAG 검색 테스트 API
+  - name: AgentRuns
+    description: Agent 실행 및 결과 조회 API
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/admin/graphrag/sources:
+    get:
+      tags: [Sources]
+      summary: Source 목록조회
+      operationId: listSources
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/DomainCodeQuery'
+        - name: source_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/SourceType'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/SourceStatus'
+        - name: keyword
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/SizeQuery'
+        - $ref: '#/components/parameters/SortQuery'
+      responses:
+        '200':
+          description: Source 목록조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SourceSummary'
+                      meta:
+                        $ref: '#/components/schemas/PageMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Sources]
+      summary: Source 등록
+      operationId: createSource
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSourceRequest'
+      responses:
+        '201':
+          description: Source 등록 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CreateSourceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admin/graphrag/sources/{source_id}:
+    get:
+      tags: [Sources]
+      summary: Source 상세조회
+      operationId: getSource
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/SourceIdPath'
+      responses:
+        '200':
+          description: Source 상세조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SourceDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Sources]
+      summary: Source 수정
+      operationId: updateSource
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/SourceIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSourceRequest'
+      responses:
+        '200':
+          description: Source 수정 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SourceDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '423':
+          $ref: '#/components/responses/Locked'
+    delete:
+      tags: [Sources]
+      summary: Source 삭제 또는 비활성화
+      operationId: deleteSource
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/SourceIdPath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteSourceRequest'
+      responses:
+        '200':
+          description: Source 삭제 또는 비활성화 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DeleteSourceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '423':
+          $ref: '#/components/responses/Locked'
+
+  /api/admin/graphrag/sources/{source_id}/preview:
+    get:
+      tags: [Sources]
+      summary: Source Preview 조회
+      operationId: previewSource
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/SourceIdPath'
+        - name: document_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: result_type
+          in: query
+          schema:
+            type: string
+            enum: [CHUNK, ENTITY, RELATION, EVIDENCE]
+        - name: keyword
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/SizeQuery'
+      responses:
+        '200':
+          description: Source Preview 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SourcePreview'
+                      meta:
+                        $ref: '#/components/schemas/PageMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/graphrag/index-jobs:
+    get:
+      tags: [IndexJobs]
+      summary: IndexJob 목록조회
+      operationId: listIndexJobs
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/DomainCodeQuery'
+        - name: source_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: job_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/IndexJobType'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/IndexJobStatus'
+        - $ref: '#/components/parameters/PageQuery'
+        - $ref: '#/components/parameters/SizeQuery'
+      responses:
+        '200':
+          description: IndexJob 목록조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/IndexJobSummary'
+                      meta:
+                        $ref: '#/components/schemas/PageMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [IndexJobs]
+      summary: IndexJob 생성
+      operationId: createIndexJob
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIndexJobRequest'
+      responses:
+        '201':
+          description: IndexJob 생성 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CreateIndexJobResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admin/graphrag/index-jobs/{job_id}:
+    get:
+      tags: [IndexJobs]
+      summary: IndexJob 상태조회
+      operationId: getIndexJob
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/JobIdPath'
+      responses:
+        '200':
+          description: IndexJob 상태조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/IndexJobDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/graphrag/index-jobs/{job_id}/run:
+    post:
+      tags: [IndexJobs]
+      summary: IndexJob 실행
+      operationId: runIndexJob
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/JobIdPath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunIndexJobRequest'
+      responses:
+        '202':
+          description: IndexJob 실행 요청 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RunIndexJobResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admin/graphrag/index-jobs/{job_id}/retry:
+    post:
+      tags: [IndexJobs]
+      summary: IndexJob 재시도
+      operationId: retryIndexJob
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/JobIdPath'
+      responses:
+        '202':
+          description: IndexJob 재시도 요청 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/IndexJobActionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '423':
+          $ref: '#/components/responses/Locked'
+
+  /api/admin/graphrag/index-jobs/{job_id}/cancel:
+    post:
+      tags: [IndexJobs]
+      summary: IndexJob 취소
+      operationId: cancelIndexJob
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/JobIdPath'
+      responses:
+        '202':
+          description: IndexJob 취소 요청 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/IndexJobActionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '423':
+          $ref: '#/components/responses/Locked'
+
+  /api/admin/graphrag/retrieval-tests:
+    post:
+      tags: [RetrievalTests]
+      summary: GraphRAG 검색 테스트 실행
+      operationId: runRetrievalTest
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRetrievalTestRequest'
+      responses:
+        '200':
+          description: GraphRAG 검색 테스트 실행 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RetrievalRunResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/admin/graphrag/retrieval-tests/{retrieval_run_id}:
+    get:
+      tags: [RetrievalTests]
+      summary: GraphRAG 검색 테스트 결과 조회
+      operationId: getRetrievalTest
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/RetrievalRunIdPath'
+      responses:
+        '200':
+          description: GraphRAG 검색 테스트 결과 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RetrievalRunResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/agents/{agent_id}/runs:
+    post:
+      tags: [AgentRuns]
+      summary: Agent 실행
+      operationId: runAgent
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/AgentIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunAgentRequest'
+      responses:
+        '202':
+          description: Agent 실행 요청 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RunAgentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/agents/{agent_id}/runs/{agent_run_id}:
+    get:
+      tags: [AgentRuns]
+      summary: Agent 실행 결과 조회
+      operationId: getAgentRun
+      parameters:
+        - $ref: '#/components/parameters/TenantIdHeader'
+        - $ref: '#/components/parameters/AgentIdPath'
+        - $ref: '#/components/parameters/AgentRunIdPath'
+      responses:
+        '200':
+          description: Agent 실행 결과 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AgentRunDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    TenantIdHeader:
+      name: X-Tenant-Id
+      in: header
+      required: false
+      schema:
+        type: string
+      description: 멀티 테넌트 식별자
+    DomainCodeQuery:
+      name: domain_code
+      in: query
+      required: false
+      schema:
+        type: string
+      description: 도메인 코드
+    PageQuery:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    SizeQuery:
+      name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    SortQuery:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+        example: created_at,desc
+    SourceIdPath:
+      name: source_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    JobIdPath:
+      name: job_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RetrievalRunIdPath:
+      name: retrieval_run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    AgentIdPath:
+      name: agent_id
+      in: path
+      required: true
+      schema:
+        type: string
+    AgentRunIdPath:
+      name: agent_run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: 요청값 검증 실패
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Unauthorized:
+      description: 인증 필요
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Forbidden:
+      description: 접근 권한 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    NotFound:
+      description: 리소스 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Conflict:
+      description: 중복 또는 상태 충돌
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Locked:
+      description: 현재 상태에서 수행할 수 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    InternalServerError:
+      description: 서버 또는 외부 연계 오류
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+
+  schemas:
+    ApiSuccessResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ApiErrorResponse:
+      type: object
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          $ref: '#/components/schemas/ApiError'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - GRAG-SRC-001
+            - GRAG-SRC-002
+            - GRAG-SRC-003
+            - GRAG-SRC-404
+            - GRAG-SRC-409
+            - GRAG-SRC-423
+            - GRAG-JOB-001
+            - GRAG-JOB-002
+            - GRAG-JOB-404
+            - GRAG-JOB-409
+            - GRAG-JOB-423
+            - GRAG-JOB-500
+            - GRAG-RET-001
+            - GRAG-RET-002
+            - GRAG-RET-404
+            - GRAG-RET-500
+            - GRAG-VEC-001
+            - GRAG-GPH-001
+            - GRAG-GPH-002
+            - GRAG-AGT-001
+            - GRAG-AGT-404
+            - GRAG-AGT-409
+            - GRAG-AGT-500
+            - GRAG-LLM-001
+            - GRAG-AUTH-401
+            - GRAG-AUTH-403
+            - GRAG-AUTH-404
+        message:
+          type: string
+        detail:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    ResponseMeta:
+      type: object
+      properties:
+        request_id:
+          type: string
+          example: req-20260621-0001
+        timestamp:
+          type: string
+          format: date-time
+
+    PageMeta:
+      allOf:
+        - $ref: '#/components/schemas/ResponseMeta'
+        - type: object
+          properties:
+            page:
+              type: integer
+            size:
+              type: integer
+            total_count:
+              type: integer
+            total_pages:
+              type: integer
+
+    SourceType:
+      type: string
+      enum: [FILE, URL, API, DATABASE, MANUAL, GENERATED]
+
+    SourceStatus:
+      type: string
+      enum: [REGISTERED, INDEXING, INDEXED, PARTIAL_INDEXED, FAILED, DELETED]
+
+    SourceScope:
+      type: string
+      enum: [PRIVATE, DOMAIN, PUBLIC]
+
+    IndexJobType:
+      type: string
+      enum: [FULL_INDEX, REINDEX, PARSE_ONLY, EMBED_ONLY, GRAPH_EXTRACT_ONLY, DELETE_INDEX]
+
+    IndexJobStatus:
+      type: string
+      enum: [PENDING, RUNNING, COMPLETED, FAILED, CANCELED, RETRYING, PARTIAL_COMPLETED]
+
+    RetrievalStrategy:
+      type: string
+      enum: [VECTOR_ONLY, GRAPH_ONLY, HYBRID, HYBRID_RERANK]
+
+    AgentRunStatus:
+      type: string
+      enum: [PENDING, RUNNING, COMPLETED, FAILED, CANCELED, TIMEOUT]
+
+    SourceIndexOptions:
+      type: object
+      properties:
+        chunk_size:
+          type: integer
+          minimum: 200
+          maximum: 4000
+          default: 1000
+        chunk_overlap:
+          type: integer
+          minimum: 0
+          default: 150
+        embedding_model:
+          type: string
+          example: text-embedding-3-large
+        extract_entities:
+          type: boolean
+          default: true
+        extract_relations:
+          type: boolean
+          default: true
+        link_evidence:
+          type: boolean
+          default: true
+
+    CreateSourceRequest:
+      type: object
+      required: [domain_code, source_type, title, scope]
+      properties:
+        domain_code:
+          type: string
+          example: SOLBAT
+        source_type:
+          $ref: '#/components/schemas/SourceType'
+        title:
+          type: string
+          maxLength: 300
+          example: 솔밭 투자 보고서
+        description:
+          type: string
+          nullable: true
+        scope:
+          $ref: '#/components/schemas/SourceScope'
+        uri:
+          type: string
+          nullable: true
+          example: storage://kb/sol_bat/tomato_pest_guide.pdf
+        manual_text:
+          type: string
+          nullable: true
+        metadata_json:
+          type: object
+          additionalProperties: true
+          default: {}
+        index_options:
+          $ref: '#/components/schemas/SourceIndexOptions'
+        auto_create_index_job:
+          type: boolean
+          default: false
+
+    CreateSourceResponse:
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/SourceDetail'
+        index_job_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    UpdateSourceRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 300
+        description:
+          type: string
+          nullable: true
+        scope:
+          $ref: '#/components/schemas/SourceScope'
+        metadata_json:
+          type: object
+          additionalProperties: true
+
+    DeleteSourceRequest:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [SOFT_DELETE, HARD_DELETE]
+          default: SOFT_DELETE
+        delete_vectors:
+          type: boolean
+          default: true
+        delete_graph:
+          type: boolean
+          default: true
+
+    DeleteSourceResponse:
+      type: object
+      properties:
+        source_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/SourceStatus'
+        deleted_vectors:
+          type: boolean
+        deleted_graph:
+          type: boolean
+
+    SourceSummary:
+      type: object
+      properties:
+        source_id:
+          type: string
+          format: uuid
+        domain_code:
+          type: string
+        source_type:
+          $ref: '#/components/schemas/SourceType'
+        title:
+          type: string
+        scope:
+          $ref: '#/components/schemas/SourceScope'
+        status:
+          $ref: '#/components/schemas/SourceStatus'
+        current_version:
+          type: integer
+        document_count:
+          type: integer
+        chunk_count:
+          type: integer
+        last_indexed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    SourceDetail:
+      allOf:
+        - $ref: '#/components/schemas/SourceSummary'
+        - type: object
+          properties:
+            description:
+              type: string
+              nullable: true
+            uri:
+              type: string
+              nullable: true
+            checksum:
+              type: string
+              nullable: true
+            metadata_json:
+              type: object
+              additionalProperties: true
+            counts:
+              $ref: '#/components/schemas/SourceCounts'
+            updated_at:
+              type: string
+              format: date-time
+              nullable: true
+
+    SourceCounts:
+      type: object
+      properties:
+        documents:
+          type: integer
+        chunks:
+          type: integer
+        embeddings:
+          type: integer
+        entities:
+          type: integer
+        relations:
+          type: integer
+        evidence:
+          type: integer
+
+    SourcePreview:
+      type: object
+      properties:
+        source_id:
+          type: string
+          format: uuid
+        chunks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChunkPreview'
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityPreview'
+        relations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationPreview'
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidencePreview'
+
+    ChunkPreview:
+      type: object
+      properties:
+        chunk_id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+        chunk_index:
+          type: integer
+        content:
+          type: string
+        token_count:
+          type: integer
+        metadata_json:
+          type: object
+          additionalProperties: true
+
+    EntityPreview:
+      type: object
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+        entity_name:
+          type: string
+        normalized_name:
+          type: string
+        entity_type:
+          type: string
+        confidence:
+          type: number
+          format: float
+
+    RelationPreview:
+      type: object
+      properties:
+        relation_id:
+          type: string
+          format: uuid
+        source_entity_id:
+          type: string
+          format: uuid
+        target_entity_id:
+          type: string
+          format: uuid
+        relation_type:
+          type: string
+        confidence:
+          type: number
+          format: float
+
+    EvidencePreview:
+      type: object
+      properties:
+        evidence_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+          nullable: true
+        chunk_id:
+          type: string
+          format: uuid
+          nullable: true
+        evidence_type:
+          type: string
+        quote_text:
+          type: string
+        confidence:
+          type: number
+          format: float
+
+    CreateIndexJobRequest:
+      type: object
+      required: [source_id, job_type]
+      properties:
+        source_id:
+          type: string
+          format: uuid
+        job_type:
+          $ref: '#/components/schemas/IndexJobType'
+        priority:
+          type: string
+          enum: [LOW, NORMAL, HIGH]
+          default: NORMAL
+        index_options:
+          $ref: '#/components/schemas/SourceIndexOptions'
+        force_rebuild:
+          type: boolean
+          default: false
+        dry_run:
+          type: boolean
+          default: false
+
+    CreateIndexJobResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/IndexJobStatus'
+        run_uri:
+          type: string
+
+    RunIndexJobRequest:
+      type: object
+      properties:
+        worker_group:
+          type: string
+          nullable: true
+        run_async:
+          type: boolean
+          default: true
+
+    RunIndexJobResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/IndexJobStatus'
+        monitor_uri:
+          type: string
+
+    IndexJobActionResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/IndexJobStatus'
+        monitor_uri:
+          type: string
+
+    IndexJobSummary:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        source_id:
+          type: string
+          format: uuid
+        source_title:
+          type: string
+        domain_code:
+          type: string
+        job_type:
+          $ref: '#/components/schemas/IndexJobType'
+        status:
+          $ref: '#/components/schemas/IndexJobStatus'
+        progress_ratio:
+          type: number
+          format: float
+        total_count:
+          type: integer
+        processed_count:
+          type: integer
+        failed_count:
+          type: integer
+        requested_by:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    IndexJobDetail:
+      allOf:
+        - $ref: '#/components/schemas/IndexJobSummary'
+        - type: object
+          properties:
+            step_status:
+              type: array
+              items:
+                $ref: '#/components/schemas/IndexJobStep'
+            logs:
+              type: array
+              items:
+                $ref: '#/components/schemas/IndexJobLog'
+            error_code:
+              type: string
+              nullable: true
+            error_message:
+              type: string
+              nullable: true
+
+    IndexJobStep:
+      type: object
+      properties:
+        step_name:
+          type: string
+          enum: [PARSE_DOCUMENT, CHUNKING, EMBEDDING, ENTITY_EXTRACTION, RELATION_EXTRACTION, EVIDENCE_LINKING, CLEANUP]
+        status:
+          $ref: '#/components/schemas/IndexJobStatus'
+        total_count:
+          type: integer
+        processed_count:
+          type: integer
+        failed_count:
+          type: integer
+
+    IndexJobLog:
+      type: object
+      properties:
+        logged_at:
+          type: string
+          format: date-time
+        level:
+          type: string
+          enum: [INFO, WARN, ERROR]
+        message:
+          type: string
+        detail:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    RunRetrievalTestRequest:
+      type: object
+      required: [query, domain_code, strategy]
+      properties:
+        query:
+          type: string
+          example: 솔밭 투자 보고서에서 핵심 위험 요소를 알려줘
+        domain_code:
+          type: string
+          example: SOLBAT
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        strategy:
+          $ref: '#/components/schemas/RetrievalStrategy'
+        top_k:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 10
+        graph_depth:
+          type: integer
+          minimum: 0
+          maximum: 5
+          default: 2
+        min_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          default: 0
+        include_evidence:
+          type: boolean
+          default: true
+        include_graph_context:
+          type: boolean
+          default: true
+        filters:
+          type: object
+          additionalProperties: true
+          default: {}
+
+    RetrievalRunResult:
+      type: object
+      properties:
+        retrieval_run_id:
+          type: string
+          format: uuid
+        query:
+          type: string
+        domain_code:
+          type: string
+        strategy:
+          $ref: '#/components/schemas/RetrievalStrategy'
+        status:
+          type: string
+          enum: [HIT, MISS, PARTIAL_HIT, FILTERED_OUT, FALLBACK_USED, FAILED]
+        hit_count:
+          type: integer
+        elapsed_ms:
+          type: integer
+        fallback_used:
+          type: boolean
+        context_summary:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievalResult'
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidencePreview'
+        graph_paths:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphPath'
+        raw_context:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    RetrievalResult:
+      type: object
+      properties:
+        result_id:
+          type: string
+          format: uuid
+        result_type:
+          type: string
+          enum: [CHUNK, ENTITY, RELATION, EVIDENCE]
+        source_id:
+          type: string
+          format: uuid
+        source_title:
+          type: string
+        chunk_id:
+          type: string
+          format: uuid
+          nullable: true
+        entity_id:
+          type: string
+          format: uuid
+          nullable: true
+        relation_id:
+          type: string
+          format: uuid
+          nullable: true
+        score:
+          type: number
+          format: float
+        snippet:
+          type: string
+        metadata_json:
+          type: object
+          additionalProperties: true
+
+    GraphPath:
+      type: object
+      properties:
+        path_id:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        score:
+          type: number
+          format: float
+
+    GraphNode:
+      type: object
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        entity_type:
+          type: string
+
+    GraphEdge:
+      type: object
+      properties:
+        relation_id:
+          type: string
+          format: uuid
+        source_entity_id:
+          type: string
+          format: uuid
+        target_entity_id:
+          type: string
+          format: uuid
+        relation_type:
+          type: string
+        confidence:
+          type: number
+          format: float
+
+    RunAgentRequest:
+      type: object
+      required: [input_text]
+      properties:
+        input_text:
+          type: string
+          example: 이 보고서를 바탕으로 투자 위험 요인을 요약해줘
+        domain_code:
+          type: string
+          nullable: true
+        source_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        workflow_id:
+          type: string
+          nullable: true
+        retrieval_options:
+          $ref: '#/components/schemas/RunRetrievalTestRequest'
+        run_options:
+          type: object
+          additionalProperties: true
+          default: {}
+
+    RunAgentResponse:
+      type: object
+      properties:
+        agent_run_id:
+          type: string
+          format: uuid
+        agent_id:
+          type: string
+        status:
+          $ref: '#/components/schemas/AgentRunStatus'
+        monitor_uri:
+          type: string
+
+    AgentRunDetail:
+      type: object
+      properties:
+        agent_run_id:
+          type: string
+          format: uuid
+        agent_id:
+          type: string
+        workflow_id:
+          type: string
+          nullable: true
+        requester_id:
+          type: string
+        status:
+          $ref: '#/components/schemas/AgentRunStatus'
+        input_text:
+          type: string
+        final_output:
+          type: string
+          nullable: true
+        retrieval_run_id:
+          type: string
+          format: uuid
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        error_code:
+          type: string
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        metadata_json:
+          type: object
+          additionalProperties: true

@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: GraphRAG Admin API VectorMoon UX Supplement
+  version: 0.2.0
+  description: Source, IndexJob, Preview, RetrievalTest APIs for the admin MVP supplement.
+servers:
+  - url: http://localhost:8000
+paths:
+  /api/admin/sources:
+    get:
+      summary: List sources
+      responses:
+        "200":
+          description: Source list
+    post:
+      summary: Create source
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SourceCreateRequest"
+      responses:
+        "200":
+          description: Created source
+  /api/admin/sources/{source_id}:
+    get:
+      summary: Get source
+      parameters:
+        - $ref: "#/components/parameters/SourceId"
+      responses:
+        "200":
+          description: Source detail
+    delete:
+      summary: Delete source
+      parameters:
+        - $ref: "#/components/parameters/SourceId"
+      responses:
+        "200":
+          description: Deleted source
+  /api/admin/sources/{source_id}/preview:
+    get:
+      summary: Preview indexed source data
+      parameters:
+        - $ref: "#/components/parameters/SourceId"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Chunk, entity, relation, and evidence preview
+  /api/admin/index-jobs:
+    get:
+      summary: List index jobs
+      responses:
+        "200":
+          description: Job list
+    post:
+      summary: Create index job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IndexJobRequest"
+      responses:
+        "200":
+          description: Created job
+  /api/admin/index-jobs/{job_id}:
+    get:
+      summary: Get index job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Job detail
+  /api/admin/index-jobs/{job_id}/run:
+    post:
+      summary: Run index job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Job execution result
+  /api/admin/index-jobs/{job_id}/retry:
+    post:
+      summary: Retry index job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Retry result
+  /api/admin/retrieval-tests:
+    post:
+      summary: Run GraphRAG retrieval test
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GraphRAGSearchTestRequest"
+      responses:
+        "200":
+          description: Retrieval test result
+components:
+  parameters:
+    SourceId:
+      name: source_id
+      in: path
+      required: true
+      schema:
+        type: string
+    JobId:
+      name: job_id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    SourceCreateRequest:
+      type: object
+      required: [domain, source_type, name, content]
+      properties:
+        domain:
+          type: string
+        source_type:
+          type: string
+          enum: [TEXT, MARKDOWN, JSON, CSV, FILE, URL, API]
+        name:
+          type: string
+        content:
+          type: string
+        metadata:
+          type: object
+        scope:
+          type: string
+          enum: [GLOBAL, DOMAIN, TENANT, USER]
+        tags:
+          type: array
+          items:
+            type: string
+        tenant_id:
+          type: string
+        user_id:
+          type: string
+        auto_run_index:
+          type: boolean
+    IndexJobRequest:
+      type: object
+      required: [source_id]
+      properties:
+        source_id:
+          type: string
+        job_type:
+          type: string
+          default: INDEX
+        options:
+          type: object
+    GraphRAGSearchTestRequest:
+      type: object
+      required: [domain, query]
+      properties:
+        domain:
+          type: string
+        query:
+          type: string
+        top_k:
+          type: integer
+          default: 5
+        strategy:
+          type: string
+          enum: [VECTOR_ONLY, GRAPH_ONLY, HYBRID, HYBRID_RERANK]
+        filters:
+          type: object
+        vector_weight:
+          type: number
+          default: 0.6
+        graph_weight:
+          type: number
+          default: 0.4
+        include_evidence:
+          type: boolean
+          default: true

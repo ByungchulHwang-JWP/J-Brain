@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사내 지식 챗봇 플랫폼 - 테스트 및 프롬프트 관리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', 'Noto Sans KR', sans-serif; background: #F5F6FA; color: #1d1d1d; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ===== HEADER ===== */
+    .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #fff; border-bottom: 1px solid #ebebeb; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 72px; height: 24px; background: #031B4B; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    .header-title { font-size: 15px; font-weight: 600; color: #1d1d1d; }
+    .header-right { display: flex; align-items: center; gap: 16px; font-size: 14px; color: #4d4d4d; }
+    .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #3069B3; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; }
+
+    /* ===== LAYOUT ===== */
+    .layout { display: flex; margin-top: 56px; min-height: calc(100vh - 56px - 52px); }
+
+    /* ===== LNB ===== */
+    .lnb { width: 240px; min-width: 240px; background: #031B4B; padding: 20px 0; display: flex; flex-direction: column; }
+    .lnb-group { margin-bottom: 4px; }
+    .lnb-group-title { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; font-size: 14px; font-weight: 600; color: #C7DFF4; cursor: pointer; }
+    .lnb-group-title:hover { background: rgba(255,255,255,0.08); }
+    .lnb-sub { display: flex; flex-direction: column; }
+    .lnb-item { padding: 10px 20px 10px 44px; font-size: 13px; color: #b3c8e0; cursor: pointer; text-decoration: none; display: block; }
+    .lnb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .lnb-item.active { background: #3069B3; color: #fff; font-weight: 600; }
+
+    /* ===== CONTENT ===== */
+    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .breadcrumb { padding: 16px 32px 0; font-size: 12px; color: #808080; display: flex; align-items: center; gap: 4px; }
+    .breadcrumb span { color: #3069B3; }
+    .page-header { padding: 12px 32px 0; font-size: 24px; font-weight: 700; color: #1d1d1d; }
+    .inner { padding: 24px 32px; flex: 1; display: flex; flex-direction: column; gap: 0; }
+    .footer { background: #fff; border-top: 1px solid #ebebeb; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #b3b3b3; }
+
+    /* ===== SPLIT PANEL ===== */
+    .split-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+    }
+
+    /* ===== LEFT: PROMPT EDITOR ===== */
+    .panel-card {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #ebebeb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title { font-size: 15px; font-weight: 700; color: #1d1d1d; display: flex; align-items: center; gap: 8px; }
+    .panel-desc { font-size: 12px; color: #808080; margin-top: 3px; }
+    .panel-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* Prompt version tabs */
+    .version-tabs { display: flex; gap: 8px; }
+    .version-tab { padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid #ebebeb; color: #808080; background: #fff; }
+    .version-tab.active { background: #031B4B; color: #fff; border-color: #031B4B; }
+
+    /* Prompt textarea */
+    .prompt-label { font-size: 12px; color: #4d4d4d; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+    .prompt-char { font-size: 11px; color: #b3b3b3; font-weight: 400; }
+    .prompt-textarea {
+      flex: 1;
+      border: 1.5px solid #cccccc;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      color: #333;
+      line-height: 1.7;
+      resize: none;
+      font-family: 'Pretendard', monospace;
+      outline: none;
+      min-height: 280px;
+    }
+    .prompt-textarea:focus { border-color: #3069B3; }
+
+    .btn-group { display: flex; gap: 10px; }
+    .btn-primary { height: 44px; padding: 0 22px; background: #031B4B; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-primary:hover { background: #03428E; }
+    .btn-secondary { height: 44px; padding: 0 18px; background: #fff; color: #031B4B; border: 1.5px solid #031B4B; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-danger { height: 44px; padding: 0 18px; background: #fff; color: #EC193A; border: 1.5px solid #EC193A; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    /* ===== RIGHT: SANDBOX CHATBOT ===== */
+    .chat-mode-bar { display: flex; align-items: center; gap: 10px; }
+    .mode-badge { padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 700; background: #E5F9F9; color: #119891; }
+    .debug-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #808080; cursor: pointer; }
+    .toggle-switch { width: 36px; height: 20px; border-radius: 10px; background: #cccccc; position: relative; transition: background 0.2s; cursor: pointer; }
+    .toggle-switch.on { background: #3069B3; }
+    .toggle-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.2s; }
+    .toggle-switch.on .toggle-knob { left: 18px; }
+
+    .sandbox-chat { flex: 1; display: flex; flex-direction: column; }
+    .chat-messages { flex: 1; overflow-y: auto; min-height: 260px; max-height: 320px; display: flex; flex-direction: column; gap: 12px; padding: 4px 0 12px; }
+
+    .msg-row { display: flex; gap: 8px; }
+    .msg-row.user { flex-direction: row-reverse; }
+    .bot-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #3069B3, #119891); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.6; color: #1d1d1d; }
+    .msg-bubble.bot { background: #F5F6FA; border-radius: 4px 10px 10px 10px; }
+    .msg-bubble.user { background: #031B4B; color: #fff; border-radius: 10px 4px 10px 10px; }
+    .msg-time { font-size: 10px; color: #b3b3b3; margin-top: 4px; }
+    .msg-row.user .msg-time { text-align: right; }
+
+    /* Debug info panel */
+    .debug-panel {
+      background: #1d1d1d;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #2EC9D6;
+      font-family: 'Courier New', monospace;
+      line-height: 1.8;
+    }
+    .debug-panel .debug-key { color: #5ddfde; }
+    .debug-panel .debug-val { color: #fff; }
+    .debug-panel .debug-score { color: #f59e0b; }
+
+    .evidence-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .evidence-chip { display: flex; align-items: center; gap: 4px; padding: 3px 8px; background: #EEF4FF; border: 1px solid #C7DFF4; border-radius: 50px; font-size: 11px; color: #3069B3; cursor: pointer; }
+    .evidence-score { font-size: 10px; color: #119891; font-weight: 700; }
+
+    .sandbox-input-row { display: flex; gap: 8px; margin-top: 12px; }
+    .sandbox-input { flex: 1; height: 40px; border: 1.5px solid #cccccc; border-radius: 8px; padding: 0 14px; font-size: 13px; outline: none; font-family: inherit; }
+    .sandbox-input:focus { border-color: #3069B3; }
+    .sandbox-send { height: 40px; padding: 0 16px; background: #031B4B; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    /* History & stats */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+    .stat-item { background: #F5F6FA; border-radius: 6px; padding: 10px 12px; }
+    .stat-label { font-size: 11px; color: #808080; margin-bottom: 4px; }
+    .stat-val { font-size: 16px; font-weight: 700; color: #1d1d1d; }
+    .stat-unit { font-size: 11px; color: #808080; font-weight: 400; margin-left: 2px; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-icon">AI Platform</div>
+      <select style="border:none; outline:none; font-size:15px; font-weight:600; color:#1d1d1d; cursor:pointer; background:transparent;">
+        <option>탄소중립플랫폼 (NETZERO)</option>
+        <option>DPPA 정산플랫폼 (DPPA)</option>
+        <option>K-Ads 운영 (KADS)</option>
+      </select>
+    </div>
+    <div class="header-right">
+      <span style="background:#EEF4FF; color:#3069B3; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">System Admin</span>|
+      <div style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <div class="user-avatar">홍</div>
+        <span style="font-size:14px;font-weight:600;">홍길*(hong***)님 ∨</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- LNB -->
+    <nav class="lnb">
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>📊 대시보드</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>🏢 Workspace 관리</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>📁 지식 관리</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>💬 테스트/프롬프트</span><span>∧</span></div>
+        <div class="lnb-sub">
+          <a class="lnb-item active" href="#">챗봇 테스트</a>
+          <a class="lnb-item" href="#">시스템 프롬프트 관리</a>
+          <a class="lnb-item" href="#">사용 로그 조회</a>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>⚙️ 권한 관리</span><span>∨</span></div>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="breadcrumb">
+        <a href="#">🏠</a> › <a href="#">테스트/프롬프트</a> › <span>챗봇 테스트</span>
+      </div>
+      <div class="page-header">챗봇 테스트 및 프롬프트 관리</div>
+
+      <div class="inner">
+        <div class="split-panel">
+
+          <!-- LEFT: Prompt Editor -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">✏️ 시스템 프롬프트 편집기</div>
+                <div class="panel-desc">수정 후 저장 시 챗봇에 즉시 반영됩니다.</div>
+              </div>
+              <div class="version-tabs">
+                <div class="version-tab active">현재(v3)</div>
+                <div class="version-tab">이전(v2)</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <!-- Stats -->
+              <div class="stats-row">
+                <div class="stat-item">
+                  <div class="stat-label">마지막 수정</div>
+                  <div class="stat-val" style="font-size:13px;">2026-06-20</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">수정 횟수</div>
+                  <div class="stat-val">3<span class="stat-unit">회</span></div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">적용 모델</div>
+                  <div class="stat-val" style="font-size:13px;">GPT-4o</div>
+                </div>
+              </div>
+
+              <!-- Prompt textarea label -->
+              <div>
+                <div class="prompt-label">
+                  <span>프롬프트 내용 <span style="color:#EC193A;">*</span></span>
+                  <span class="prompt-char">423 / 2000자</span>
+                </div>
+                <textarea class="prompt-textarea">당신은 탄소중립 전문 AI 어시스턴트입니다.
+
+【역할】
+- KT Net Zero 플랫폼 사용자의 탄소중립 관련 질문에 답변합니다.
+- 반드시 제공된 Context(검색된 지식 문서)를 근거로만 답변합니다.
+- Context에 없는 내용은 "해당 정보를 찾을 수 없습니다"라고 응답합니다.
+
+【답변 원칙】
+1. 법령, 제도, 수치 등은 정확히 인용하세요.
+2. 답변 끝에 참고 문서명을 반드시 명시하세요.
+3. 탄소중립과 무관한 질문은 정중히 거절하세요.
+4. 한국어로 답변하되, 전문 용어는 영문 병기 가능합니다.
+
+【금지 사항】
+- 임의 추측이나 할루시네이션 금지
+- 법적 판단이나 투자 조언 금지</textarea>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="btn-group">
+                <button class="btn-primary">💾 저장 및 즉시 적용</button>
+                <button class="btn-secondary">↩ 이전 버전으로 복원</button>
+                <button class="btn-danger">초기화</button>
+              </div>
+
+              <!-- Applied notice -->
+              <div style="background:#e6f7f6;border:1px solid #2EC9D6;border-radius:6px;padding:10px 14px;font-size:12px;color:#119891;display:flex;align-items:center;gap:6px;">
+                ✅ 현재 적용 중인 프롬프트 - 마지막 저장: 2026-06-20 14:30:22
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Sandbox Chatbot -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">🧪 샌드박스 챗봇 테스트</div>
+                <div class="panel-desc">현재 프롬프트와 지식으로 답변 품질을 검증하세요.</div>
+              </div>
+              <div class="chat-mode-bar">
+                <span class="mode-badge">TEST MODE</span>
+                <div class="debug-toggle">
+                  <span>디버그</span>
+                  <div class="toggle-switch on" id="debugToggle" onclick="toggleDebug()">
+                    <div class="toggle-knob"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="sandbox-chat">
+                <div class="chat-messages" id="chatMessages">
+                  <!-- Bot welcome -->
+                  <div class="msg-row">
+                    <div class="bot-avatar">🌿</div>
+                    <div>
+                      <div class="msg-bubble bot">안녕하세요. 탄소중립 AI 어시스턴트입니다. 테스트 질문을 입력해 주세요.</div>
+                      <div class="msg-time">14:20</div>
+                    </div>
+                  </div>
+                  <!-- User message -->
+                  <div class="msg-row user">
+                    <div>
+                      <div class="msg-bubble user">배출권거래제의 할당 방식에는 어떤 것들이 있나요?</div>
+                      <div class="msg-time">14:21</div>
+                    </div>
+                  </div>
+                  <!-- Bot response with debug -->
+                  <div class="msg-row">
+                    <div class="bot-avatar">🌿</div>
+                    <div>
+                      <div class="msg-bubble bot">
+                        배출권거래제의 할당 방식은 크게 <strong>무상할당</strong>과 <strong>유상할당(경매)</strong>으로 구분됩니다. 현재 국내에서는 제3기(2021~2025) 기준 무상할당 90%, 유상할당 10%로 운영 중이며, 향후 유상할당 비율이 점차 확대될 예정입니다.
+                        <div class="evidence-chips">
+                          <div class="evidence-chip">📄 배출권거래제_운영지침 <span class="evidence-score">94%</span></div>
+                          <div class="evidence-chip">📄 탄소중립기본법_해설서 <span class="evidence-score">78%</span></div>
+                        </div>
+                      </div>
+                      <!-- Debug Panel -->
+                      <div class="debug-panel" id="debugInfo">
+                        <div><span class="debug-key">🔍 Vector Search</span></div>
+                        <div>  chunk_01_배출권거래제_p42 <span class="debug-score">score: 0.942</span></div>
+                        <div>  chunk_03_탄소중립기본법_p118 <span class="debug-score">score: 0.781</span></div>
+                        <div><span class="debug-key">🕸️ Graph Relation</span></div>
+                        <div>  배출권거래제 <span class="debug-val">—[HAS_ALLOCATION]→</span> 무상할당</div>
+                        <div>  배출권거래제 <span class="debug-val">—[HAS_ALLOCATION]→</span> 유상할당</div>
+                        <div><span class="debug-key">⚡ Response Time</span></div>
+                        <div>  <span class="debug-val">1.82s</span> | Tokens: <span class="debug-val">542</span></div>
+                      </div>
+                      <div class="msg-time">14:21</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Input -->
+                <div class="sandbox-input-row">
+                  <input type="text" class="sandbox-input" id="testInput" placeholder="테스트 질문을 입력하세요..." onkeydown="if(event.key==='Enter')sendTest()">
+                  <button class="sandbox-send" onclick="sendTest()">전송 ↑</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">Copyright © 2025 KICOX corp. All rights reserved.</footer>
+
+  <script>
+    function toggleDebug() {
+      const toggle = document.getElementById('debugToggle');
+      const debugInfo = document.getElementById('debugInfo');
+      toggle.classList.toggle('on');
+      if (debugInfo) debugInfo.style.display = toggle.classList.contains('on') ? 'block' : 'none';
+    }
+    function sendTest() {
+      const input = document.getElementById('testInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+      const container = document.getElementById('chatMessages');
+      const userDiv = document.createElement('div');
+      userDiv.className = 'msg-row user';
+      userDiv.innerHTML = `<div><div class="msg-bubble user">${msg}</div><div class="msg-time">${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2,'0')}</div></div>`;
+      container.appendChild(userDiv);
+      input.value = '';
+      container.scrollTop = container.scrollHeight;
+      setTimeout(() => {
+        const botDiv = document.createElement('div');
+        botDiv.className = 'msg-row';
+        botDiv.innerHTML = `<div class="bot-avatar">🌿</div><div><div class="msg-bubble bot">해당 질문에 대한 답변을 검색 중입니다... (실제 환경에서는 GraphRAG 파이프라인 결과가 반환됩니다.)</div><div class="msg-time">${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2,'0')}</div></div>`;
+        container.appendChild(botDiv);
+        container.scrollTop = container.scrollHeight;
+      }, 800);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy[asyncio]
+asyncpg
+psycopg2-binary
+alembic
+pgvector
+PyJWT
+python-dotenv
+langchain
+langchain-postgres
+langgraph
+pdfplumber
+pydantic-settings
+langchain-openai
+python-multipart

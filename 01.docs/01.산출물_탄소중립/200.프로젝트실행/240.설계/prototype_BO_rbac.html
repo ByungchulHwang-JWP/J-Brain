@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사내 지식 챗봇 플랫폼 - 권한 및 메뉴 관리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', 'Noto Sans KR', sans-serif; background: #F5F6FA; color: #1d1d1d; min-height: 100vh; display: flex; flex-direction: column; }
+
+    .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #fff; border-bottom: 1px solid #ebebeb; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 72px; height: 24px; background: #031B4B; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    .header-title { font-size: 15px; font-weight: 600; color: #1d1d1d; }
+    .header-right { display: flex; align-items: center; gap: 16px; font-size: 14px; color: #4d4d4d; }
+    .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #3069B3; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; }
+
+    .layout { display: flex; margin-top: 56px; min-height: calc(100vh - 56px - 52px); }
+
+    .lnb { width: 240px; min-width: 240px; background: #031B4B; padding: 20px 0; display: flex; flex-direction: column; }
+    .lnb-group { margin-bottom: 4px; }
+    .lnb-group-title { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; font-size: 14px; font-weight: 600; color: #C7DFF4; cursor: pointer; }
+    .lnb-group-title:hover { background: rgba(255,255,255,0.08); }
+    .lnb-sub { display: flex; flex-direction: column; }
+    .lnb-item { padding: 10px 20px 10px 44px; font-size: 13px; color: #b3c8e0; cursor: pointer; text-decoration: none; display: block; }
+    .lnb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .lnb-item.active { background: #3069B3; color: #fff; font-weight: 600; }
+
+    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .breadcrumb { padding: 16px 32px 0; font-size: 12px; color: #808080; display: flex; align-items: center; gap: 4px; }
+    .breadcrumb span { color: #3069B3; }
+    .page-header { padding: 12px 32px 0; font-size: 24px; font-weight: 700; color: #1d1d1d; }
+    .inner { padding: 24px 32px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+    .footer { background: #fff; border-top: 1px solid #ebebeb; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #b3b3b3; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 2px solid #ebebeb; }
+    .tab { padding: 12px 24px; font-size: 15px; font-weight: 600; color: #808080; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .tab.active { color: #031B4B; border-bottom-color: #031B4B; }
+
+    /* Tab content */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Panel */
+    .panel-card { background: #fff; border: 1px solid #ebebeb; border-radius: 8px; overflow: hidden; }
+    .panel-header { padding: 16px 24px; border-bottom: 1px solid #ebebeb; display: flex; align-items: center; justify-content: space-between; }
+    .panel-title { font-size: 15px; font-weight: 700; color: #1d1d1d; }
+
+    /* Search & filter */
+    .filter-row { display: flex; align-items: flex-end; gap: 12px; padding: 16px 24px; border-bottom: 1px solid #ebebeb; background: #fafafa; flex-wrap: wrap; }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; }
+    .filter-label { font-size: 12px; color: #808080; }
+    select, .input-field { height: 40px; border: 1px solid #cccccc; border-radius: 6px; padding: 0 12px; font-size: 14px; color: #333; outline: none; font-family: inherit; }
+    select:focus, .input-field:focus { border-color: #3069B3; }
+    .search-wrapper { display: flex; }
+    .search-input { height: 40px; border: 1px solid #cccccc; border-right: none; border-radius: 6px 0 0 6px; padding: 0 14px; font-size: 14px; width: 200px; outline: none; font-family: inherit; }
+    .search-btn { height: 40px; width: 40px; background: #031B4B; border: none; border-radius: 0 6px 6px 0; cursor: pointer; color: #fff; font-size: 16px; }
+
+    /* Buttons */
+    .btn-primary { height: 44px; padding: 0 20px; background: #031B4B; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-primary:hover { background: #03428E; }
+    .btn-secondary { height: 44px; padding: 0 18px; background: #fff; color: #031B4B; border: 1.5px solid #031B4B; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-table { height: 32px; padding: 0 12px; background: #fff; color: #333; border: 1px solid #cccccc; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: inherit; }
+    .btn-table.primary { color: #3069B3; border-color: #3069B3; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #4d4d4d; background: #f8f8f8; border-bottom: 1px solid #ebebeb; white-space: nowrap; }
+    tbody td { padding: 12px 16px; font-size: 13px; color: #333; border-bottom: 1px solid #ebebeb; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #F5F6FA; }
+
+    /* Badge */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; }
+    .badge.admin { background: #031B4B; color: #C7DFF4; }
+    .badge.employee { background: #E5F9F9; color: #119891; }
+    .badge.pending { background: #FFF8E1; color: #f59e0b; }
+
+    /* Role select in table */
+    .role-select { height: 32px; border: 1px solid #ebebeb; border-radius: 6px; padding: 0 8px; font-size: 12px; font-family: inherit; outline: none; color: #333; background: #fff; }
+    .role-select:focus { border-color: #3069B3; }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 20px; }
+    .page-btn { width: 36px; height: 36px; border-radius: 6px; border: 1px solid #ebebeb; background: #fff; font-size: 13px; color: #4d4d4d; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+    .page-btn.active { background: #031B4B; color: #fff; border-color: #031B4B; font-weight: 700; }
+
+    /* ===== MENU PERMISSION MAPPING ===== */
+    .perm-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; border: 1px solid #ebebeb; border-radius: 8px; overflow: hidden; }
+    .role-list { border-right: 1px solid #ebebeb; background: #fff; }
+    .role-list-header { padding: 14px 18px; border-bottom: 1px solid #ebebeb; font-size: 13px; font-weight: 700; color: #4d4d4d; background: #f8f8f8; }
+    .role-list-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f2f2f2; cursor: pointer; font-size: 14px; color: #333; }
+    .role-list-item:hover { background: #F5F6FA; }
+    .role-list-item.active { background: #EEF4FF; color: #031B4B; font-weight: 700; border-left: 3px solid #031B4B; }
+    .role-list-item .arrow { color: #b3b3b3; font-size: 12px; }
+
+    .perm-panel { background: #fff; }
+    .perm-panel-header { padding: 14px 24px; border-bottom: 1px solid #ebebeb; background: #f8f8f8; display: flex; align-items: center; justify-content: space-between; }
+    .perm-panel-title { font-size: 14px; font-weight: 700; color: #1d1d1d; }
+    .perm-table { width: 100%; border-collapse: collapse; }
+    .perm-table thead th { padding: 10px 20px; text-align: left; font-size: 12px; font-weight: 700; color: #4d4d4d; background: #fafafa; border-bottom: 1px solid #ebebeb; }
+    .perm-table thead th:not(:first-child) { text-align: center; width: 100px; }
+    .perm-table tbody td { padding: 12px 20px; font-size: 13px; color: #333; border-bottom: 1px solid #f2f2f2; vertical-align: middle; }
+    .perm-table tbody td:not(:first-child) { text-align: center; }
+    .perm-table tbody tr:hover { background: #F5F6FA; }
+    .perm-table .menu-depth1 { font-weight: 700; color: #031B4B; background: #F5F6FA; }
+    .perm-table .menu-depth2 td:first-child { padding-left: 36px; color: #4d4d4d; }
+
+    /* Checkbox styling */
+    input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3069B3; cursor: pointer; }
+    input[type="checkbox"]:disabled { accent-color: #b3b3b3; cursor: not-allowed; }
+
+    .perm-footer { padding: 16px 24px; border-top: 1px solid #ebebeb; display: flex; justify-content: flex-end; gap: 10px; background: #fff; }
+
+    /* Info notice */
+    .info-box { background: #EEF4FF; border: 1px solid #C7DFF4; border-radius: 6px; padding: 10px 16px; font-size: 12px; color: #3069B3; display: flex; align-items: flex-start; gap: 6px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-icon">AI Platform</div>
+      <select style="border:none; outline:none; font-size:15px; font-weight:600; color:#1d1d1d; cursor:pointer; background:transparent;">
+        <option>탄소중립플랫폼 (NETZERO)</option>
+        <option>DPPA 정산플랫폼 (DPPA)</option>
+        <option>K-Ads 운영 (KADS)</option>
+      </select>
+    </div>
+    <div class="header-right">
+      <span style="background:#EEF4FF; color:#3069B3; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">System Admin</span>|
+      <div style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <div class="user-avatar">홍</div>
+        <span style="font-size:14px;font-weight:600;">홍길*(hong***)님 ∨</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- LNB -->
+    <nav class="lnb">
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>📊 대시보드</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>🏢 Workspace 관리</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>📁 지식 관리</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>💬 테스트/프롬프트</span><span>∨</span></div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title"><span>⚙️ 권한 관리</span><span>∧</span></div>
+        <div class="lnb-sub">
+          <a class="lnb-item active" href="#">계정 목록</a>
+          <a class="lnb-item" href="#">메뉴-권한 매핑</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="breadcrumb">
+        <a href="#">🏠</a> › <a href="#">권한 관리</a> › <span>계정 및 메뉴 관리</span>
+      </div>
+      <div class="page-header">권한 및 메뉴 관리</div>
+
+      <div class="inner">
+        <!-- Tabs -->
+        <div class="tabs">
+          <div class="tab active" onclick="showTab('accounts', this)">계정 목록</div>
+          <div class="tab" onclick="showTab('menus', this)">메뉴-권한 매핑</div>
+        </div>
+
+        <!-- ===== TAB 1: 계정 목록 ===== -->
+        <div class="tab-content active" id="tab-accounts">
+          <div class="info-box">
+            ℹ️ Google SSO로 최초 로그인한 사용자는 자동으로 이 목록에 추가됩니다. 관리자가 직접 역할(Role)을 지정해야 서비스에 접근할 수 있습니다.
+          </div>
+
+          <div class="panel-card" style="margin-top:16px;">
+            <!-- Filter -->
+            <div class="filter-row">
+              <div class="filter-group">
+                <span class="filter-label">역할</span>
+                <select>
+                  <option>전체</option>
+                  <option>관리자 (ROLE_ADMIN)</option>
+                  <option>직원 (ROLE_EMPLOYEE)</option>
+                  <option>미승인</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">검색</span>
+                <div class="search-wrapper">
+                  <input type="text" class="search-input" placeholder="이름 또는 이메일">
+                  <button class="search-btn">🔍</button>
+                </div>
+              </div>
+              <div style="flex:1;"></div>
+              <button class="btn-primary">+ 계정 수동 등록</button>
+            </div>
+
+            <!-- Account Table -->
+            <div style="padding: 0 0 0 0;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>NO</th>
+                    <th>이름</th>
+                    <th>Google 이메일 (SSO)</th>
+                    <th>부서</th>
+                    <th>역할 (Role)</th>
+                    <th>최근 로그인</th>
+                    <th>등록일</th>
+                    <th>액션</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>홍길동</td>
+                    <td>hong@kicox.or.kr</td>
+                    <td>탄소중립팀</td>
+                    <td>
+                      <select class="role-select">
+                        <option selected>관리자 (ROLE_ADMIN)</option>
+                        <option>직원 (ROLE_EMPLOYEE)</option>
+                        <option>미승인</option>
+                      </select>
+                    </td>
+                    <td>2026-06-22 14:20</td>
+                    <td>2026-05-10</td>
+                    <td><button class="btn-table primary">저장</button></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>김철수</td>
+                    <td>chulsoo.kim@kicox.or.kr</td>
+                    <td>기후대응팀</td>
+                    <td>
+                      <select class="role-select">
+                        <option>관리자 (ROLE_ADMIN)</option>
+                        <option selected>직원 (ROLE_EMPLOYEE)</option>
+                        <option>미승인</option>
+                      </select>
+                    </td>
+                    <td>2026-06-21 09:15</td>
+                    <td>2026-05-15</td>
+                    <td><button class="btn-table primary">저장</button></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>이영희</td>
+                    <td>younghee.lee@kicox.or.kr</td>
+                    <td>ESG전략팀</td>
+                    <td>
+                      <select class="role-select">
+                        <option>관리자 (ROLE_ADMIN)</option>
+                        <option selected>직원 (ROLE_EMPLOYEE)</option>
+                        <option>미승인</option>
+                      </select>
+                    </td>
+                    <td>2026-06-20 13:42</td>
+                    <td>2026-05-20</td>
+                    <td><button class="btn-table primary">저장</button></td>
+                  </tr>
+                  <tr style="background:#FFF8E1;">
+                    <td>4</td>
+                    <td>박민준</td>
+                    <td>minjun.park@kicox.or.kr</td>
+                    <td>미확인</td>
+                    <td>
+                      <select class="role-select" style="border-color:#f59e0b;color:#f59e0b;">
+                        <option>관리자 (ROLE_ADMIN)</option>
+                        <option>직원 (ROLE_EMPLOYEE)</option>
+                        <option selected>미승인</option>
+                      </select>
+                    </td>
+                    <td>2026-06-22 11:05 (최초)</td>
+                    <td>2026-06-22</td>
+                    <td style="display:flex;gap:6px;align-items:center;">
+                      <button class="btn-table primary">승인</button>
+                      <button class="btn-table" style="color:#EC193A;border-color:#EC193A;">거절</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination">
+                <button class="page-btn">≪</button>
+                <button class="page-btn">〈</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">〉</button>
+                <button class="page-btn">≫</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TAB 2: 메뉴-권한 매핑 ===== -->
+        <div class="tab-content" id="tab-menus">
+          <div class="info-box">
+            ℹ️ 역할(Role)을 선택하면 해당 역할의 메뉴 접근 권한을 확인하고 수정할 수 있습니다. 저장 후 즉시 해당 역할의 모든 사용자에게 반영됩니다.
+          </div>
+
+          <div class="perm-layout" style="margin-top:16px;">
+            <!-- Role List -->
+            <div class="role-list">
+              <div class="role-list-header">역할 (Role) 목록</div>
+              <div class="role-list-item active" onclick="selectRole(this, 'admin')">
+                <span>🔐 관리자 (ROLE_ADMIN)</span>
+                <span class="arrow">›</span>
+              </div>
+              <div class="role-list-item" onclick="selectRole(this, 'employee')">
+                <span>👤 직원 (ROLE_EMPLOYEE)</span>
+                <span class="arrow">›</span>
+              </div>
+            </div>
+
+            <!-- Permission Panel -->
+            <div class="perm-panel">
+              <div class="perm-panel-header">
+                <span class="perm-panel-title">🔐 관리자 (ROLE_ADMIN) - 메뉴 접근 권한 설정</span>
+                <span style="font-size:12px;color:#808080;">체크 해제 시 해당 메뉴가 GNB에서 숨겨집니다.</span>
+              </div>
+              <table class="perm-table" id="permTable">
+                <thead>
+                  <tr>
+                    <th>메뉴 명칭</th>
+                    <th>조회 (can_read)</th>
+                    <th>수정 (can_write)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Depth 1: Dashboard -->
+                  <tr class="menu-depth1">
+                    <td colspan="3">📊 대시보드</td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>├ 운영 현황</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" disabled></td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>└ 사용 통계</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" disabled></td>
+                  </tr>
+                  <!-- Depth 1: Knowledge -->
+                  <tr class="menu-depth1">
+                    <td colspan="3">📁 지식 관리</td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>├ 문서(Source) 목록</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" checked></td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>└ 인덱싱 작업 현황</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" checked></td>
+                  </tr>
+                  <!-- Depth 1: Prompt -->
+                  <tr class="menu-depth1">
+                    <td colspan="3">💬 테스트 / 프롬프트</td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>├ 챗봇 테스트</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" checked></td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>├ 시스템 프롬프트 관리</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" checked></td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>└ 사용 로그 조회</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" disabled></td>
+                  </tr>
+                  <!-- Depth 1: RBAC -->
+                  <tr class="menu-depth1">
+                    <td colspan="3">⚙️ 권한 관리</td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>├ 계정 목록</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" checked></td>
+                  </tr>
+                  <tr class="menu-depth2">
+                    <td>└ 메뉴-권한 매핑</td>
+                    <td><input type="checkbox" checked></td>
+                    <td><input type="checkbox" checked></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="perm-footer">
+                <button class="btn-secondary">취소</button>
+                <button class="btn-primary">💾 권한 저장</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">Copyright © 2025 KICOX corp. All rights reserved.</footer>
+
+  <script>
+    function showTab(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      el.classList.add('active');
+    }
+
+    const employeePerms = {
+      'dashboard_view': true, 'dashboard_write': false,
+      'knowledge_view': true, 'knowledge_write': false,
+      'prompt_test': true, 'prompt_write': false,
+      'log_view': true,
+      'rbac_view': false, 'rbac_write': false
+    };
+
+    function selectRole(el, role) {
+      document.querySelectorAll('.role-list-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      const title = document.querySelector('.perm-panel-title');
+      const tbody = document.querySelector('#permTable tbody');
+      if (role === 'employee') {
+        title.textContent = '👤 직원 (ROLE_EMPLOYEE) - 메뉴 접근 권한 설정';
+        // Set employee permissions: readonly access, no write, no rbac
+        const checkboxes = tbody.querySelectorAll('input[type="checkbox"]');
+        const employeeReadable = [true, false, true, false, true, false, true, false, true, false, false, false, false, false];
+        checkboxes.forEach((cb, i) => {
+          if (!cb.disabled) {
+            cb.checked = employeeReadable[i] !== undefined ? employeeReadable[i] : false;
+          }
+        });
+      } else {
+        title.textContent = '🔐 관리자 (ROLE_ADMIN) - 메뉴 접근 권한 설정';
+        const checkboxes = tbody.querySelectorAll('input[type="checkbox"]:not(:disabled)');
+        checkboxes.forEach(cb => cb.checked = true);
+      }
+    }
+  </script>
+</body>
+</html>

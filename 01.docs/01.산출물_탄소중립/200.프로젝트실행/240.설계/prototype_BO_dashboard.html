@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사내 지식 챗봇 플랫폼 - 대시보드</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: #F5F6FA;
+      color: #1d1d1d;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: #fff;
+      border-bottom: 1px solid #ebebeb;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 72px; height: 24px;
+      background: #031B4B; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    }
+    .header-title { font-size: 15px; font-weight: 600; color: #1d1d1d; }
+    .header-right { display: flex; align-items: center; gap: 16px; font-size: 14px; color: #4d4d4d; }
+    .header-user { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .user-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #3069B3; display: flex; align-items: center;
+      justify-content: center; color: #fff; font-size: 12px; font-weight: 600;
+    }
+    .user-name { font-size: 14px; font-weight: 600; color: #1d1d1d; }
+    .user-role { font-size: 12px; color: #808080; }
+
+    /* ===== BODY LAYOUT ===== */
+    .layout {
+      display: flex;
+      margin-top: 56px;
+      min-height: calc(100vh - 56px - 52px);
+    }
+
+    /* ===== LNB ===== */
+    .lnb {
+      width: 240px; min-width: 240px;
+      background: #031B4B;
+      padding: 20px 0;
+      display: flex; flex-direction: column;
+    }
+    .lnb-group { margin-bottom: 4px; }
+    .lnb-group-title {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      font-size: 14px; font-weight: 600;
+      color: #C7DFF4;
+      cursor: pointer;
+      user-select: none;
+    }
+    .lnb-group-title:hover { background: rgba(255,255,255,0.08); }
+    .lnb-group-icon { font-size: 16px; margin-right: 8px; }
+    .lnb-group-arrow { font-size: 11px; color: #808080; }
+    .lnb-sub { display: flex; flex-direction: column; }
+    .lnb-item {
+      padding: 10px 20px 10px 44px;
+      font-size: 13px;
+      color: #b3c8e0;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: background 0.12s;
+    }
+    .lnb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .lnb-item.active {
+      background: #3069B3;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ===== CONTENT ===== */
+    .content {
+      flex: 1;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      padding: 16px 32px 0;
+      font-size: 12px;
+      color: #808080;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .breadcrumb a { color: #808080; text-decoration: none; }
+    .breadcrumb a:hover { color: #3069B3; }
+    .breadcrumb span { color: #3069B3; }
+
+    /* Page header */
+    .page-header {
+      padding: 16px 32px 0;
+      font-size: 24px; font-weight: 700;
+      color: #1d1d1d;
+    }
+
+    /* Inner content */
+    .inner {
+      padding: 24px 32px;
+      flex: 1;
+    }
+
+    /* KPI Cards */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .kpi-label {
+      font-size: 13px;
+      color: #808080;
+      margin-bottom: 12px;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1d1d1d;
+      margin-bottom: 8px;
+    }
+    .kpi-change {
+      font-size: 12px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .kpi-change.up { color: #119891; }
+    .kpi-change.down { color: #EC193A; }
+    .kpi-card.highlight { border-left: 4px solid #3069B3; }
+    .kpi-icon {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: #edeff5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    .kpi-icon.blue { background: #C7DFF4; }
+    .kpi-icon.teal { background: #E5F9F9; }
+
+    /* Chart row */
+    .chart-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .chart-card-title {
+      font-size: 15px; font-weight: 600;
+      color: #1d1d1d;
+      margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chart-placeholder {
+      height: 180px;
+      background: #F5F6FA;
+      border-radius: 6px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 20px 16px 0;
+      gap: 8px;
+    }
+    .bar-group {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1;
+    }
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: #3069B3;
+    }
+    .bar.teal { background: #5ddfde; }
+    .bar-label { font-size: 11px; color: #808080; }
+
+    /* Error log table */
+    .error-card {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .error-card-title {
+      font-size: 15px; font-weight: 600;
+      color: #1d1d1d;
+      margin-bottom: 16px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4d4d4d;
+      background: #f8f8f8;
+      border-bottom: 1px solid #ebebeb;
+    }
+    tbody td {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #333;
+      border-bottom: 1px solid #ebebeb;
+      vertical-align: middle;
+    }
+    tbody tr:hover { background: #F5F6FA; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge.error { background: #fff0f2; color: #EC193A; }
+    .badge.warn { background: #fff8e6; color: #f59e0b; }
+    .badge.success { background: #e6f7f6; color: #119891; }
+    .badge.info { background: #EEF4FF; color: #3069B3; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: #fff; border-top: 1px solid #ebebeb;
+      height: 52px; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #b3b3b3;
+    }
+
+    /* Tab bar */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ebebeb;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #808080;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+    .tab.active { color: #031B4B; border-bottom-color: #031B4B; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-icon">AI Platform</div>
+      <select style="border:none; outline:none; font-size:15px; font-weight:600; color:#1d1d1d; cursor:pointer; background:transparent;">
+        <option>탄소중립플랫폼 (NETZERO)</option>
+        <option>DPPA 정산플랫폼 (DPPA)</option>
+        <option>K-Ads 운영 (KADS)</option>
+      </select>
+    </div>
+    <div class="header-right">
+      <span style="background:#EEF4FF; color:#3069B3; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">System Admin</span>
+      <span>|</span>
+      <div class="header-user">
+        <div class="user-avatar">홍</div>
+        <div>
+          <div class="user-name">홍길*(hong***)님 ∨</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- LNB -->
+    <nav class="lnb">
+      <div class="lnb-group">
+        <div class="lnb-group-title">
+          <span><span class="lnb-group-icon">📊</span>대시보드</span>
+          <span class="lnb-group-arrow">∧</span>
+        </div>
+        <div class="lnb-sub">
+          <a class="lnb-item active" href="#">운영 현황</a>
+          <a class="lnb-item" href="#">사용 통계</a>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title">
+          <span><span class="lnb-group-icon">🏢</span>Workspace 관리</span>
+          <span class="lnb-group-arrow">∨</span>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title">
+          <span><span class="lnb-group-icon">📁</span>지식 관리</span>
+          <span class="lnb-group-arrow">∨</span>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title">
+          <span><span class="lnb-group-icon">💬</span>테스트/프롬프트</span>
+          <span class="lnb-group-arrow">∨</span>
+        </div>
+      </div>
+      <div class="lnb-group">
+        <div class="lnb-group-title">
+          <span><span class="lnb-group-icon">⚙️</span>권한 관리</span>
+          <span class="lnb-group-arrow">∨</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <a href="#">🏠</a> › <a href="#">대시보드</a> › <span>운영 현황</span>
+      </div>
+
+      <!-- Page Title -->
+      <div class="page-header">대시보드</div>
+
+      <div class="inner">
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+          <div class="kpi-card highlight">
+            <div class="kpi-icon blue">💬</div>
+            <div class="kpi-label">오늘 총 질문 수</div>
+            <div class="kpi-value">1,284</div>
+            <div class="kpi-change up">↑ 12.3% 어제 대비</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon teal">👥</div>
+            <div class="kpi-label">오늘 활성 사용자</div>
+            <div class="kpi-value">342</div>
+            <div class="kpi-change up">↑ 8.1% 어제 대비</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">📄</div>
+            <div class="kpi-label">인덱싱 완료 문서</div>
+            <div class="kpi-value">87</div>
+            <div class="kpi-change up">↑ 3건 이번 주 추가</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">⚡</div>
+            <div class="kpi-label">평균 응답 시간</div>
+            <div class="kpi-value">1.8<span style="font-size:16px;font-weight:400;color:#808080">초</span></div>
+            <div class="kpi-change down">↓ 목표 3초 이내 달성</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="chart-card-title">
+              <span>최근 7일 질문 수 추이</span>
+              <select style="font-size:12px;border:1px solid #ebebeb;border-radius:4px;padding:4px 8px;color:#808080;">
+                <option>최근 7일</option>
+                <option>최근 30일</option>
+              </select>
+            </div>
+            <div class="chart-placeholder">
+              <div class="bar-group">
+                <div class="bar" style="height:80px"></div>
+                <span class="bar-label">6/16</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height:110px"></div>
+                <span class="bar-label">6/17</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height:90px"></div>
+                <span class="bar-label">6/18</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height:130px"></div>
+                <span class="bar-label">6/19</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height:100px"></div>
+                <span class="bar-label">6/20</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height:75px"></div>
+                <span class="bar-label">6/21</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar" style="height:140px"></div>
+                <span class="bar-label">6/22</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">인기 질문 키워드</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 0;">
+              <span style="font-size:20px;font-weight:700;color:#031B4B;">배출권거래제</span>
+              <span style="font-size:14px;color:#3069B3;">탄소세</span>
+              <span style="font-size:16px;font-weight:600;color:#119891;">온실가스</span>
+              <span style="font-size:13px;color:#5ddfde;">탄소발자국</span>
+              <span style="font-size:17px;font-weight:600;color:#2EC9D6;">NDC</span>
+              <span style="font-size:12px;color:#808080;">CBAM</span>
+              <span style="font-size:15px;color:#031B4B;">ESG</span>
+              <span style="font-size:13px;color:#3069B3;">탄소중립</span>
+              <span style="font-size:11px;color:#808080;">RE100</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Log -->
+        <div class="error-card">
+          <div class="error-card-title">최근 시스템 이벤트 로그</div>
+          <div class="tabs">
+            <div class="tab active">전체</div>
+            <div class="tab">오류</div>
+            <div class="tab">경고</div>
+            <div class="tab">정상</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>시각</th>
+                <th>유형</th>
+                <th>모듈</th>
+                <th>내용</th>
+                <th>처리 상태</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026-06-22 14:52:11</td>
+                <td><span class="badge error">오류</span></td>
+                <td>IndexJobService</td>
+                <td>인덱싱 실패 - 파일 파싱 오류 (배출권거래제_지침_v3.pdf)</td>
+                <td><span class="badge warn">처리 중</span></td>
+              </tr>
+              <tr>
+                <td>2026-06-22 14:30:05</td>
+                <td><span class="badge warn">경고</span></td>
+                <td>LLMAnswerNode</td>
+                <td>OpenAI API 응답 지연 - 4.2초 초과 (목표: 3초)</td>
+                <td><span class="badge success">해결됨</span></td>
+              </tr>
+              <tr>
+                <td>2026-06-22 13:55:44</td>
+                <td><span class="badge success">정상</span></td>
+                <td>IndexJobService</td>
+                <td>인덱싱 완료 - 탄소중립기본법_해설서.pdf (청크 142개)</td>
+                <td><span class="badge success">완료</span></td>
+              </tr>
+              <tr>
+                <td>2026-06-22 13:20:18</td>
+                <td><span class="badge info">정보</span></td>
+                <td>Auth</td>
+                <td>관리자 로그인 - hong@kicox.or.kr (Google SSO)</td>
+                <td><span class="badge success">정상</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /inner -->
+    </div><!-- /content -->
+  </div><!-- /layout -->
+
+  <footer class="footer">
+    Copyright © 2025 KICOX corp. All rights reserved.
+  </footer>
+</body>
+</html>
