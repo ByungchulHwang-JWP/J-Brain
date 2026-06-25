@@ -1,0 +1,177 @@
+[
+  {
+    "action_id": "ACT-NZ-SEARCH-CALC-GUIDE",
+    "action_name": "배출량 산정 기준 검색",
+    "action_type": "SEARCH_DOC",
+    "description": "승인된 문서에서 배출량 산정 기준 근거 문단을 검색한다.",
+    "execution_mode": "search",
+    "permission_policy": "public_or_workspace",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-SEARCH-SCOPE-GUIDE",
+    "action_name": "Scope 기준 검색",
+    "action_type": "SEARCH_DOC",
+    "description": "승인된 문서에서 Scope별 산정 기준 근거 문단을 검색한다.",
+    "execution_mode": "search",
+    "permission_policy": "public_or_workspace",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-SEARCH-FACTOR-GUIDE",
+    "action_name": "배출계수 기준 검색",
+    "action_type": "SEARCH_DOC",
+    "description": "승인된 문서에서 배출계수 기준 근거 문단을 검색한다.",
+    "execution_mode": "search",
+    "permission_policy": "public_or_workspace",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-GO-EMISSION-INPUT",
+    "action_name": "배출량 입력 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "배출량 입력 화면으로 이동할 수 있는 버튼 정보를 반환한다.",
+    "execution_mode": "route",
+    "permission_policy": "workspace_user",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-GO-REPORT",
+    "action_name": "보고서 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "보고서 화면으로 이동할 수 있는 버튼 정보를 반환한다.",
+    "execution_mode": "route",
+    "permission_policy": "workspace_user",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-GUIDE-EMISSION-INPUT",
+    "action_name": "배출량 등록 방법 안내",
+    "action_type": "GUIDE",
+    "description": "배출량 등록 절차 안내 템플릿을 반환한다.",
+    "execution_mode": "template",
+    "permission_policy": "public_or_workspace",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-GUIDE-PERMISSION-ERROR",
+    "action_name": "권한 오류 조치 안내",
+    "action_type": "GUIDE",
+    "description": "권한 오류 또는 메뉴 미노출 상황의 조치 방법을 안내한다.",
+    "execution_mode": "template",
+    "permission_policy": "public_or_workspace",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-CREATE-UNANSWERED",
+    "action_name": "미응답 질문 등록",
+    "action_type": "CREATE_REQUEST",
+    "description": "의도 불명 또는 답변 불가 질문을 미응답 로그로 등록한다.",
+    "execution_mode": "internal_api",
+    "permission_policy": "workspace_user",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-EMISSION",
+    "action_name": "공장별 배출량 조회",
+    "action_type": "QUERY",
+    "description": "공장/기간 기준 탄소 배출량을 조회한다. 1차 MVP는 Mock/API만 허용한다.",
+    "execution_mode": "mock_api",
+    "permission_policy": "data_viewer",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-POWER",
+    "action_name": "전력 사용량 조회",
+    "action_type": "QUERY",
+    "description": "현장/기간 기준 전력 사용량을 조회한다. 1차 MVP는 Mock/API만 허용한다.",
+    "execution_mode": "mock_api",
+    "permission_policy": "data_viewer",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-MISSING-INPUT",
+    "action_name": "데이터 미입력 현황 조회",
+    "action_type": "QUERY",
+    "description": "기간 기준 미입력 현황을 조회한다. 1차 MVP는 Mock/API만 허용한다.",
+    "execution_mode": "mock_api",
+    "permission_policy": "operator",
+    "audit_required": true,
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-NZ-SEARCH-GLOSSARY",
+    "action_name": "용어 설명 검색",
+    "action_type": "SEARCH_DOC",
+    "description": "승인된 문서 또는 FAQ에서 용어 설명을 검색한다.",
+    "execution_mode": "search",
+    "permission_policy": "public_or_workspace",
+    "audit_required": true,
+    "enabled": false
+  },
+  {
+    "action_id": "ACT-JB-GO-DASHBOARD",
+    "action_name": "J-Brain 운영 현황 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "J-Brain 관리자 운영 현황 화면으로 이동할 수 있는 버튼 정보를 반환한다.",
+    "execution_mode": "route",
+    "permission_policy": "system_admin",
+    "audit_required": true,
+    "enabled": true,
+    "service_id": "JBRAIN"
+  },
+  {
+    "action_id": "ACT-JB-GO-SOURCES",
+    "action_name": "J-Brain 문서 목록 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "J-Brain 관리자 문서(Source) 목록 화면으로 이동할 수 있는 버튼 정보를 반환한다.",
+    "execution_mode": "route",
+    "permission_policy": "system_admin",
+    "audit_required": true,
+    "enabled": true,
+    "service_id": "JBRAIN"
+  },
+  {
+    "action_id": "ACT-JB-GO-JOBS",
+    "action_name": "J-Brain 인덱싱 작업 현황 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "J-Brain 관리자 인덱싱 작업 현황 화면으로 이동할 수 있는 버튼 정보를 반환한다.",
+    "execution_mode": "route",
+    "permission_policy": "system_admin",
+    "audit_required": true,
+    "enabled": true,
+    "service_id": "JBRAIN"
+  },
+  {
+    "action_id": "ACT-JB-GO-PROMPT-TEST",
+    "action_name": "J-Brain AI 챗봇 대화 테스트 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "J-Brain 관리자 AI 챗봇 대화 테스트 화면으로 이동할 수 있는 버튼 정보를 반환한다.",
+    "execution_mode": "route",
+    "permission_policy": "system_admin",
+    "audit_required": true,
+    "enabled": true,
+    "service_id": "JBRAIN"
+  },
+  {
+    "action_id": "ACT-JB-GO-LOGS",
+    "action_name": "J-Brain 사용 로그 조회 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "J-Brain 관리자 사용 로그 조회 화면으로 이동할 수 있는 버튼 정보를 반환한다.",
+    "execution_mode": "route",
+    "permission_policy": "system_admin",
+    "audit_required": true,
+    "enabled": true,
+    "service_id": "JBRAIN"
+  }
+]

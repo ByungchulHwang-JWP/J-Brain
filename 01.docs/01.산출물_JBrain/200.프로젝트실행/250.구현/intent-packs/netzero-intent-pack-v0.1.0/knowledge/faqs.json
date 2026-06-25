@@ -1,0 +1,23 @@
+[
+  {
+    "faq_id": "FAQ-NZ-001",
+    "question": "탄소중립플랫폼이 무엇인가요?",
+    "answer": "탄소중립 관련 업무를 지원하기 위한 플랫폼입니다. 1차 MVP에서는 소개, 사용 절차, FAQ, 자료실 문서를 검색 대상으로 사용합니다.",
+    "tags": ["플랫폼 소개", "탄소중립"],
+    "source_status": "draft"
+  },
+  {
+    "faq_id": "FAQ-NZ-002",
+    "question": "Scope 1, Scope 2, Scope 3 기준은 어디서 확인하나요?",
+    "answer": "승인된 Scope 기준 문서 또는 FAQ에서 확인합니다. 챗봇은 생성 답변이 아니라 근거 문단을 검색해 제공합니다.",
+    "tags": ["Scope", "산정 기준"],
+    "source_status": "draft"
+  },
+  {
+    "faq_id": "FAQ-NZ-003",
+    "question": "권한 오류가 발생하면 어떻게 하나요?",
+    "answer": "소속 조직과 역할 권한을 확인하고, 필요한 경우 시스템 관리자에게 메뉴/데이터 권한 부여를 요청합니다.",
+    "tags": ["권한", "오류"],
+    "source_status": "draft"
+  }
+]

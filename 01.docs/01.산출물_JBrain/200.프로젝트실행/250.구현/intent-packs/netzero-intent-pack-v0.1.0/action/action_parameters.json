@@ -1,0 +1,74 @@
+[
+  {
+    "action_id": "ACT-NZ-QUERY-EMISSION",
+    "parameter_name": "factory_id",
+    "entity_type": "factory",
+    "required": true,
+    "default_policy": null,
+    "validation_rule": "사용자 권한 내 공장인지 확인"
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-EMISSION",
+    "parameter_name": "period",
+    "entity_type": "period",
+    "required": true,
+    "default_policy": "미입력 시 당해년도 또는 사용자 확인",
+    "validation_rule": "기간 형식 정규화"
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-EMISSION",
+    "parameter_name": "scope",
+    "entity_type": "scope",
+    "required": false,
+    "default_policy": "전체 Scope",
+    "validation_rule": "허용 Scope 값"
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-POWER",
+    "parameter_name": "site_or_factory_id",
+    "entity_type": "site_or_factory",
+    "required": true,
+    "default_policy": null,
+    "validation_rule": "사용자 권한 범위 확인"
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-POWER",
+    "parameter_name": "period",
+    "entity_type": "period",
+    "required": true,
+    "default_policy": "미입력 시 사용자 확인",
+    "validation_rule": "기간 형식 정규화"
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-MISSING-INPUT",
+    "parameter_name": "period",
+    "entity_type": "period",
+    "required": true,
+    "default_policy": "당월",
+    "validation_rule": "기간 형식 정규화"
+  },
+  {
+    "action_id": "ACT-NZ-GO-EMISSION-INPUT",
+    "parameter_name": "menu",
+    "entity_type": "menu",
+    "required": true,
+    "default_policy": "배출량 입력",
+    "validation_rule": "메뉴 권한 확인"
+  },
+  {
+    "action_id": "ACT-NZ-GO-REPORT",
+    "parameter_name": "menu",
+    "entity_type": "menu",
+    "required": true,
+    "default_policy": "보고서",
+    "validation_rule": "메뉴 권한 확인"
+  },
+  {
+    "action_id": "ACT-NZ-CREATE-UNANSWERED",
+    "parameter_name": "question_text",
+    "entity_type": "question_text",
+    "required": true,
+    "default_policy": "사용자 원문",
+    "validation_rule": "PII 마스킹 후 저장"
+  }
+]

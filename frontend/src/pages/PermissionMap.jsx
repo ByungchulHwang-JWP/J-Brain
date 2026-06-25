@@ -1,56 +1,159 @@
-import React from 'react';
-
-const mockMenus = [
-  { id: 1, name: '대시보드 (상위)', isParent: true },
-  { id: 5, name: '운영 현황', isParent: false },
-  { id: 6, name: '사용 통계', isParent: false },
-  { id: 2, name: '지식 관리 (상위)', isParent: true },
-  { id: 7, name: '문서(Source) 목록', isParent: false },
-  { id: 8, name: '인덱싱 작업 현황', isParent: false },
-];
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const PermissionMap = () => {
+  const [roles, setRoles] = useState([]);
+  const [parentMenus, setParentMenus] = useState([]);
+  const [menus, setMenus] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const token = () => localStorage.getItem('ai_access_token');
+
+  const fetchPermissions = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get('/api/v1/permissions', {
+        headers: { Authorization: `Bearer ${token()}` }
+      });
+      setRoles(res.data.roles);
+      setParentMenus(res.data.parent_menus);
+      setMenus(res.data.menus);
+    } catch (err) {
+      console.error(err);
+      alert('권한 정보를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPermissions();
+  }, []);
+
+  const handleToggle = (menuId, roleId, type) => {
+    setMenus(prev => prev.map(m => {
+      if (m.id === menuId) {
+        const p = m.permissions[roleId] || { can_read: false, can_write: false };
+        return {
+          ...m,
+          permissions: {
+            ...m.permissions,
+            [roleId]: { ...p, [type]: !p[type] }
+          }
+        };
+      }
+      return m;
+    }));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const payload = [];
+      menus.forEach(m => {
+        Object.entries(m.permissions).forEach(([roleId, perms]) => {
+          payload.push({
+            role_id: roleId,
+            menu_id: m.id,
+            can_read: perms.can_read,
+            can_write: perms.can_write
+          });
+        });
+      });
+
+      await axios.patch('/api/v1/permissions', { permissions: payload }, {
+        headers: { Authorization: `Bearer ${token()}` }
+      });
+      alert('권한 매핑 정보가 저장되었습니다.');
+      fetchPermissions();
+    } catch (err) {
+      console.error(err);
+      alert('저장에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>;
+
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>
       <div className="breadcrumb">
         <span>권한 관리</span> {'>'} <span>메뉴-권한 매핑</span>
       </div>
+      
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 600 }}>메뉴-권한(Role) 매핑 설정</h2>
-        <button className="btn-primary" onClick={() => alert('매핑 정보가 저장되었습니다.')}>변경사항 저장</button>
+        <h2 style={{ fontWeight: 700 }}>메뉴별 접근 권한 설정</h2>
+        <button className="btn-primary" onClick={handleSave} disabled={saving}>
+          {saving ? '저장 중...' : '변경사항 저장'}
+        </button>
       </div>
 
-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '24px' }}>
-        <p style={{ margin: '0 0 24px', color: '#666', fontSize: '14px' }}>
-          각 역할(Role)별로 접근 가능한 메뉴(읽기/쓰기 권한)를 제어합니다. 하위 메뉴 권한을 부여하려면 상위 메뉴 권한이 반드시 필요합니다.
-        </p>
-        
-        <table className="table-area" style={{ margin: 0 }}>
+      <div className="perm-table-container">
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
           <thead>
-            <tr>
-              <th style={{ width: '30%', textAlign: 'left', paddingLeft: '24px' }}>메뉴명</th>
-              <th style={{ width: '35%', textAlign: 'center' }}>ROLE_ADMIN (관리자)</th>
-              <th style={{ width: '35%', textAlign: 'center' }}>ROLE_USER (일반 사용자)</th>
+            <tr style={{ background: 'var(--color-bg-elevated)', borderBottom: '1px solid var(--color-border)' }}>
+              <th rowSpan={2} style={{ padding: '13px 20px', borderRight: '1px solid var(--color-border)', width: '30%', textAlign: 'left', color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '12px' }}>메뉴명</th>
+              {roles.map(r => (
+                <th key={r.id} colSpan={2} style={{ padding: '13px 20px', borderRight: '1px solid var(--color-border)', color: 'var(--color-text-sub)', fontWeight: 600, fontSize: '13px' }}>
+                  {r.name} ({r.id})
+                </th>
+              ))}
+            </tr>
+            <tr style={{ background: 'var(--color-bg-elevated)', borderBottom: '1px solid var(--color-border)', fontSize: '12px' }}>
+              {roles.map(r => (
+                <React.Fragment key={r.id}>
+                  <th style={{ padding: '10px 16px', borderRight: '1px solid var(--color-border)', color: 'var(--color-text-muted)', fontWeight: 600 }}>Read (조회)</th>
+                  <th style={{ padding: '10px 16px', borderRight: '1px solid var(--color-border)', color: 'var(--color-text-muted)', fontWeight: 600 }}>Write (수정)</th>
+                </React.Fragment>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {mockMenus.map(m => (
-              <tr key={m.id} style={{ background: m.isParent ? '#f8f9fa' : '#fff' }}>
-                <td style={{ fontWeight: m.isParent ? 600 : 400, paddingLeft: m.isParent ? '24px' : '48px', color: m.isParent ? '#333' : '#666' }}>
-                  {m.isParent ? '📁 ' : '📄 '} {m.name}
-                </td>
-                <td style={{ textAlign: 'center' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" defaultChecked /> 허용
-                  </label>
-                </td>
-                <td style={{ textAlign: 'center' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" defaultChecked={m.isParent || m.name === '사용 통계'} /> 허용
-                  </label>
-                </td>
-              </tr>
-            ))}
+            {parentMenus.map(pm => {
+              const children = menus.filter(m => m.parent_id === pm.id);
+              return (
+                <React.Fragment key={pm.id}>
+                  <tr className="perm-table-group-row">
+                    <td colSpan={1 + roles.length * 2} style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 700, color: 'var(--color-text-main)', fontSize: '14px' }}>
+                      📂 {pm.name}
+                    </td>
+                  </tr>
+                  {children.map(m => (
+                    <tr key={m.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <td style={{ padding: '12px 20px', textAlign: 'left', paddingLeft: '40px', borderRight: '1px solid var(--color-border)' }}>
+                        <span style={{ color: 'var(--color-text-sub)' }}>└ {m.name}</span>
+                        <span style={{ color: 'var(--color-text-muted)', fontSize: '12px', marginLeft: '8px' }}>{m.url}</span>
+                      </td>
+                      {roles.map(r => {
+                        const p = m.permissions[r.id] || { can_read: false, can_write: false };
+                        return (
+                          <React.Fragment key={r.id}>
+                            <td style={{ padding: '12px', borderRight: '1px solid var(--color-border)' }}>
+                              <input 
+                                type="checkbox" 
+                                checked={p.can_read} 
+                                onChange={() => handleToggle(m.id, r.id, 'can_read')}
+                                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: 'var(--color-primary)' }}
+                              />
+                            </td>
+                            <td style={{ padding: '12px', borderRight: '1px solid var(--color-border)' }}>
+                              <input 
+                                type="checkbox" 
+                                checked={p.can_write} 
+                                onChange={() => handleToggle(m.id, r.id, 'can_write')}
+                                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: 'var(--color-primary)' }}
+                              />
+                            </td>
+                          </React.Fragment>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>

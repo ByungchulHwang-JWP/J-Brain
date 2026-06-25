@@ -1,0 +1,40 @@
+{
+  "default_policy": {
+    "high": 0.85,
+    "medium": 0.65,
+    "low": 0.45,
+    "very_low_below": 0.45
+  },
+  "category_policy": {
+    "search_doc": {
+      "high": 0.8,
+      "medium": 0.6,
+      "low": 0.45,
+      "handling": "Low 이상이면 문서 검색 fallback 허용"
+    },
+    "navigate": {
+      "high": 0.85,
+      "medium": 0.65,
+      "low": 0.45,
+      "handling": "High는 이동 버튼 제공, Medium은 후보 메뉴 제시"
+    },
+    "query": {
+      "high": 0.9,
+      "medium": 0.7,
+      "low": 0.5,
+      "handling": "High라도 사용자 확인 후 Mock/API 조회 실행"
+    },
+    "download": {
+      "high": 0.92,
+      "medium": 0.75,
+      "low": 0.5,
+      "handling": "1차 MVP에서는 실행하지 않고 후보로만 표시"
+    },
+    "fallback": {
+      "high": 0.0,
+      "medium": 0.0,
+      "low": 0.0,
+      "handling": "의도 불명 질문은 미응답 로그로 저장"
+    }
+  }
+}

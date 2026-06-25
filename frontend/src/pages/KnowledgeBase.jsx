@@ -4,33 +4,33 @@ import axios from 'axios';
 const KnowledgeBase = () => {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [workspaceId, setWorkspaceId] = useState(''); // To be selected or passed
+  const [projectId, setProjectId] = useState(''); // To be selected or passed
 
   // In a real app, you would get this from Context or URL params.
-  // For now, we'll just fetch the first workspace to use as default.
+  // For now, we'll just fetch the first project to use as default.
   useEffect(() => {
-    const fetchInitialWorkspace = async () => {
+    const fetchInitialProject = async () => {
       try {
         const token = localStorage.getItem('ai_access_token');
-        const res = await axios.get('/api/v1/workspaces/', {
+        const res = await axios.get('/api/v1/projects/', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.data && res.data.length > 0) {
-          setWorkspaceId(res.data[0].id);
+          setProjectId(res.data[0].id);
         }
       } catch (err) {
         console.error(err);
       }
     };
-    fetchInitialWorkspace();
+    fetchInitialProject();
   }, []);
 
   const fetchSources = async () => {
-    if (!workspaceId) return;
+    if (!projectId) return;
     setLoading(true);
     try {
       const token = localStorage.getItem('ai_access_token');
-      const res = await axios.get(`/api/v1/workspaces/${workspaceId}/sources`, {
+      const res = await axios.get(`/api/v1/projects/${projectId}/sources`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSources(res.data);
@@ -43,18 +43,18 @@ const KnowledgeBase = () => {
 
   useEffect(() => {
     fetchSources();
-  }, [workspaceId]);
+  }, [projectId]);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file || !workspaceId) return;
+    if (!file || !projectId) return;
 
     const formData = new FormData();
     formData.append('file', file);
 
     try {
       const token = localStorage.getItem('ai_access_token');
-      await axios.post(`/api/v1/workspaces/${workspaceId}/sources`, formData, {
+      await axios.post(`/api/v1/projects/${projectId}/sources`, formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

@@ -1,34 +1,77 @@
-import React from 'react';
-
-const mockLogs = [
-  { id: 'LOG-001', user: 'admin@kt.com', domain: 'NETZERO', query: '탄소중립이란 무엇인가요?', time: '1.2s', feedback: '👍', created_at: '2026-06-22 14:05' },
-  { id: 'LOG-002', user: 'user1@kt.com', domain: 'DPPA', query: '전력거래 단가는 얼마인가요?', time: '2.5s', feedback: '-', created_at: '2026-06-22 13:20' },
-  { id: 'LOG-003', user: 'user2@kt.com', domain: 'NETZERO', query: 'Scope 1,2,3 분류 기준', time: '1.8s', feedback: '👎', created_at: '2026-06-21 09:15' },
-];
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import useProjects from '../hooks/useProjects';
 
 const LogList = () => {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [domainFilter, setDomainFilter] = useState('전체');
+  const [searchQuery, setSearchQuery] = useState('');
+  const { projects } = useProjects();
+
+  const token = () => localStorage.getItem('ai_access_token');
+
+  const fetchLogs = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get('/api/v1/logs', {
+        headers: { Authorization: `Bearer ${token()}` },
+        params: { domain: domainFilter, query: searchQuery }
+      });
+      setLogs(res.data);
+    } catch (err) {
+      console.error(err);
+      alert('로그 목록을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchLogs(); }, []);
+
+  const handleSearch = () => fetchLogs();
+  const handleKeyPress = (e) => { if (e.key === 'Enter') handleSearch(); };
+
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>
       <div className="breadcrumb">
         <span>테스트/프롬프트</span> {'>'} <span>사용 로그 조회</span>
       </div>
       <div className="page-header" style={{ padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 600 }}>사용 로그 조회</h2>
+        <h2 style={{ fontWeight: 700 }}>사용 로그 조회</h2>
       </div>
 
-      <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px', marginBottom: '20px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+      {/* 필터 바 */}
+      <div className="filter-bar">
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '14px', fontWeight: 500 }}>도메인</span>
-          <select style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '4px' }}>
-            <option>전체</option>
-            <option>NETZERO</option>
-            <option>DPPA</option>
-          </select>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-sub)' }}>도메인</span>
+            <select
+              value={domainFilter}
+              onChange={(e) => setDomainFilter(e.target.value)}
+            >
+              <option>전체</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name || p.id}</option>
+              ))}
+            </select>
         </div>
         <div style={{ flex: 1 }}></div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <input type="text" placeholder="질의(Query) 검색" style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '4px', width: '250px' }} />
-          <button className="btn-secondary" style={{ padding: '6px 16px' }}>검색</button>
+          <input
+            type="text"
+            placeholder="질의(Query) 검색"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            style={{
+              height: '36px', padding: '0 12px',
+              border: '1px solid var(--color-border)', borderRadius: '6px',
+              width: '250px', background: 'var(--color-bg-elevated)',
+              color: 'var(--color-text-main)', fontSize: '13px', fontFamily: 'inherit',
+              outline: 'none',
+            }}
+          />
+          <button className="btn-secondary" style={{ height: '36px', padding: '0 16px' }} onClick={handleSearch}>검색</button>
         </div>
       </div>
 
@@ -46,17 +89,25 @@ const LogList = () => {
             </tr>
           </thead>
           <tbody>
-            {mockLogs.map(log => (
-              <tr key={log.id}>
-                <td style={{ color: '#888', fontSize: '13px' }}>{log.id}</td>
-                <td style={{ fontWeight: 500 }}>{log.user}</td>
-                <td>{log.domain}</td>
-                <td style={{ color: '#031B4B', cursor: 'pointer', textDecoration: 'underline' }}>{log.query}</td>
-                <td>{log.time}</td>
-                <td style={{ fontSize: '16px' }}>{log.feedback}</td>
-                <td>{log.created_at}</td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+            ) : logs.length === 0 ? (
+              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>해당 조건의 로그가 없습니다.</td></tr>
+            ) : (
+              logs.map(log => (
+                <tr key={log.id}>
+                  <td style={{ color: 'var(--color-text-muted)', fontSize: '13px', fontFamily: 'monospace' }}>
+                    {log.id.length > 8 ? log.id.substring(0, 8) : log.id}
+                  </td>
+                  <td style={{ fontWeight: 500, color: 'var(--color-text-main)' }}>{log.user}</td>
+                  <td style={{ color: 'var(--color-text-sub)' }}>{log.domain}</td>
+                  <td style={{ color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>{log.query}</td>
+                  <td style={{ color: 'var(--color-text-sub)' }}>{log.time}</td>
+                  <td style={{ fontSize: '16px' }}>{log.feedback}</td>
+                  <td style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>{log.created_at}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

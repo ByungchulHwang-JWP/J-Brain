@@ -1,0 +1,35 @@
+[
+  {
+    "template_id": "SQL-NZ-EMISSION-001",
+    "action_id": "ACT-NZ-QUERY-EMISSION",
+    "template_name": "공장별 탄소 배출량 조회",
+    "sql": "SELECT factory_name, base_period, scope, emission_amount, unit FROM carbon_emission_summary WHERE factory_id = :factory_id AND base_period BETWEEN :period_start AND :period_end AND (:scope IS NULL OR scope = :scope) ORDER BY base_period DESC, scope",
+    "allowed_roles": ["data_viewer", "operator", "workspace_admin"],
+    "max_rows": 100,
+    "masking_policy": "none",
+    "enabled": false,
+    "mvp_note": "1차 MVP에서는 실제 SQL 실행 금지. Mock/API 검증 후 2차에서 활성화."
+  },
+  {
+    "template_id": "SQL-NZ-POWER-001",
+    "action_id": "ACT-NZ-QUERY-POWER",
+    "template_name": "전력 사용량 조회",
+    "sql": "SELECT site_name, usage_period, power_usage, unit FROM power_usage_summary WHERE site_id = :site_or_factory_id AND usage_period BETWEEN :period_start AND :period_end ORDER BY usage_period DESC",
+    "allowed_roles": ["data_viewer", "operator", "workspace_admin"],
+    "max_rows": 100,
+    "masking_policy": "none",
+    "enabled": false,
+    "mvp_note": "1차 MVP에서는 실제 SQL 실행 금지. Mock/API 검증 후 2차에서 활성화."
+  },
+  {
+    "template_id": "SQL-NZ-MISSING-001",
+    "action_id": "ACT-NZ-QUERY-MISSING-INPUT",
+    "template_name": "미입력 현황 조회",
+    "sql": "SELECT site_name, input_item, target_period, input_status, due_date FROM input_status_summary WHERE target_period BETWEEN :period_start AND :period_end AND input_status = 'MISSING' ORDER BY due_date ASC, site_name",
+    "allowed_roles": ["operator", "workspace_admin"],
+    "max_rows": 200,
+    "masking_policy": "none",
+    "enabled": false,
+    "mvp_note": "1차 MVP에서는 실제 SQL 실행 금지. Mock/API 검증 후 2차에서 활성화."
+  }
+]

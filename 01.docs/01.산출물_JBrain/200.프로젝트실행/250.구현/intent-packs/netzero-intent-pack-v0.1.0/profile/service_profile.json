@@ -1,0 +1,21 @@
+{
+  "service_id": "NETZERO",
+  "service_name": "탄소중립플랫폼",
+  "pack_id": "netzero-intent-pack",
+  "pack_version": "0.1.0",
+  "target_environment": "closed-network",
+  "owner": "탄소중립플랫폼 운영팀",
+  "description": "탄소중립플랫폼 1차 MVP 검증용 Intent Pack",
+  "pilot_scope": "C-lite MVP",
+  "primary_use_cases": [
+    "문서/FAQ/자료실 검색",
+    "화면/기능 이동",
+    "제한된 Mock/API 조회"
+  ],
+  "excluded_use_cases": [
+    "외부 LLM 호출",
+    "자유 자연어 SQL 생성",
+    "등록/수정/삭제 Action",
+    "운영 DB 전체 범위 직접 조회"
+  ]
+}

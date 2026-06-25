@@ -1,8 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const token = () => localStorage.getItem('ai_access_token');
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get('/api/v1/projects/dashboard/stats', {
+          headers: { Authorization: `Bearer ${token()}` }
+        });
+        setStats(res.data);
+      } catch (err) {
+        console.error('대시보드 통계 조회 실패:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const formatTimeAgo = (dateStr) => {
+    if (!dateStr) return '-';
+    const diff = (new Date() - new Date(dateStr)) / 1000;
+    if (diff < 60) return `${Math.floor(diff)}초 전`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    return `${Math.floor(diff / 86400)}일 전`;
+  };
+
+  const getStatusClass = (status) => {
+    if (status === 'success' || status === 'completed') return 'active';
+    if (status === 'failed') return 'error';
+    if (status === 'running') return 'warning';
+    return 'inactive';
+  };
+
+  const getStatusLabel = (status) => {
+    const map = { success: '성공', completed: '성공', failed: '실패', running: '진행 중', pending: '대기 중' };
+    return map[status] || status;
+  };
 
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>
@@ -10,82 +52,103 @@ const Dashboard = () => {
         <span>대시보드</span> {'>'} <span>운영 현황</span>
       </div>
       <div className="page-header" style={{ padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 600 }}>시스템 운영 현황</h2>
+        <h2 style={{ fontWeight: 700 }}>시스템 운영 현황</h2>
       </div>
 
+      {/* 통계 카드 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
-        <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ fontSize: '14px', color: '#666', fontWeight: 500 }}>등록된 도메인(프로젝트)</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#031B4B' }}>2<span style={{ fontSize: '16px', fontWeight: 400, marginLeft: '4px' }}>개</span></div>
+        <div className="stat-card">
+          <div className="stat-card-label">등록된 도메인(프로젝트)</div>
+          <div className="stat-card-value">
+            {loading ? '-' : stats?.project_count ?? 0}
+            <span className="stat-card-unit">개</span>
+          </div>
         </div>
-        <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ fontSize: '14px', color: '#666', fontWeight: 500 }}>총 지식 문서 수 (Sources)</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#031B4B' }}>1,240<span style={{ fontSize: '16px', fontWeight: 400, marginLeft: '4px' }}>건</span></div>
+        <div className="stat-card">
+          <div className="stat-card-label">총 지식 문서 수 (Sources)</div>
+          <div className="stat-card-value">
+            {loading ? '-' : (stats?.source_count ?? 0).toLocaleString()}
+            <span className="stat-card-unit">건</span>
+          </div>
         </div>
-        <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ fontSize: '14px', color: '#666', fontWeight: 500 }}>진행 중인 인덱싱 작업</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#3069B3' }}>3<span style={{ fontSize: '16px', fontWeight: 400, marginLeft: '4px' }}>건</span></div>
+        <div className="stat-card">
+          <div className="stat-card-label">진행 중인 인덱싱 작업</div>
+          <div className="stat-card-value">
+            {loading ? '-' : stats?.running_jobs ?? 0}
+            <span className="stat-card-unit">건</span>
+          </div>
         </div>
-        <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ fontSize: '14px', color: '#666', fontWeight: 500 }}>금일 챗봇 세션 수</div>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: '#031B4B' }}>54<span style={{ fontSize: '16px', fontWeight: 400, marginLeft: '4px' }}>세션</span></div>
+        <div className="stat-card">
+          <div className="stat-card-label">금일 챗봇 세션 수</div>
+          <div className="stat-card-value">
+            {loading ? '-' : stats?.today_sessions ?? 0}
+            <span className="stat-card-unit">세션</span>
+          </div>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '24px' }}>
+        {/* 최근 인덱싱 이력 */}
+        <div className="panel">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>최근 인덱싱 이력</h3>
-            <button className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => navigate('/admin/jobs')}>전체보기</button>
+            <button className="btn-secondary" style={{ height: '30px', padding: '0 12px', fontSize: '12px' }} onClick={() => navigate('/admin/jobs')}>전체보기</button>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
             <tbody>
-              <tr style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '12px 0' }}>NETZERO (FULL_INDEX)</td>
-                <td style={{ textAlign: 'right', color: '#888' }}>10분 전</td>
-                <td style={{ textAlign: 'right' }}><span className="badge active">성공</span></td>
-              </tr>
-              <tr style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '12px 0' }}>DPPA (UPDATE_INDEX)</td>
-                <td style={{ textAlign: 'right', color: '#888' }}>1시간 전</td>
-                <td style={{ textAlign: 'right' }}><span className="badge error">실패</span></td>
-              </tr>
-              <tr>
-                <td style={{ padding: '12px 0' }}>NETZERO (UPDATE_INDEX)</td>
-                <td style={{ textAlign: 'right', color: '#888' }}>3시간 전</td>
-                <td style={{ textAlign: 'right' }}><span className="badge active">성공</span></td>
-              </tr>
+              {loading ? (
+                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+              ) : !stats?.recent_jobs || stats.recent_jobs.length === 0 ? (
+                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>최근 인덱싱 이력이 없습니다.</td></tr>
+              ) : (
+                stats.recent_jobs.map((job, idx) => (
+                  <tr key={job.id} className={idx < stats.recent_jobs.length - 1 ? 'panel-row' : ''}>
+                    <td style={{ padding: '12px 0', color: 'var(--color-text-main)' }}>
+                      {job.project_name} ({job.mode})
+                    </td>
+                    <td style={{ textAlign: 'right', color: 'var(--color-text-muted)' }}>
+                      {formatTimeAgo(job.started_at)}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <span className={`badge ${getStatusClass(job.status)}`}>
+                        {getStatusLabel(job.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        {/* 시스템 자원 현황 */}
+        <div className="panel">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>시스템 자원 현황</h3>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '13px' }}>
-                <span>DB 연결 상태 (PostgreSQL)</span>
-                <span style={{ color: '#27ae60', fontWeight: 600 }}>Connected</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px' }}>
+                <span style={{ color: 'var(--color-text-sub)' }}>DB 연결 상태 (PostgreSQL)</span>
+                <span style={{ color: 'var(--color-success)', fontWeight: 600 }}>Connected</span>
               </div>
             </div>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '13px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', color: 'var(--color-text-sub)' }}>
                 <span>Graph Storage 사용량</span>
-                <span>45% (4.5GB / 10GB)</span>
+                <span style={{ fontWeight: 600, color: 'var(--color-text-main)' }}>45% (4.5GB / 10GB)</span>
               </div>
-              <div style={{ width: '100%', height: '8px', background: '#f0f0f0', borderRadius: '4px' }}>
-                <div style={{ width: '45%', height: '100%', background: '#3069B3', borderRadius: '4px' }}></div>
+              <div className="progress-track">
+                <div className="progress-fill" style={{ width: '45%' }}></div>
               </div>
             </div>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '13px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', color: 'var(--color-text-sub)' }}>
                 <span>API Rate Limit (OpenAI)</span>
-                <span>12% 사용중</span>
+                <span style={{ fontWeight: 600, color: 'var(--color-text-main)' }}>12% 사용중</span>
               </div>
-              <div style={{ width: '100%', height: '8px', background: '#f0f0f0', borderRadius: '4px' }}>
-                <div style={{ width: '12%', height: '100%', background: '#27ae60', borderRadius: '4px' }}></div>
+              <div className="progress-track">
+                <div className="progress-fill success" style={{ width: '12%' }}></div>
               </div>
             </div>
           </div>

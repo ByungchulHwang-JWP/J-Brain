@@ -1,0 +1,75 @@
+[
+  {
+    "route_id": "RTE-NZ-EMISSION-INPUT",
+    "action_id": "ACT-NZ-GO-EMISSION-INPUT",
+    "menu_name": "배출량 입력",
+    "route_type": "menu_id",
+    "route_value": "TBD_EMISSION_INPUT",
+    "required_role": "workspace_user",
+    "status": "needs_customer_route"
+  },
+  {
+    "route_id": "RTE-NZ-REPORT",
+    "action_id": "ACT-NZ-GO-REPORT",
+    "menu_name": "보고서",
+    "route_type": "menu_id",
+    "route_value": "TBD_REPORT",
+    "required_role": "workspace_user",
+    "status": "needs_customer_route"
+  },
+  {
+    "route_id": "RTE-JB-DASHBOARD",
+    "action_id": "ACT-JB-GO-DASHBOARD",
+    "menu_name": "운영 현황",
+    "route_type": "url",
+    "route_value": "/admin/dashboard",
+    "required_role": "system_admin",
+    "status": "demo_ready",
+    "service_id": "JBRAIN",
+    "description": "J-Brain 관리자 대시보드 운영 현황 화면"
+  },
+  {
+    "route_id": "RTE-JB-SOURCES",
+    "action_id": "ACT-JB-GO-SOURCES",
+    "menu_name": "문서(Source) 목록",
+    "route_type": "url",
+    "route_value": "/admin/sources",
+    "required_role": "system_admin",
+    "status": "demo_ready",
+    "service_id": "JBRAIN",
+    "description": "J-Brain Source 문서 목록 화면"
+  },
+  {
+    "route_id": "RTE-JB-JOBS",
+    "action_id": "ACT-JB-GO-JOBS",
+    "menu_name": "인덱싱 작업 현황",
+    "route_type": "url",
+    "route_value": "/admin/jobs",
+    "required_role": "system_admin",
+    "status": "demo_ready",
+    "service_id": "JBRAIN",
+    "description": "J-Brain 인덱싱 작업 현황 화면"
+  },
+  {
+    "route_id": "RTE-JB-PROMPT-TEST",
+    "action_id": "ACT-JB-GO-PROMPT-TEST",
+    "menu_name": "AI 챗봇 대화 테스트",
+    "route_type": "url",
+    "route_value": "/admin/prompt/test",
+    "required_role": "system_admin",
+    "status": "demo_ready",
+    "service_id": "JBRAIN",
+    "description": "J-Brain 챗봇 검색/대화 테스트 화면"
+  },
+  {
+    "route_id": "RTE-JB-LOGS",
+    "action_id": "ACT-JB-GO-LOGS",
+    "menu_name": "사용 로그 조회",
+    "route_type": "url",
+    "route_value": "/admin/logs",
+    "required_role": "system_admin",
+    "status": "demo_ready",
+    "service_id": "JBRAIN",
+    "description": "J-Brain 사용 로그 조회 화면"
+  }
+]

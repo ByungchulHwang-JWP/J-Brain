@@ -1,0 +1,38 @@
+[
+  {
+    "document_id": "DOC-NZ-INTRO-001",
+    "title": "탄소중립플랫폼 소개",
+    "source_type": "web",
+    "source_ref": "https://ktnetzero.kt.co.kr/",
+    "approved_for_indexing": true,
+    "allowed_actions": ["SEARCH_DOC"],
+    "tags": ["플랫폼 소개", "서비스 신청", "FAQ", "자료실"]
+  },
+  {
+    "document_id": "DOC-NZ-SCOPE-001",
+    "title": "Scope 기준 안내 문서",
+    "source_type": "internal_doc",
+    "source_ref": "TBD_SCOPE_GUIDE",
+    "approved_for_indexing": true,
+    "allowed_actions": ["SEARCH_DOC"],
+    "tags": ["Scope", "산정 기준"]
+  },
+  {
+    "document_id": "DOC-NZ-FACTOR-001",
+    "title": "배출계수 기준 안내 문서",
+    "source_type": "internal_doc",
+    "source_ref": "TBD_EMISSION_FACTOR_GUIDE",
+    "approved_for_indexing": true,
+    "allowed_actions": ["SEARCH_DOC"],
+    "tags": ["배출계수", "전력", "도시가스"]
+  },
+  {
+    "document_id": "DOC-JB-MANUAL-001",
+    "title": "J-Brain 관리자 매뉴얼",
+    "source_type": "internal_doc",
+    "source_ref": "J-Brain_Manual.txt",
+    "approved_for_indexing": true,
+    "allowed_actions": ["SEARCH_DOC", "NAVIGATE"],
+    "tags": ["J-Brain", "관리자", "시연"]
+  }
+]

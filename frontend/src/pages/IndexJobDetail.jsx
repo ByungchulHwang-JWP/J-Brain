@@ -1,107 +1,114 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-
-const mockSteps = [
-  { step: 'Document Parsing', status: '완료', time: '1m 20s' },
-  { step: 'Text Chunking', status: '완료', time: '30s' },
-  { step: 'Entity Extraction (LLM)', status: '진행 중', time: '4m 10s...' },
-  { step: 'Relation Extraction', status: '대기', time: '-' },
-  { step: 'Community Detection', status: '대기', time: '-' },
-  { step: 'Graph Summarization', status: '대기', time: '-' },
-];
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const IndexJobDetail = () => {
-  const { id } = useParams();
+  const { projectId, jobId } = useParams();
   const navigate = useNavigate();
-  const [progress, setProgress] = useState(45);
+  const [jobDetail, setJobDetail] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const timerRef = useRef(null);
 
-  // Mock progress animation
+  const token = () => localStorage.getItem('ai_access_token');
+  const wid = projectId || 'NETZERO';
+
+  const fetchDetail = async () => {
+    try {
+      const res = await axios.get(`/api/v1/projects/${wid}/jobs/${jobId}`, {
+        headers: { Authorization: `Bearer ${token()}` }
+      });
+      setJobDetail(res.data);
+      
+      if (res.data.status === 'processing' || res.data.status === 'pending') {
+        timerRef.current = setTimeout(fetchDetail, 3000);
+      }
+    } catch (err) {
+      console.error(err);
+      if (loading) alert('상세 정보를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress(p => (p >= 100 ? 100 : p + 5));
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
+    fetchDetail();
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [wid, jobId]);
+
+  if (loading) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>;
+  if (!jobDetail) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>작업을 찾을 수 없습니다.</div>;
+
+  const isFailed = jobDetail.status === 'failed';
 
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>
       <div className="breadcrumb">
-        <span>지식 관리</span> {'>'} <span onClick={() => navigate('/admin/jobs')} style={{cursor:'pointer', textDecoration:'underline'}}>인덱싱 작업 현황</span> {'>'} <span>작업 모니터링</span>
+        <span>지식 관리</span> {'>'} <span onClick={() => navigate('/admin/jobs')} style={{ cursor: 'pointer', textDecoration: 'underline' }}>인덱싱 작업 현황</span> {'>'} <span>작업 상세</span>
       </div>
       
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 600 }}>{id || 'JOB-1002'} 모니터링</h2>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn-secondary" style={{ color: 'red', borderColor: 'red' }}>작업 강제 중지</button>
-          <button className="btn-primary" onClick={() => navigate('/admin/jobs')}>목록으로</button>
-        </div>
+        <h2 style={{ fontWeight: 700 }}>{jobDetail.id} 작업 상세</h2>
+        <button className="btn-secondary" onClick={() => navigate('/admin/jobs')}>목록으로</button>
       </div>
 
-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '32px', marginBottom: '24px' }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: '18px' }}>전체 진행 상황 (Overall Progress)</h3>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '15px', fontWeight: 600 }}>
-          <span>진행률</span>
-          <span style={{ color: '#3069B3' }}>{progress}%</span>
+      {/* 진행 상태 패널 */}
+      <div className="panel" style={{ marginBottom: '20px' }}>
+        <h3 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 600 }}>진행 상태 ({jobDetail.progress}%)</h3>
+        <div className="progress-track" style={{ height: '20px', borderRadius: '10px' }}>
+          <div
+            className={`progress-fill ${isFailed ? 'danger' : ''}`}
+            style={{ width: `${jobDetail.progress}%`, borderRadius: '10px', transition: 'width 0.5s ease' }}
+          ></div>
         </div>
-        <div style={{ width: '100%', height: '24px', background: '#f0f0f0', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
-          <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #3069B3 0%, #4facfe 100%)', transition: 'width 0.5s ease' }}></div>
+        
+        <div style={{ display: 'flex', gap: '40px', fontSize: '14px', marginTop: '16px', flexWrap: 'wrap' }}>
+          <div style={{ color: 'var(--color-text-sub)' }}>대상 파일: <strong style={{ color: 'var(--color-primary)' }}>{jobDetail.source_name}</strong></div>
+          <div style={{ color: 'var(--color-text-sub)' }}>상태: <span className={`badge ${jobDetail.status === 'success' ? 'active' : isFailed ? 'error' : 'warning'}`}>{jobDetail.status.toUpperCase()}</span></div>
+          <div style={{ color: 'var(--color-text-sub)' }}>시작: <span style={{ color: 'var(--color-text-main)' }}>{jobDetail.started_at}</span></div>
+          <div style={{ color: 'var(--color-text-sub)' }}>종료: <span style={{ color: 'var(--color-text-main)' }}>{jobDetail.completed_at}</span></div>
         </div>
 
-        <div style={{ display: 'flex', gap: '40px', background: '#f8f9fa', padding: '16px', borderRadius: '8px' }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>대상 도메인</div>
-            <div style={{ fontWeight: 500 }}>NETZERO</div>
+        {jobDetail.error_message && (
+          <div className="error-box">
+            <strong>오류:</strong> {jobDetail.error_message}
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>작업 유형</div>
-            <div style={{ fontWeight: 500 }}>FULL_INDEX</div>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>시작 시간</div>
-            <div style={{ fontWeight: 500 }}>2026-06-22 14:00:00</div>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>경과 시간</div>
-            <div style={{ fontWeight: 500, color: '#3069B3' }}>5분 30초</div>
-          </div>
-        </div>
+        )}
       </div>
 
-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '32px' }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: '18px' }}>파이프라인 단계별 현황</h3>
-        
-        <table className="table-area">
-          <thead>
-            <tr>
-              <th style={{ width: '50%' }}>단계 (Pipeline Step)</th>
-              <th style={{ width: '25%' }}>상태</th>
-              <th style={{ width: '25%' }}>소요 시간</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockSteps.map((s, idx) => (
-              <tr key={idx}>
-                <td style={{ fontWeight: 500 }}>{s.step}</td>
-                <td>
-                  <span className={`badge ${s.status === '완료' ? 'active' : s.status === '진행 중' ? 'warning' : 'inactive'}`}>
-                    {s.status}
-                  </span>
-                </td>
-                <td style={{ color: '#666' }}>{s.time}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div style={{ marginTop: '24px', background: '#1e1e1e', color: '#00ff00', padding: '16px', borderRadius: '8px', fontFamily: 'monospace', fontSize: '13px', height: '200px', overflowY: 'auto' }}>
-          <div>[2026-06-22 14:00:00] INFO: Starting FULL_INDEX job for NETZERO</div>
-          <div>[2026-06-22 14:00:05] INFO: Parsed 1 documents successfully.</div>
-          <div>[2026-06-22 14:01:25] INFO: Generated 1,024 chunks.</div>
-          <div>[2026-06-22 14:01:55] INFO: Starting Entity Extraction using LLM...</div>
-          <div>[2026-06-22 14:03:10] INFO: Extracted 450 entities so far...</div>
-          <div style={{ color: '#888' }}>&gt; Tailing real-time logs...</div>
-        </div>
+      {/* 상세 단계 패널 */}
+      <div className="panel">
+        <h3 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 600 }}>상세 단계 (Steps)</h3>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {jobDetail.steps.map((step, idx) => (
+            <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ 
+                width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                background: step.status === 'completed'
+                  ? 'var(--color-primary)'
+                  : 'var(--color-bg-elevated)',
+                border: step.status === 'completed'
+                  ? 'none'
+                  : '2px solid var(--color-border)',
+                color: step.status === 'completed' ? '#fff' : 'var(--color-text-muted)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 700, fontSize: '14px'
+              }}>
+                {step.status === 'completed' ? '✓' : idx + 1}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  fontSize: '15px', fontWeight: 500,
+                  color: step.status === 'pending' ? 'var(--color-text-muted)' : 'var(--color-text-main)'
+                }}>{step.name}</div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                  {step.status === 'processing' ? '진행 중...' : step.status === 'completed' ? '완료' : '대기'}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

@@ -1,0 +1,18 @@
+[
+  {
+    "card_type": "navigation",
+    "fields": ["title", "message", "route_value", "button_label", "required_role"]
+  },
+  {
+    "card_type": "document",
+    "fields": ["title", "summary", "sources", "confidence"]
+  },
+  {
+    "card_type": "data",
+    "fields": ["title", "metric", "value", "unit", "period", "source", "confirmed"]
+  },
+  {
+    "card_type": "fallback",
+    "fields": ["title", "message", "logged", "suggested_questions"]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "required_metadata": ["document_id", "title", "source_type", "source_ref", "approved_for_indexing"],
+  "evidence_policy": {
+    "search_doc": "응답에는 문서명과 섹션 또는 출처를 표시한다.",
+    "guide": "템플릿 안내는 근거 문서가 있으면 함께 표시한다.",
+    "query": "조회 응답에는 데이터 기준일과 실행 Action ID를 표시한다."
+  },
+  "data_boundary": "고객 데이터와 고객 문서는 고객 내부망에서만 인덱싱한다."
+}

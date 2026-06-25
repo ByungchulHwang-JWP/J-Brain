@@ -1,22 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import useProjects from '../hooks/useProjects';
 
 const SourceNew = () => {
   const navigate = useNavigate();
-  const [sourceType, setSourceType] = useState('FILE'); // FILE, URL, API
-  const [domain, setDomain] = useState('NETZERO');
-  const [fileName, setFileName] = useState('');
+  const [sourceType, setSourceType] = useState('FILE');
+  const { projects } = useProjects();
+  const [domain, setDomain] = useState('');
+  const [file, setFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 프로젝트 목록 로드 후 첫 번째 자동 선택
+  useEffect(() => {
+    if (projects.length > 0 && !domain) {
+      setDomain(projects[0].id);
+    }
+  }, [projects]);
 
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) {
-      setFileName(e.target.files[0].name);
+      setFile(e.target.files[0]);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Source(지식 문서)가 등록되었습니다. (Mock)');
-    navigate('/admin/sources');
+    if (sourceType === 'FILE' && !file) {
+      alert('업로드할 파일을 선택해주세요.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem('ai_access_token');
+      
+      if (sourceType === 'FILE') {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        await axios.post(`/api/v1/projects/${domain}/sources`, formData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      } else {
+        alert('현재 URL 및 API 연동은 지원되지 않습니다.');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      alert('지식 문서가 성공적으로 업로드 되었습니다.');
+      navigate('/admin/sources');
+    } catch (error) {
+      console.error(error);
+      alert('문서 등록에 실패했습니다: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -29,7 +71,7 @@ const SourceNew = () => {
         <h2 style={{ fontWeight: 600 }}>Source 등록</h2>
       </div>
 
-      <div style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '32px' }}>
+      <div className="panel" style={{ padding: '32px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '800px' }}>
           
           {/* 1. 도메인 선택 */}
@@ -38,12 +80,13 @@ const SourceNew = () => {
             <select 
               value={domain} 
               onChange={(e) => setDomain(e.target.value)}
-              style={{ padding: '10px 12px', border: '1px solid #ddd', borderRadius: '4px', width: '300px' }}
+              style={{ padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', width: '300px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)', fontFamily: 'inherit', outline: 'none' }}
             >
-              <option value="NETZERO">NETZERO (탄소중립플랫폼)</option>
-              <option value="DPPA">DPPA (직접전력거래)</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name || p.id}</option>
+              ))}
             </select>
-            <span style={{ fontSize: '13px', color: '#888' }}>문서가 귀속될 도메인(프로젝트)을 선택합니다.</span>
+            <span style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>문서가 귀속될 도메인(프로젝트)을 선택합니다.</span>
           </div>
 
           {/* 2. Source 유형 선택 */}
@@ -56,7 +99,7 @@ const SourceNew = () => {
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                 <input type="radio" name="sourceType" value="URL" checked={sourceType === 'URL'} onChange={(e) => setSourceType(e.target.value)} />
-                <span>웹 URL 크롤링</span>
+                <span>웹 URL 프로젝트롤링</span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                 <input type="radio" name="sourceType" value="API" checked={sourceType === 'API'} onChange={(e) => setSourceType(e.target.value)} />
@@ -67,12 +110,12 @@ const SourceNew = () => {
 
           {/* 3. 소스 입력 영역 */}
           {sourceType === 'FILE' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px dashed #ccc', padding: '32px', borderRadius: '8px', textAlign: 'center', background: '#fcfcfc' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px dashed var(--color-border)', padding: '32px', borderRadius: '8px', textAlign: 'center', background: 'var(--color-bg-elevated)' }}>
               <div style={{ fontSize: '24px', marginBottom: '8px' }}>📂</div>
-              <p style={{ margin: 0, fontWeight: 500 }}>파일을 이곳에 드래그하거나 클릭하여 업로드하세요</p>
-              <p style={{ margin: 0, fontSize: '13px', color: '#888', marginTop: '4px' }}>지원 포맷: PDF, DOCX, TXT (최대 50MB)</p>
-              <input type="file" onChange={handleFileChange} style={{ marginTop: '16px', marginLeft: 'auto', marginRight: 'auto' }} />
-              {fileName && <div style={{ marginTop: '12px', color: '#3069B3', fontWeight: 500 }}>선택된 파일: {fileName}</div>}
+              <p style={{ margin: 0, fontWeight: 500, color: 'var(--color-text-main)' }}>파일을 이곳에 드래그하거나 클릭하여 업로드하세요</p>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '4px' }}>지원 포맷: PDF, DOCX, TXT (최대 50MB)</p>
+              <input type="file" accept=".pdf,.txt,.docx" onChange={handleFileChange} style={{ marginTop: '16px', marginLeft: 'auto', marginRight: 'auto' }} />
+              {file && <div style={{ marginTop: '12px', color: 'var(--color-primary)', fontWeight: 500 }}>선택된 파일: {file.name}</div>}
             </div>
           )}
 
@@ -84,7 +127,7 @@ const SourceNew = () => {
           )}
 
           {/* 4. 고급 옵션 (인덱싱 설정) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', borderTop: '1px solid var(--color-border)', paddingTop: '24px' }}>
             <label style={{ fontWeight: 600, fontSize: '15px' }}>인덱싱 옵션 (GraphRAG)</label>
             
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -101,9 +144,9 @@ const SourceNew = () => {
             </label>
           </div>
 
-          <div style={{ borderTop: '1px solid #eee', marginTop: '16px', paddingTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/admin/sources')}>취소</button>
-            <button type="submit" className="btn-primary">저장 및 목록으로</button>
+          <div style={{ borderTop: '1px solid var(--color-border)', marginTop: '16px', paddingTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+            <button type="button" className="btn-secondary" onClick={() => navigate('/admin/sources')} disabled={isSubmitting}>취소</button>
+            <button type="submit" className="btn-primary" disabled={isSubmitting}>{isSubmitting ? '업로드 중...' : '저장 및 목록으로'}</button>
           </div>
         </form>
       </div>

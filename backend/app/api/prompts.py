@@ -12,9 +12,9 @@ router = APIRouter()
 class PromptUpdate(BaseModel):
     prompt_content: str
 
-@router.get("/{workspace_id}/prompts/active")
+@router.get("/{project_id}/prompts/active")
 async def get_active_prompt(
-    workspace_id: str,
+    project_id: str,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
@@ -45,9 +45,9 @@ async def get_active_prompt(
     }
 
 
-@router.post("/{workspace_id}/prompts")
+@router.post("/{project_id}/prompts")
 async def save_prompt(
-    workspace_id: str,
+    project_id: str,
     prompt_in: PromptUpdate,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)

@@ -1,0 +1,122 @@
+[
+  {
+    "entity_type": "factory",
+    "display_name": "공장",
+    "value_type": "code",
+    "required_validation": true,
+    "normalization_rule": "entity_synonyms",
+    "description": "공장 단위 조회 조건"
+  },
+  {
+    "entity_type": "site",
+    "display_name": "현장",
+    "value_type": "code",
+    "required_validation": true,
+    "normalization_rule": "entity_synonyms",
+    "description": "현장 단위 조회 조건"
+  },
+  {
+    "entity_type": "site_or_factory",
+    "display_name": "공장/현장",
+    "value_type": "code",
+    "required_validation": true,
+    "normalization_rule": "entity_synonyms",
+    "description": "공장 또는 현장 통합 조회 조건"
+  },
+  {
+    "entity_type": "period",
+    "display_name": "기간",
+    "value_type": "date_range",
+    "required_validation": true,
+    "normalization_rule": "relative_period_to_range",
+    "description": "조회 또는 기준 기간"
+  },
+  {
+    "entity_type": "scope",
+    "display_name": "Scope",
+    "value_type": "enum",
+    "required_validation": true,
+    "normalization_rule": "entity_synonyms",
+    "description": "온실가스 Scope 구분"
+  },
+  {
+    "entity_type": "metric",
+    "display_name": "지표",
+    "value_type": "enum",
+    "required_validation": true,
+    "normalization_rule": "entity_synonyms",
+    "description": "조회 또는 검색 지표"
+  },
+  {
+    "entity_type": "fuel_type",
+    "display_name": "연료종류",
+    "value_type": "enum",
+    "required_validation": false,
+    "normalization_rule": "entity_synonyms",
+    "description": "연료 또는 에너지원"
+  },
+  {
+    "entity_type": "emission_factor",
+    "display_name": "배출계수",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": "keyword",
+    "description": "배출계수 기준"
+  },
+  {
+    "entity_type": "menu",
+    "display_name": "메뉴",
+    "value_type": "string",
+    "required_validation": true,
+    "normalization_rule": "entity_synonyms",
+    "description": "화면 이동 대상 메뉴"
+  },
+  {
+    "entity_type": "report_type",
+    "display_name": "보고서 유형",
+    "value_type": "enum",
+    "required_validation": false,
+    "normalization_rule": "entity_synonyms",
+    "description": "보고서 유형"
+  },
+  {
+    "entity_type": "task",
+    "display_name": "업무",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": "keyword",
+    "description": "절차 안내 대상 업무"
+  },
+  {
+    "entity_type": "topic",
+    "display_name": "주제",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": "keyword",
+    "description": "문서/FAQ 검색 주제"
+  },
+  {
+    "entity_type": "term",
+    "display_name": "용어",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": "keyword",
+    "description": "용어 설명 대상"
+  },
+  {
+    "entity_type": "error_type",
+    "display_name": "오류 유형",
+    "value_type": "enum",
+    "required_validation": false,
+    "normalization_rule": "entity_synonyms",
+    "description": "오류 또는 조치 안내 유형"
+  },
+  {
+    "entity_type": "question_text",
+    "display_name": "질문 원문",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": "raw_text",
+    "description": "미응답 등록용 사용자 입력 전체"
+  }
+]

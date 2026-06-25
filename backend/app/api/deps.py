@@ -17,7 +17,7 @@ async def get_current_user_id(
     payload = decode_access_token(token)
     user_id = payload.get("sub")
     if user_id is None:
-        raise HTTPException(status_code=403, detail="Invalid token payload")
+        raise HTTPException(status_code=401, detail="Invalid token payload")
     return user_id
 
 

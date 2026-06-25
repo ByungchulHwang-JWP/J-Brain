@@ -1,0 +1,114 @@
+[
+  {
+    "question_id": "VQ-NZ-001",
+    "question": "A공장 탄소 배출량 알려줘",
+    "expected_intent_id": "INT-NZ-QUERY-001",
+    "expected_entities": [{"entity_type": "factory", "value": "A공장"}, {"entity_type": "metric", "value": "탄소 배출량"}],
+    "expected_action_id": "ACT-NZ-QUERY-EMISSION",
+    "expected_handling": "사용자 확인 후 Mock/API 조회"
+  },
+  {
+    "question_id": "VQ-NZ-002",
+    "question": "에이공장 작년 배출량 조회해줘",
+    "expected_intent_id": "INT-NZ-QUERY-001",
+    "expected_entities": [{"entity_type": "factory", "value": "A공장"}, {"entity_type": "period", "value": "작년"}],
+    "expected_action_id": "ACT-NZ-QUERY-EMISSION",
+    "expected_handling": "사용자 확인 후 Mock/API 조회"
+  },
+  {
+    "question_id": "VQ-NZ-003",
+    "question": "B현장 이번 달 전기 사용량 알려줘",
+    "expected_intent_id": "INT-NZ-QUERY-002",
+    "expected_entities": [{"entity_type": "site_or_factory", "value": "B현장"}, {"entity_type": "period", "value": "이번 달"}, {"entity_type": "metric", "value": "전력 사용량"}],
+    "expected_action_id": "ACT-NZ-QUERY-POWER",
+    "expected_handling": "사용자 확인 후 Mock/API 조회"
+  },
+  {
+    "question_id": "VQ-NZ-004",
+    "question": "아직 입력 안 한 현장 있어?",
+    "expected_intent_id": "INT-NZ-QUERY-003",
+    "expected_entities": [{"entity_type": "period", "value": "당월"}],
+    "expected_action_id": "ACT-NZ-QUERY-MISSING-INPUT",
+    "expected_handling": "사용자 확인 후 Mock/API 조회"
+  },
+  {
+    "question_id": "VQ-NZ-005",
+    "question": "Scope 1 기준 알려줘",
+    "expected_intent_id": "INT-NZ-DOC-002",
+    "expected_entities": [{"entity_type": "scope", "value": "Scope 1"}],
+    "expected_action_id": "ACT-NZ-SEARCH-SCOPE-GUIDE",
+    "expected_handling": "문서 검색"
+  },
+  {
+    "question_id": "VQ-NZ-006",
+    "question": "Scope 3 산정 기준이 뭐야?",
+    "expected_intent_id": "INT-NZ-DOC-002",
+    "expected_entities": [{"entity_type": "scope", "value": "Scope 3"}, {"entity_type": "topic", "value": "산정 기준"}],
+    "expected_action_id": "ACT-NZ-SEARCH-SCOPE-GUIDE",
+    "expected_handling": "문서 검색"
+  },
+  {
+    "question_id": "VQ-NZ-007",
+    "question": "배출계수 기준이 뭐야?",
+    "expected_intent_id": "INT-NZ-DOC-003",
+    "expected_entities": [{"entity_type": "emission_factor", "value": "배출계수"}],
+    "expected_action_id": "ACT-NZ-SEARCH-FACTOR-GUIDE",
+    "expected_handling": "문서 검색"
+  },
+  {
+    "question_id": "VQ-NZ-008",
+    "question": "배출량 입력 어디서 해?",
+    "expected_intent_id": "INT-NZ-NAV-001",
+    "expected_entities": [{"entity_type": "menu", "value": "배출량 입력"}],
+    "expected_action_id": "ACT-NZ-GO-EMISSION-INPUT",
+    "expected_handling": "화면 이동 버튼"
+  },
+  {
+    "question_id": "VQ-NZ-009",
+    "question": "보고서 메뉴 어디 있어?",
+    "expected_intent_id": "INT-NZ-NAV-002",
+    "expected_entities": [{"entity_type": "menu", "value": "보고서"}],
+    "expected_action_id": "ACT-NZ-GO-REPORT",
+    "expected_handling": "화면 이동 버튼"
+  },
+  {
+    "question_id": "VQ-JB-NAV-001",
+    "question": "운영 현황 보여줘",
+    "expected_intent_id": "INT-JB-NAV-DASHBOARD",
+    "expected_entities": [{"entity_type": "menu", "value": "운영 현황"}],
+    "expected_action_id": "ACT-JB-GO-DASHBOARD",
+    "expected_handling": "J-Brain 관리자 화면 이동 버튼"
+  },
+  {
+    "question_id": "VQ-JB-NAV-002",
+    "question": "인덱싱 작업 현황 보여줘",
+    "expected_intent_id": "INT-JB-NAV-JOBS",
+    "expected_entities": [{"entity_type": "menu", "value": "인덱싱 작업 현황"}],
+    "expected_action_id": "ACT-JB-GO-JOBS",
+    "expected_handling": "J-Brain 관리자 화면 이동 버튼"
+  },
+  {
+    "question_id": "VQ-JB-NAV-003",
+    "question": "문서 목록 열어줘",
+    "expected_intent_id": "INT-JB-NAV-SOURCES",
+    "expected_entities": [{"entity_type": "menu", "value": "문서(Source) 목록"}],
+    "expected_action_id": "ACT-JB-GO-SOURCES",
+    "expected_handling": "J-Brain 관리자 화면 이동 버튼"
+  },
+  {
+    "question_id": "VQ-JB-NAV-004",
+    "question": "AI 챗봇 테스트 화면으로 가줘",
+    "expected_intent_id": "INT-JB-NAV-PROMPT-TEST",
+    "expected_entities": [{"entity_type": "menu", "value": "AI 챗봇 대화 테스트"}],
+    "expected_action_id": "ACT-JB-GO-PROMPT-TEST",
+    "expected_handling": "J-Brain 관리자 화면 이동 버튼"
+  },
+  {
+    "question_id": "VQ-JB-NAV-005",
+    "question": "사용 로그 조회 화면 열어줘",
+    "expected_intent_id": "INT-JB-NAV-LOGS",
+    "expected_entities": [{"entity_type": "menu", "value": "사용 로그 조회"}],
+    "expected_action_id": "ACT-JB-GO-LOGS",
+    "expected_handling": "J-Brain 관리자 화면 이동 버튼"
+  }
+]

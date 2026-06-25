@@ -4,7 +4,8 @@ import Login from './pages/Login';
 import AdminLayout from './components/Layout/AdminLayout';
 
 // 기존 페이지 연동
-import WorkspaceList from './pages/WorkspaceList';
+import ProjectList from './pages/ProjectList';
+import ProjectDetail from './pages/ProjectDetail';
 import SourceList from './pages/SourceList';
 import SourceNew from './pages/SourceNew';
 import SourceDetail from './pages/SourceDetail';
@@ -13,6 +14,7 @@ import IndexJobList from './pages/IndexJobList';
 import IndexJobNew from './pages/IndexJobNew';
 import IndexJobDetail from './pages/IndexJobDetail';
 import RetrievalTest from './pages/RetrievalTest';
+import ProjectQA from './pages/ProjectQA';
 import Dashboard from './pages/Dashboard';
 import Stats from './pages/Stats';
 import PromptList from './pages/PromptList';
@@ -46,7 +48,8 @@ const App = () => {
         <Route path="stats" element={<Stats />} />
         
         {/* 지식 관리 */}
-        <Route path="workspaces" element={<WorkspaceList />} />
+        <Route path="projects" element={<ProjectList />} />
+        <Route path="projects/:id" element={<ProjectDetail />} />
         <Route path="sources" element={<SourceList />} />
         <Route path="sources/new" element={<SourceNew />} />
         <Route path="sources/:id" element={<SourceDetail />} />
@@ -55,10 +58,12 @@ const App = () => {
         {/* 인덱싱 작업 관리 */}
         <Route path="jobs" element={<IndexJobList />} />
         <Route path="jobs/new" element={<IndexJobNew />} />
-        <Route path="jobs/:id" element={<IndexJobDetail />} />
+        <Route path="projects/:projectId/jobs/:jobId" element={<IndexJobDetail />} />
         
         {/* 테스트/프롬프트 */}
         <Route path="prompt/test" element={<RetrievalTest />} />
+        <Route path="qa" element={<ProjectQA />} />
+        <Route path="projects/:id/qa" element={<ProjectQA />} />
         <Route path="prompt" element={<PromptList />} />
         <Route path="logs" element={<LogList />} />
         

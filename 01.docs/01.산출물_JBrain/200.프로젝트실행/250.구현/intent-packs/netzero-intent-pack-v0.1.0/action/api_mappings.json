@@ -1,0 +1,26 @@
+[
+  {
+    "action_id": "ACT-NZ-QUERY-EMISSION",
+    "mapping_id": "API-NZ-MOCK-EMISSION-001",
+    "method": "GET",
+    "path": "/api/v1/mock/netzero/emissions",
+    "enabled": true,
+    "description": "1차 시연용 공장별 탄소 배출량 Mock API"
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-POWER",
+    "mapping_id": "API-NZ-MOCK-POWER-001",
+    "method": "GET",
+    "path": "/api/v1/mock/netzero/power-usage",
+    "enabled": true,
+    "description": "1차 시연용 현장별 전력 사용량 Mock API"
+  },
+  {
+    "action_id": "ACT-NZ-QUERY-MISSING-INPUT",
+    "mapping_id": "API-NZ-MOCK-MISSING-001",
+    "method": "GET",
+    "path": "/api/v1/mock/netzero/missing-inputs",
+    "enabled": true,
+    "description": "1차 시연용 데이터 미입력 현황 Mock API"
+  }
+]

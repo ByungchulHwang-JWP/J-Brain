@@ -1,0 +1,50 @@
+[
+  {
+    "template_id": "RSP-NZ-DOC-GUIDE",
+    "action_id": "ACT-NZ-SEARCH-CALC-GUIDE",
+    "card_type": "document",
+    "title": "산정 기준 안내",
+    "body_template": "{topic}에 대한 기준은 아래 문서에서 확인할 수 있습니다.",
+    "evidence_required": true
+  },
+  {
+    "template_id": "RSP-NZ-SCOPE-GUIDE",
+    "action_id": "ACT-NZ-SEARCH-SCOPE-GUIDE",
+    "card_type": "document",
+    "title": "Scope 기준 안내",
+    "body_template": "{scope} 기준은 승인된 Scope 안내 문서의 근거 문단을 기준으로 안내합니다.",
+    "evidence_required": true
+  },
+  {
+    "template_id": "RSP-NZ-NAVIGATION",
+    "action_id": "ACT-NZ-GO-EMISSION-INPUT",
+    "card_type": "navigation",
+    "title": "화면 이동 안내",
+    "body_template": "요청하신 업무는 \"{menu_name}\" 화면에서 처리할 수 있습니다.",
+    "evidence_required": false
+  },
+  {
+    "template_id": "RSP-NZ-QUERY-DATA",
+    "action_id": "ACT-NZ-QUERY-EMISSION",
+    "card_type": "data",
+    "title": "조회 결과",
+    "body_template": "{target_name}의 {period_label} {metric} 조회 결과입니다.",
+    "evidence_required": true
+  },
+  {
+    "template_id": "RSP-NZ-ERROR-PERMISSION",
+    "action_id": "ACT-NZ-GUIDE-PERMISSION-ERROR",
+    "card_type": "guide",
+    "title": "권한 오류 안내",
+    "body_template": "권한 오류가 발생한 경우 소속 조직과 역할 권한을 확인하고 관리자에게 권한 부여를 요청하세요.",
+    "evidence_required": false
+  },
+  {
+    "template_id": "RSP-NZ-FALLBACK",
+    "action_id": "ACT-NZ-CREATE-UNANSWERED",
+    "card_type": "fallback",
+    "title": "답변 보완 필요",
+    "body_template": "질문 의도를 확인하지 못했습니다. 미응답 질문으로 기록하고 Intent Pack 보완 대상으로 관리합니다.",
+    "evidence_required": false
+  }
+]

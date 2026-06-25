@@ -1,0 +1,42 @@
+[
+  {
+    "question_id": "VQ-NZ-001",
+    "result_type": "query_card",
+    "must_include": ["ACT-NZ-QUERY-EMISSION", "confirmation_required", "factory"]
+  },
+  {
+    "question_id": "VQ-NZ-005",
+    "result_type": "document_card",
+    "must_include": ["source", "scope", "evidence"]
+  },
+  {
+    "question_id": "VQ-NZ-008",
+    "result_type": "navigation_card",
+    "must_include": ["route", "button_label", "ACT-NZ-GO-EMISSION-INPUT"]
+  },
+  {
+    "question_id": "VQ-JB-NAV-001",
+    "result_type": "navigation_card",
+    "must_include": ["/admin/dashboard", "운영 현황", "ACT-JB-GO-DASHBOARD"]
+  },
+  {
+    "question_id": "VQ-JB-NAV-002",
+    "result_type": "navigation_card",
+    "must_include": ["/admin/jobs", "인덱싱 작업 현황", "ACT-JB-GO-JOBS"]
+  },
+  {
+    "question_id": "VQ-JB-NAV-003",
+    "result_type": "navigation_card",
+    "must_include": ["/admin/sources", "문서(Source) 목록", "ACT-JB-GO-SOURCES"]
+  },
+  {
+    "question_id": "VQ-JB-NAV-004",
+    "result_type": "navigation_card",
+    "must_include": ["/admin/prompt/test", "AI 챗봇 대화 테스트", "ACT-JB-GO-PROMPT-TEST"]
+  },
+  {
+    "question_id": "VQ-JB-NAV-005",
+    "result_type": "navigation_card",
+    "must_include": ["/admin/logs", "사용 로그 조회", "ACT-JB-GO-LOGS"]
+  }
+]

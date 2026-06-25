@@ -1,0 +1,17 @@
+{
+  "mvp_acceptance": {
+    "intent_top1_accuracy": "80% 이상",
+    "intent_top3_accuracy": "90% 이상",
+    "entity_extraction_accuracy": "85% 이상",
+    "wrong_action_execution_rate": "1% 이하",
+    "fallback_logging_rate": "100%",
+    "external_llm_calls": "0건",
+    "customer_data_external_transfer": "0건"
+  },
+  "demo_required_actions": [
+    "문서 검색 5개",
+    "화면 이동 5개",
+    "제한 조회 3개",
+    "Fallback 2개"
+  ]
+}
