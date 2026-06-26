@@ -60,6 +60,12 @@ const AdminLayout = () => {
 
   const menuIcons = {
     'icon-dashboard': '📊',
+    'icon-project': '🧭',
+    'icon-knowledge': '📚',
+    'icon-intent': '🧠',
+    'icon-pack': '📦',
+    'icon-runtime': '💬',
+    'icon-operations': '📈',
     'icon-folder': '📁',
     'icon-chat': '💬',
     'icon-settings': '⚙️',
