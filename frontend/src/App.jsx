@@ -23,6 +23,7 @@ import UserList from './pages/UserList';
 import PermissionMap from './pages/PermissionMap';
 import ShellPage from './components/common/ShellPage';
 import IntentList from './pages/intent-factory/IntentList';
+import IntentDetail from './pages/intent-factory/IntentDetail';
 import EntityList from './pages/intent-factory/EntityList';
 import FaqList from './pages/intent-factory/FaqList';
 import ActionList from './pages/intent-factory/ActionList';
@@ -94,6 +95,8 @@ const App = () => {
 
         {/* Intent Factory */}
         <Route path="intent-factory/intents" element={<IntentList />} />
+        <Route path="intent-factory/intents/new" element={<IntentDetail mode="new" />} />
+        <Route path="intent-factory/intents/:intentId" element={<IntentDetail mode="edit" />} />
         <Route path="intent-factory/entities" element={<EntityList />} />
         <Route path="intent-factory/synonyms" element={<EntityList mode="synonyms" />} />
         <Route path="intent-factory/faqs" element={<FaqList />} />
