@@ -1,6 +1,7 @@
 import unittest
 
 from app.services.intent_factory_service import (
+    _pack_entity_to_payload,
     build_default_source_scope,
     normalize_example_text,
     pack_intent_to_record,
@@ -42,6 +43,39 @@ class IntentFactoryServiceTest(unittest.TestCase):
         self.assertEqual(record["intent_id"], "INT-JB-NAV-DASHBOARD")
         self.assertEqual(record["intent_name"], "운영 현황 화면 이동")
         self.assertEqual(record["status"], "active")
+
+    def test_pack_entity_to_payload_maps_synonyms(self):
+        payload = _pack_entity_to_payload(
+            {
+                "entity_type": "scope",
+                "display_name": "Scope",
+                "value_type": "enum",
+                "required_validation": True,
+                "normalization_rule": "entity_synonyms",
+                "description": "Scope 구분",
+            },
+            [
+                {
+                    "entity_type": "scope",
+                    "canonical_value": "Scope 1",
+                    "synonyms": ["Scope 1", "스코프1"],
+                    "code": "scope_1",
+                    "is_active": True,
+                },
+                {
+                    "entity_type": "metric",
+                    "canonical_value": "전력 사용량",
+                    "synonyms": ["전력량"],
+                    "code": "power_usage",
+                    "is_active": True,
+                },
+            ],
+        )
+        self.assertEqual(payload.entity_type, "scope")
+        self.assertEqual(payload.display_name, "Scope")
+        self.assertTrue(payload.required_validation)
+        self.assertEqual(len(payload.synonyms), 1)
+        self.assertEqual(payload.synonyms[0].canonical_value, "Scope 1")
 
 
 if __name__ == "__main__":

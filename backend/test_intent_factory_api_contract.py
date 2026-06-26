@@ -15,6 +15,13 @@ class IntentFactoryApiContractTest(unittest.TestCase):
         self.assertIn('@router.put("/projects/{project_id}/intents/{intent_id}")', source)
         self.assertIn('@router.delete("/projects/{project_id}/intents/{intent_id}")', source)
         self.assertIn('@router.post("/projects/{project_id}/import-pack")', source)
+        self.assertIn('@router.get("/projects/{project_id}/entities")', source)
+        self.assertIn('@router.post("/projects/{project_id}/entities")', source)
+        self.assertIn('@router.put("/projects/{project_id}/entities/{entity_type}")', source)
+        self.assertIn('@router.delete("/projects/{project_id}/entities/{entity_type}")', source)
+        self.assertIn('@router.get("/projects/{project_id}/intents/{intent_id}/entities")', source)
+        self.assertIn('@router.put("/projects/{project_id}/intents/{intent_id}/entities")', source)
+        self.assertIn('@router.get("/projects/{project_id}/pack-draft")', source)
 
     def test_main_includes_intent_factory_router(self):
         source = MAIN_FILE.read_text(encoding="utf-8")

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useProjects from '../hooks/useProjects';
+import ActionCard from '../components/chat/ActionCard';
+import IntentDiagnostics from '../components/chat/IntentDiagnostics';
 
 const FORM_INPUT = {
   padding: '8px 12px',
@@ -15,7 +16,6 @@ const FORM_INPUT = {
 };
 
 const RetrievalTest = () => {
-  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const { projects } = useProjects();
   const [domain, setDomain] = useState('');
@@ -45,6 +45,7 @@ const RetrievalTest = () => {
       graph: [],
       actionCard: null,
       matches: [],
+      diagnostics: null,
       strategy,
       time: '-',
       confidence: '-'
@@ -76,11 +77,19 @@ const RetrievalTest = () => {
         const data = await response.json();
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
         const topMatch = data.matches?.[0];
+        const diagnostics = data.diagnostics || {
+          top_intent_id: topMatch?.intent_id || data.card?.intent_id || null,
+          top_action_id: topMatch?.action_id || data.card?.action_id || null,
+          top_confidence_label: topMatch?.confidence_label || data.card?.confidence_label || null,
+          top_score: topMatch?.score ?? data.card?.score ?? null,
+          matched_entities: topMatch?.matched_entities || data.card?.matched_entities || []
+        };
         const nextResult = {
           ...newResult,
           answer: data.card?.message || '',
           actionCard: data.card,
           matches: data.matches || [],
+          diagnostics,
           confidence: data.card?.confidence_label || topMatch?.confidence_label || '-',
           time: `${elapsed}s`
         };
@@ -142,188 +151,6 @@ const RetrievalTest = () => {
     borderBottom: activeTab === key ? '2px solid var(--color-primary)' : '2px solid transparent',
     transition: 'all 0.2s', whiteSpace: 'nowrap',
   });
-
-  const renderActionCard = (card) => {
-    if (!card) return null;
-
-    const baseCardStyle = {
-      padding: '20px',
-      background: 'var(--color-bg-surface)',
-      border: '1px solid var(--color-border)',
-      borderRadius: '8px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '14px',
-    };
-
-    const metaStyle = {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '8px',
-      fontSize: '12px',
-      color: 'var(--color-text-sub)'
-    };
-
-    const chipStyle = {
-      padding: '4px 8px',
-      borderRadius: '6px',
-      background: 'var(--color-bg-elevated)',
-      border: '1px solid var(--color-border)',
-      fontWeight: 600
-    };
-
-    if (card.type === 'navigation_card') {
-      return (
-        <div style={baseCardStyle}>
-          <div>
-            <div style={{ fontSize: '13px', color: 'var(--color-primary)', fontWeight: 700, marginBottom: '8px' }}>NAVIGATE</div>
-            <h4 style={{ margin: 0, fontSize: '18px', color: 'var(--color-text-main)' }}>{card.title}</h4>
-          </div>
-          <p style={{ margin: 0, color: 'var(--color-text-sub)', lineHeight: 1.6 }}>{card.message}</p>
-          <div style={metaStyle}>
-            <span style={chipStyle}>{card.intent_id}</span>
-            <span style={chipStyle}>{card.action_id}</span>
-            <span style={chipStyle}>{card.confidence_label}</span>
-          </div>
-          <button
-            className="btn-primary"
-            style={{ width: 'fit-content', minWidth: '180px', height: '40px' }}
-            onClick={() => navigate(card.route)}
-          >
-            {card.button_label}
-          </button>
-        </div>
-      );
-    }
-
-    if (card.type === 'document_card') {
-      return (
-        <div style={baseCardStyle}>
-          <div>
-            <div style={{ fontSize: '13px', color: 'var(--color-primary)', fontWeight: 700, marginBottom: '8px' }}>SEARCH_DOC</div>
-            <h4 style={{ margin: 0, fontSize: '18px', color: 'var(--color-text-main)' }}>{card.title}</h4>
-          </div>
-          <p style={{ margin: 0, color: 'var(--color-text-sub)', lineHeight: 1.6 }}>{card.message}</p>
-          <div style={metaStyle}>
-            <span style={chipStyle}>{card.intent_id}</span>
-            <span style={chipStyle}>{card.action_id}</span>
-            <span style={chipStyle}>{card.confidence_label}</span>
-          </div>
-          <div style={{ padding: '12px', background: 'var(--color-primary-subtle)', border: '1px solid var(--color-primary-glow)', borderRadius: '6px', fontSize: '13px', color: 'var(--color-text-sub)' }}>
-            검색 질의: {card.query}
-          </div>
-          {card.sources && card.sources.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {card.sources.map((source) => (
-                <div
-                  key={source.source_id}
-                  style={{
-                    padding: '12px',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '6px',
-                    background: 'var(--color-bg-elevated)',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
-                    <strong style={{ color: 'var(--color-text-main)', fontSize: '13px' }}>{source.title}</strong>
-                    <span style={{ color: 'var(--color-primary)', fontSize: '12px', fontWeight: 700 }}>{source.score}</span>
-                  </div>
-                  <div style={{ color: 'var(--color-text-sub)', fontSize: '13px', lineHeight: 1.5 }}>{source.snippet}</div>
-                  <div style={{ marginTop: '8px', color: 'var(--color-text-muted)', fontSize: '12px' }}>
-                    {source.source_type} · {source.source_id}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ color: 'var(--color-text-muted)', fontSize: '13px' }}>표시할 근거 문서가 없습니다.</div>
-          )}
-        </div>
-      );
-    }
-
-    if (card.type === 'query_card') {
-      const result = card.mock_result || {};
-      return (
-        <div style={baseCardStyle}>
-          <div>
-            <div style={{ fontSize: '13px', color: 'var(--color-primary)', fontWeight: 700, marginBottom: '8px' }}>QUERY MOCK</div>
-            <h4 style={{ margin: 0, fontSize: '18px', color: 'var(--color-text-main)' }}>{card.title}</h4>
-          </div>
-          <p style={{ margin: 0, color: 'var(--color-text-sub)', lineHeight: 1.6 }}>{card.message}</p>
-          <div style={metaStyle}>
-            <span style={chipStyle}>{card.intent_id}</span>
-            <span style={chipStyle}>{card.action_id}</span>
-            <span style={chipStyle}>{card.status}</span>
-            <span style={chipStyle}>confirm: {String(card.confirmation_required)}</span>
-          </div>
-          {result.metric && (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-              gap: '12px',
-              padding: '14px',
-              background: 'var(--color-primary-subtle)',
-              border: '1px solid var(--color-primary-glow)',
-              borderRadius: '8px',
-            }}>
-              {[
-                ['대상', result.target_name],
-                ['기간', result.period],
-                ['지표', result.metric],
-                ['값', `${result.value ?? '-'} ${result.unit || ''}`.trim()],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '4px', fontWeight: 700 }}>{label}</div>
-                  <div style={{ color: 'var(--color-text-main)', fontSize: '16px', fontWeight: 700 }}>{value || '-'}</div>
-                </div>
-              ))}
-            </div>
-          )}
-          {result.rows && result.rows.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {result.rows.map((row, index) => (
-                <div
-                  key={`${card.action_id}-${index}`}
-                  style={{
-                    padding: '10px 12px',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '6px',
-                    background: 'var(--color-bg-elevated)',
-                    fontSize: '13px',
-                    color: 'var(--color-text-sub)',
-                  }}
-                >
-                  {Object.entries(row).map(([key, value]) => (
-                    <span key={key} style={{ marginRight: '12px' }}>
-                      <strong style={{ color: 'var(--color-text-main)' }}>{key}</strong>: {String(value)}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-          <pre style={{ margin: 0, background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border)', borderRadius: '6px', padding: '12px', color: 'var(--color-text-main)', fontSize: '13px', overflowX: 'auto' }}>
-            {JSON.stringify(card.parameters || {}, null, 2)}
-          </pre>
-        </div>
-      );
-    }
-
-    return (
-      <div style={{ ...baseCardStyle, borderColor: 'var(--color-danger-border)', background: 'var(--color-danger-subtle)' }}>
-        <div>
-          <div style={{ fontSize: '13px', color: 'var(--color-danger)', fontWeight: 700, marginBottom: '8px' }}>FALLBACK</div>
-          <h4 style={{ margin: 0, fontSize: '18px', color: 'var(--color-text-main)' }}>{card.title}</h4>
-        </div>
-        <p style={{ margin: 0, color: 'var(--color-text-sub)', lineHeight: 1.6 }}>{card.message}</p>
-        <div style={metaStyle}>
-          <span style={chipStyle}>{card.confidence_label}</span>
-          <span style={chipStyle}>logged: {String(card.logged)}</span>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>
@@ -432,7 +259,12 @@ const RetrievalTest = () => {
                     <h4 style={{ margin: '0 0 12px', fontSize: '15px', fontWeight: 600, color: 'var(--color-text-main)' }}>
                       {selectedResult.actionCard ? 'Action Router 응답 카드' : '최종 생성된 답변'}
                     </h4>
-                    {selectedResult.actionCard ? renderActionCard(selectedResult.actionCard) : (
+                    {selectedResult.actionCard ? (
+                      <>
+                        <ActionCard card={selectedResult.actionCard} />
+                        <IntentDiagnostics diagnostics={selectedResult.diagnostics} matches={selectedResult.matches} />
+                      </>
+                    ) : (
                       <div style={{ padding: '20px', background: 'var(--color-primary-subtle)', border: '1px solid var(--color-primary-glow)', borderRadius: '8px', lineHeight: 1.8, color: 'var(--color-text-main)', fontSize: '15px' }}>
                         {selectedResult.answer}
                       </div>

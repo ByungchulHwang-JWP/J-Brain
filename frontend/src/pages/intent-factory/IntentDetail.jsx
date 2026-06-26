@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import IntentForm from '../../components/intent-factory/IntentForm';
+import IntentEntityConnector from '../../components/intent-factory/IntentEntityConnector';
 import useProjects from '../../hooks/useProjects';
 import { createIntent, getIntent, updateIntent } from '../../api/intentFactory';
 
@@ -119,7 +120,14 @@ const IntentDetail = ({ mode = 'edit' }) => {
       {loading ? (
         <div className="table-area" style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>
       ) : (
-        <IntentForm form={form} setForm={setForm} mode={mode} />
+        <div style={{ display: 'grid', gap: '18px' }}>
+          <IntentForm form={form} setForm={setForm} mode={mode} />
+          <IntentEntityConnector
+            projectId={projectId}
+            intentId={intentId || form.intent_id}
+            enabled={mode === 'edit'}
+          />
+        </div>
       )}
     </div>
   );

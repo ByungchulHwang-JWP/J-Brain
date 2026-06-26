@@ -12,6 +12,9 @@ class IntentFactorySchemaTest(unittest.TestCase):
                 "intent_examples",
                 "intent_action_links",
                 "intent_source_scopes",
+                "intent_entities",
+                "entity_synonyms",
+                "intent_entity_links",
             },
         )
 
@@ -21,6 +24,9 @@ class IntentFactorySchemaTest(unittest.TestCase):
         self.assertIn("CREATE TABLE IF NOT EXISTS graphrag.intent_examples", sql)
         self.assertIn("CREATE TABLE IF NOT EXISTS graphrag.intent_action_links", sql)
         self.assertIn("CREATE TABLE IF NOT EXISTS graphrag.intent_source_scopes", sql)
+        self.assertIn("CREATE TABLE IF NOT EXISTS graphrag.intent_entities", sql)
+        self.assertIn("CREATE TABLE IF NOT EXISTS graphrag.entity_synonyms", sql)
+        self.assertIn("CREATE TABLE IF NOT EXISTS graphrag.intent_entity_links", sql)
         self.assertIn("UNIQUE (project_id, intent_id)", sql)
         self.assertIn("JSONB", sql)
 

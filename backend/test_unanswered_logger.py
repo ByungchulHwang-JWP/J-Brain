@@ -50,6 +50,9 @@ class UnansweredLoggerTest(unittest.TestCase):
             self.assertEqual(record["pack_version"], "0.1.0")
             self.assertEqual(record["confidence_label"], "very_low")
             self.assertEqual(record["status"], "open")
+            self.assertIn("matches", record)
+            self.assertGreater(len(record["matches"]), 0)
+            self.assertEqual(record["matches"][0]["intent_id"], matches[0]["intent_id"])
 
     def test_ready_card_does_not_create_unanswered_log(self):
         with tempfile.TemporaryDirectory() as tmp_dir:

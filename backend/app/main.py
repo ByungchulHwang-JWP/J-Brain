@@ -21,7 +21,7 @@ app.add_middleware(
 async def health_check():
     return {"status": "ok", "message": "KT Net Zero AI Platform Backend is running"}
 
-from app.api import auth, projects, sources, sources_global, prompts, chat, jobs, dashboard, users, logs, stats, permissions, prompt_admin, intent_packs, intent_match, action_route, validation_runner, intent_factory
+from app.api import auth, projects, sources, sources_global, prompts, chat, jobs, dashboard, users, logs, stats, permissions, prompt_admin, intent_packs, intent_match, action_route, validation_runner, chat_runtime, intent_factory
 
 # 라우터 포함
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
@@ -32,6 +32,7 @@ app.include_router(jobs.router, prefix=f"{settings.API_V1_STR}/projects", tags=[
 app.include_router(dashboard.router, prefix=f"{settings.API_V1_STR}/projects", tags=["dashboard"])
 app.include_router(prompts.router, prefix=f"{settings.API_V1_STR}/projects", tags=["prompts"])
 app.include_router(chat.router, prefix=f"{settings.API_V1_STR}/projects", tags=["chat"])
+app.include_router(chat_runtime.router, prefix=f"{settings.API_V1_STR}/projects", tags=["chat_runtime"])
 app.include_router(users.router, prefix=f"{settings.API_V1_STR}/users", tags=["users"])
 app.include_router(logs.router, prefix=f"{settings.API_V1_STR}/logs", tags=["logs"])
 app.include_router(stats.router, prefix=f"{settings.API_V1_STR}/stats", tags=["stats"])

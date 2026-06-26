@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import SourceScopeEditor from './SourceScopeEditor';
 
 const fieldStyle = {
@@ -21,7 +22,24 @@ const categoryOptions = ['NAVIGATION', 'SEARCH_DOC', 'DATA_QUERY', 'FAQ', 'ACTIO
 const statusOptions = ['draft', 'active', 'inactive'];
 
 const IntentForm = ({ form, setForm, mode }) => {
+  const [exampleInput, setExampleInput] = useState('');
   const update = (patch) => setForm((current) => ({ ...current, ...patch }));
+  const examples = form.examples || [];
+
+  const addExample = () => {
+    const value = exampleInput.trim();
+    if (!value) return;
+    if (examples.includes(value)) {
+      setExampleInput('');
+      return;
+    }
+    update({ examples: [...examples, value] });
+    setExampleInput('');
+  };
+
+  const removeExample = (index) => {
+    update({ examples: examples.filter((_, currentIndex) => currentIndex !== index) });
+  };
 
   return (
     <div style={{ display: 'grid', gap: '18px' }}>
@@ -68,15 +86,52 @@ const IntentForm = ({ form, setForm, mode }) => {
           <textarea style={{ ...textareaStyle, minHeight: '80px' }} value={form.description || ''} onChange={(e) => update({ description: e.target.value })} placeholder="운영자가 Intent 목적을 이해할 수 있는 설명을 입력합니다." />
         </label>
 
-        <label style={{ display: 'block', marginTop: '16px' }}>
+        <div style={{ display: 'block', marginTop: '16px' }}>
           <span className="modal-label">예시 질문</span>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+            <input
+              style={fieldStyle}
+              value={exampleInput}
+              onChange={(e) => setExampleInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addExample();
+                }
+              }}
+              placeholder="예시 질문을 입력하고 Enter 또는 추가를 누릅니다."
+            />
+            <button type="button" className="btn-secondary" onClick={addExample} style={{ whiteSpace: 'nowrap' }}>추가</button>
+          </div>
           <textarea
-            style={textareaStyle}
-            value={(form.examples || []).join('\n')}
+            style={{ ...textareaStyle, minHeight: '90px' }}
+            value={examples.join('\n')}
             onChange={(e) => update({ examples: e.target.value.split('\n').map((line) => line.trim()).filter(Boolean) })}
-            placeholder={'한 줄에 하나씩 입력합니다.\n예: Scope 1 기준 알려줘\n예: 직접배출 산정 기준이 뭐야?'}
+            placeholder={'여러 질문을 한 번에 붙여넣을 수 있습니다.\n예: Scope 1 기준 알려줘\n예: 직접배출 산정 기준이 뭐야?'}
           />
-        </label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
+            {examples.map((example, index) => (
+              <span
+                key={`${example}-${index}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  maxWidth: '100%',
+                  padding: '7px 10px',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '999px',
+                  background: 'var(--color-bg-surface)',
+                  color: 'var(--color-text-main)',
+                  fontSize: '13px',
+                }}
+              >
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{example}</span>
+                <button type="button" onClick={() => removeExample(index)} style={{ border: 0, background: 'transparent', color: 'var(--color-text-sub)', cursor: 'pointer', fontSize: '14px', padding: 0 }}>×</button>
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

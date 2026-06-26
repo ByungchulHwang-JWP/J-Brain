@@ -7,6 +7,9 @@ INTENT_FACTORY_TABLES = [
     "intent_examples",
     "intent_action_links",
     "intent_source_scopes",
+    "intent_entities",
+    "entity_synonyms",
+    "intent_entity_links",
 ]
 
 
@@ -66,6 +69,48 @@ def build_create_table_sql() -> str:
         UNIQUE (project_id, intent_id)
     );
 
+    CREATE TABLE IF NOT EXISTS graphrag.intent_entities (
+        id BIGSERIAL PRIMARY KEY,
+        project_id VARCHAR(120) NOT NULL,
+        entity_type VARCHAR(160) NOT NULL,
+        display_name VARCHAR(240) NOT NULL,
+        value_type VARCHAR(80) NOT NULL DEFAULT 'string',
+        required_validation BOOLEAN NOT NULL DEFAULT FALSE,
+        normalization_rule VARCHAR(160),
+        description TEXT,
+        status VARCHAR(40) NOT NULL DEFAULT 'active',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (project_id, entity_type)
+    );
+
+    CREATE TABLE IF NOT EXISTS graphrag.entity_synonyms (
+        id BIGSERIAL PRIMARY KEY,
+        project_id VARCHAR(120) NOT NULL,
+        entity_type VARCHAR(160) NOT NULL,
+        canonical_value VARCHAR(240) NOT NULL,
+        synonyms JSONB NOT NULL DEFAULT '[]'::jsonb,
+        code VARCHAR(160),
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (project_id, entity_type, canonical_value)
+    );
+
+    CREATE TABLE IF NOT EXISTS graphrag.intent_entity_links (
+        id BIGSERIAL PRIMARY KEY,
+        project_id VARCHAR(120) NOT NULL,
+        intent_id VARCHAR(160) NOT NULL,
+        entity_type VARCHAR(160) NOT NULL,
+        parameter_name VARCHAR(160),
+        required BOOLEAN NOT NULL DEFAULT FALSE,
+        default_policy TEXT,
+        validation_rule TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (project_id, intent_id, entity_type)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_intent_definitions_project_status
         ON graphrag.intent_definitions(project_id, status);
 
@@ -74,6 +119,15 @@ def build_create_table_sql() -> str:
 
     CREATE INDEX IF NOT EXISTS idx_intent_source_scopes_project_intent
         ON graphrag.intent_source_scopes(project_id, intent_id);
+
+    CREATE INDEX IF NOT EXISTS idx_intent_entities_project_status
+        ON graphrag.intent_entities(project_id, status);
+
+    CREATE INDEX IF NOT EXISTS idx_entity_synonyms_project_entity
+        ON graphrag.entity_synonyms(project_id, entity_type);
+
+    CREATE INDEX IF NOT EXISTS idx_intent_entity_links_project_intent
+        ON graphrag.intent_entity_links(project_id, intent_id);
     """
 
 

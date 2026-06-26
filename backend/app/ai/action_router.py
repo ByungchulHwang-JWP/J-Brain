@@ -24,7 +24,7 @@ class ActionRouter:
 
     def route(self, question: str, matches: list[dict[str, Any]]) -> dict[str, Any]:
         if not matches:
-            return self._fallback_card(question, None, None, "very_low")
+            return self._fallback_card(question, None, None, "very_low", matches=matches)
 
         top_match = matches[0]
         confidence_label = top_match.get("confidence_label", "very_low")
@@ -34,6 +34,7 @@ class ActionRouter:
                 top_match.get("intent_id"),
                 top_match.get("action_id"),
                 confidence_label,
+                matches=matches,
             )
 
         action_id = top_match.get("action_id")
@@ -45,6 +46,7 @@ class ActionRouter:
                 action_id,
                 confidence_label,
                 message="연결된 Action을 찾지 못했습니다.",
+                matches=matches,
             )
 
         action_type = action.get("action_type")
@@ -62,6 +64,7 @@ class ActionRouter:
                 top_match.get("intent_id"),
                 action_id,
                 confidence_label,
+                matches=matches,
             )
 
         return self._fallback_card(
@@ -70,6 +73,7 @@ class ActionRouter:
             action_id,
             confidence_label,
             message=f"지원하지 않는 Action 유형입니다: {action_type}",
+            matches=matches,
         )
 
     def _navigation_card(
@@ -165,6 +169,7 @@ class ActionRouter:
         action_id: str | None,
         confidence_label: str,
         message: str = "질문 의도를 확인하지 못했습니다. 미응답 질문으로 기록합니다.",
+        matches: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         log_record = None
         if self.unanswered_logger:
@@ -175,6 +180,7 @@ class ActionRouter:
                 intent_id=intent_id,
                 action_id=action_id,
                 confidence_label=confidence_label,
+                matches=matches,
             )
 
         return {
