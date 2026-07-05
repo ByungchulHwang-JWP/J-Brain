@@ -1,0 +1,10 @@
+[
+  {
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "action_name": "J-Brain 문서 검색",
+    "action_type": "SEARCH_DOC",
+    "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다.",
+    "execution_mode": "local",
+    "enabled": true
+  }
+]

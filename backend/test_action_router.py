@@ -58,7 +58,17 @@ class ActionRouterTest(unittest.TestCase):
         self.assertEqual(card["action_id"], "ACT-NZ-SEARCH-SCOPE-GUIDE")
         self.assertEqual(card["query"], "Scope 1 기준 알려줘")
         self.assertGreaterEqual(len(card["sources"]), 1)
-        self.assertEqual(card["sources"][0]["source_id"], "FAQ-NZ-002")
+        self.assertEqual(card["sources"][0]["faq_id"], "FAQ-NZ-002")
+        self.assertEqual(card["source_summary"]["faq_count"], 1)
+        self.assertGreaterEqual(len(card["faq_matches"]), 1)
+
+    def test_direct_faq_match_returns_document_card_even_when_intent_confidence_is_low(self):
+        card = self.route_question("탄소중립플랫폼이 무엇인가요?")
+
+        self.assertEqual(card["type"], "document_card")
+        self.assertEqual(card["status"], "ready")
+        self.assertEqual(card["confidence_label"], "faq_direct")
+        self.assertEqual(card["faq_matches"][0]["faq_id"], "FAQ-NZ-001")
 
     def test_query_intent_returns_confirmation_required_card(self):
         card = self.route_question("A공장 탄소 배출량 알려줘")

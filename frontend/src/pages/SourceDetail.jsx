@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { isAuthError } from '../api/httpClient';
 
 const SourceDetail = () => {
   const { id } = useParams();
@@ -27,6 +28,10 @@ const SourceDetail = () => {
         setSource(res.data);
       } catch (err) {
         console.error(err);
+        if (isAuthError(err)) {
+          alert('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+          return;
+        }
         alert('문서 정보를 불러오는데 실패했습니다.');
       } finally {
         setLoading(false);
@@ -75,6 +80,10 @@ const SourceDetail = () => {
       });
       navigate('/admin/sources');
     } catch (err) {
+      if (isAuthError(err)) {
+        alert('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+        return;
+      }
       alert('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     }
   };

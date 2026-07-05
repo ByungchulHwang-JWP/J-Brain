@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from app.ai.intent_pack_loader import IntentPack
@@ -29,6 +31,9 @@ class ActionRouter:
         top_match = matches[0]
         confidence_label = top_match.get("confidence_label", "very_low")
         if confidence_label in self.BLOCKED_CONFIDENCE_LABELS:
+            faq_card = self._direct_faq_card(question, top_match)
+            if faq_card:
+                return faq_card
             return self._fallback_card(
                 question,
                 top_match.get("intent_id"),
@@ -107,6 +112,8 @@ class ActionRouter:
         action: dict[str, Any],
     ) -> dict[str, Any]:
         sources = self.search_doc_action.search(question, top_k=3)
+        faq_matches = [source for source in sources if source.get("source_type") == "faq"]
+        document_matches = [source for source in sources if source.get("source_type") != "faq"]
         status = "ready" if sources else "no_results"
         return {
             "type": "document_card",
@@ -120,7 +127,54 @@ class ActionRouter:
             else "승인된 문서에서 관련 근거를 찾지 못했습니다.",
             "query": question,
             "sources": sources,
+            "faq_matches": faq_matches,
+            "source_summary": {
+                "faq_count": len(faq_matches),
+                "document_count": len(document_matches),
+            },
         }
+
+    def _direct_faq_card(
+        self,
+        question: str,
+        match: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        sources = self.search_doc_action.search(question, top_k=3)
+        faq_matches = [
+            source
+            for source in sources
+            if source.get("source_type") == "faq" and source.get("score", 0) >= 0.4
+        ]
+        if not faq_matches:
+            return None
+
+        action = self._first_search_doc_action()
+        if not action:
+            return None
+
+        document_matches = [source for source in sources if source.get("source_type") != "faq"]
+        return {
+            "type": "document_card",
+            "status": "ready",
+            "intent_id": match.get("intent_id"),
+            "action_id": action["action_id"],
+            "confidence_label": "faq_direct",
+            "title": action.get("action_name"),
+            "message": "FAQ에서 직접 일치하는 근거를 검색했습니다.",
+            "query": question,
+            "sources": sources,
+            "faq_matches": faq_matches,
+            "source_summary": {
+                "faq_count": len(faq_matches),
+                "document_count": len(document_matches),
+            },
+        }
+
+    def _first_search_doc_action(self) -> dict[str, Any] | None:
+        for action in self.actions_by_id.values():
+            if action.get("action_type") == "SEARCH_DOC":
+                return action
+        return None
 
     def _query_card(
         self,

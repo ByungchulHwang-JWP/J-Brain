@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 
 from app.ai.intent_matcher import IntentMatcher
-from app.ai.intent_pack_loader import IntentPackLoader
+from app.ai.intent_pack_loader import IntentPack, IntentPackLoader
 
 
 PACK_ROOT = (
@@ -89,6 +89,43 @@ class IntentMatcherTest(unittest.TestCase):
                 for entity in entities
             )
         )
+
+    def test_accepts_db_draft_example_shape(self):
+        pack = IntentPack(
+            root_dir=Path("."),
+            manifest={},
+            profile={},
+            nlu={
+                "intents": [
+                    {
+                        "intent_id": "INT-DB-DRAFT",
+                        "intent_name": "DB Draft 검증",
+                        "category": "SEARCH_DOC",
+                        "action_id": "ACT-DB-DRAFT",
+                    }
+                ],
+                "intent_examples": [
+                    {
+                        "intent_id": "INT-DB-DRAFT",
+                        "example": "J-Brain 주요 기능 알려줘",
+                    }
+                ],
+                "entity_synonyms": [],
+                "confidence_policy": {"category_policy": {"SEARCH_DOC": {"high": 0.65}}},
+            },
+            action={
+                "action_registry": [{"action_id": "ACT-DB-DRAFT", "action_type": "SEARCH_DOC"}],
+                "screen_routes": [],
+            },
+            knowledge={},
+            templates={},
+            validation={},
+        )
+
+        matches = IntentMatcher(pack).match("J-Brain 주요 기능 알려줘", top_k=1)
+
+        self.assertEqual(matches[0]["intent_id"], "INT-DB-DRAFT")
+        self.assertEqual(matches[0]["matched_examples"][0]["text"], "J-Brain 주요 기능 알려줘")
 
 
 if __name__ == "__main__":

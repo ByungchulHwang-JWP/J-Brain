@@ -1,6 +1,7 @@
 import unittest
 
 from app.services.intent_factory_service import (
+    _action_to_pack_records,
     _pack_entity_to_payload,
     build_default_source_scope,
     normalize_example_text,
@@ -76,6 +77,41 @@ class IntentFactoryServiceTest(unittest.TestCase):
         self.assertTrue(payload.required_validation)
         self.assertEqual(len(payload.synonyms), 1)
         self.assertEqual(payload.synonyms[0].canonical_value, "Scope 1")
+
+    def test_action_to_pack_records_maps_navigation_route(self):
+        records = _action_to_pack_records(
+            {
+                "action_id": "ACT-JB-GO-DASHBOARD",
+                "action_name": "운영 현황 화면 이동",
+                "action_type": "NAVIGATE",
+                "description": "운영 현황으로 이동한다.",
+                "execution_mode": "screen",
+                "route_value": "/admin/dashboard",
+                "menu_name": "운영 현황",
+                "allowed_roles": ["ROLE_ADMIN"],
+                "status": "active",
+            }
+        )
+        self.assertEqual(records["action_registry"][0]["action_id"], "ACT-JB-GO-DASHBOARD")
+        self.assertEqual(records["screen_routes"][0]["route_value"], "/admin/dashboard")
+        self.assertEqual(records["screen_routes"][0]["required_role"], "ROLE_ADMIN")
+
+    def test_action_to_pack_records_maps_query_sql_template(self):
+        records = _action_to_pack_records(
+            {
+                "action_id": "ACT-NZ-QUERY-POWER",
+                "action_name": "전력 사용량 조회",
+                "action_type": "QUERY",
+                "execution_mode": "sql_template",
+                "api_method": "POST",
+                "api_endpoint": "/api/power",
+                "sql_template": "SELECT * FROM power_usage WHERE site = :site",
+                "allowed_roles": ["ROLE_OPERATOR"],
+                "status": "active",
+            }
+        )
+        self.assertEqual(records["api_mappings"][0]["endpoint"], "/api/power")
+        self.assertIn("power_usage", records["sql_templates"][0]["sql_template"])
 
 
 if __name__ == "__main__":

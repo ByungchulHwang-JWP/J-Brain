@@ -1,0 +1,60 @@
+{
+  "source_scopes": [
+    {
+      "intent_id": "INT-JBRAIN-522757",
+      "source_category": "",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    },
+    {
+      "intent_id": "INT-JBRAIN-704057",
+      "source_category": "",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    },
+    {
+      "intent_id": "INT-NZ-DOC-001",
+      "source_category": "J-Brain",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    },
+    {
+      "intent_id": "INT-NZ-DOC-002",
+      "source_category": "J-Brain",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    },
+    {
+      "intent_id": "INT-NZ-DOC-003",
+      "source_category": "J-Brain",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    },
+    {
+      "intent_id": "INT-NZ-DOC-004",
+      "source_category": "J-Brain",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    }
+  ],
+  "data_residency": "customer_internal_network",
+  "external_transfer": "pack_metadata_only"
+}

@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>1단계 기반 설정 메인 화면 v5</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #d9e2ef;
+      --text: #142033;
+      --muted: #667085;
+      --brand: #0b5cff;
+      --navy: #08265a;
+      --green: #168a55;
+      --amber: #b7791f;
+      --red: #d92d20;
+      --soft-blue: #eaf2ff;
+      --soft-green: #e9f8f0;
+      --soft-amber: #fff6df;
+      --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .page {
+      max-width: 1760px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+    .shell {
+      display: grid;
+      grid-template-columns: 268px 1fr;
+      gap: 24px;
+      min-height: calc(100vh - 64px);
+    }
+    .side {
+      background: #0f172a;
+      color: white;
+      border-radius: 18px;
+      padding: 22px 18px;
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: .2px;
+      margin-bottom: 28px;
+    }
+    .menu-title {
+      color: #98a2b3;
+      font-size: 12px;
+      font-weight: 900;
+      margin: 22px 0 10px;
+    }
+    .menu-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 760;
+      margin-bottom: 4px;
+    }
+    .menu-item.active {
+      background: #1d4ed8;
+      color: white;
+    }
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 22px;
+      box-shadow: var(--shadow);
+    }
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    h1 {
+      font-size: 30px;
+      line-height: 1.18;
+      margin: 0;
+      letter-spacing: 0;
+    }
+    .stage-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--soft-blue);
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+    .workflow-step {
+      min-height: 82px;
+      border: 1px solid #e5eaf2;
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfcff;
+      position: relative;
+    }
+    .workflow-step.current {
+      border-color: #8cb7ff;
+      background: #eff6ff;
+    }
+    .workflow-step.next {
+      border-color: #b7e4c7;
+      background: #f0fdf4;
+    }
+    .step-no {
+      font-size: 12px;
+      font-weight: 950;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .step-name {
+      font-size: 14px;
+      font-weight: 950;
+      color: #111827;
+    }
+    .step-state {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 850;
+      color: var(--muted);
+    }
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 18px;
+      align-items: start;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px;
+      border-bottom: 1px solid #e8edf5;
+    }
+    .card-title {
+      font-size: 19px;
+      font-weight: 950;
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 18px 24px 0;
+    }
+    .status-box {
+      border: 1px solid #e4e9f2;
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 14px;
+      min-height: 84px;
+    }
+    .status-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 8px;
+    }
+    .status-value {
+      font-size: 20px;
+      font-weight: 950;
+      color: var(--navy);
+    }
+    .form {
+      padding: 24px;
+      display: grid;
+      gap: 22px;
+    }
+    .form-section {
+      border: 1px solid #e4e9f2;
+      border-radius: 16px;
+      padding: 18px;
+      background: #ffffff;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 950;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .section-title small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    label {
+      font-size: 13px;
+      color: #344054;
+      font-weight: 900;
+    }
+    .required {
+      color: var(--red);
+    }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #d6deeb;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px 13px;
+      min-height: 46px;
+      font-size: 14px;
+      color: #111827;
+      outline: none;
+    }
+    textarea {
+      min-height: 104px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    input[disabled] {
+      background: #eef2f7;
+      color: #98a2b3;
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .pill.blue { background: var(--soft-blue); color: var(--navy); }
+    .pill.green { background: var(--soft-green); color: var(--green); }
+    .pill.amber { background: var(--soft-amber); color: var(--amber); }
+    .panel-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 950;
+    }
+    .check-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .check {
+      display: grid;
+      grid-template-columns: 24px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e7edf6;
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 950;
+    }
+    .dot.done { background: #d1fadf; color: var(--green); }
+    .dot.todo { background: #fff1c2; color: var(--amber); }
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+    .history {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .history-time {
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .history-body {
+      color: #344054;
+      line-height: 1.45;
+    }
+    .next-panel {
+      border: 1px solid #b7e4c7;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    }
+    .next-preview {
+      border: 1px solid #d7f0df;
+      border-radius: 14px;
+      background: white;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .preview-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #344054;
+    }
+    .action-bar {
+      position: sticky;
+      bottom: 16px;
+      z-index: 2;
+      background: rgba(255, 255, 255, .96);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .bar-note {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    button {
+      border: 1px solid #cfd8e6;
+      background: white;
+      color: #10213f;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: default;
+      white-space: nowrap;
+    }
+    button.primary {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: white;
+    }
+    button.success {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+    button.disabled {
+      color: #98a2b3;
+      background: #f2f4f7;
+    }
+    .note {
+      margin-top: 24px;
+      background: #111827;
+      color: white;
+      border-radius: 18px;
+      padding: 22px;
+      line-height: 1.7;
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .side { display: none; }
+      .content { grid-template-columns: 1fr; }
+      .workflow { grid-template-columns: repeat(3, 1fr); }
+      .status-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .page { padding: 16px; }
+      .topbar, .card-head, .action-bar { align-items: flex-start; flex-direction: column; }
+      .workflow { grid-template-columns: 1fr; }
+      .grid-2, .status-row { grid-template-columns: 1fr; }
+      .buttons { width: 100%; justify-content: stretch; }
+      button { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <aside class="side">
+        <div class="brand">JWINPARTNERS</div>
+        <div class="menu-title">구축 워크플로우</div>
+        <div class="menu-item active">1. 기반 설정</div>
+        <div class="menu-item">2. 지식 준비</div>
+        <div class="menu-item">3. 의도 설계</div>
+        <div class="menu-item">4. 질문 커버리지</div>
+        <div class="menu-item">5. 용어 사전</div>
+        <div class="menu-item">6. 답변 근거</div>
+        <div class="menu-item">7. 실행 연결</div>
+        <div class="menu-title">Pack 제작/배포</div>
+        <div class="menu-item">Pack 검증</div>
+        <div class="menu-item">Runtime 시뮬레이션</div>
+        <div class="menu-item">배포/활성화</div>
+      </aside>
+
+      <main class="main">
+        <section class="topbar">
+          <div>
+            <div class="breadcrumb">Intent Factory &gt; 구축 워크플로우 &gt; 기반 설정</div>
+            <h1>프로젝트 등록</h1>
+          </div>
+          <div class="stage-chip">현재 단계 1/12 · 다음 단계: 지식 준비</div>
+        </section>
+
+        <section class="workflow">
+          <div class="workflow-step current">
+            <div class="step-no">01</div>
+            <div class="step-name">기반 설정</div>
+            <div class="step-state">등록 중</div>
+          </div>
+          <div class="workflow-step next">
+            <div class="step-no">02</div>
+            <div class="step-name">지식 준비</div>
+            <div class="step-state">대기 · Source 수집</div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-no">03</div>
+            <div class="step-name">의도 설계</div>
+            <div class="step-state">대기</div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-no">04</div>
+            <div class="step-name">질문 커버리지</div>
+            <div class="step-state">대기</div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-no">05</div>
+            <div class="step-name">용어 사전</div>
+            <div class="step-state">대기</div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-no">06</div>
+            <div class="step-name">답변 근거</div>
+            <div class="step-state">대기</div>
+          </div>
+        </section>
+
+        <section class="content">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">프로젝트 정보 관리</div>
+                <div class="card-desc">챗봇 구축 작업을 시작하기 위한 프로젝트 기본 정보를 등록합니다. 임시 저장 상태에서는 다음 단계로 이동하지 않고, 등록 완료 후 지식 준비 단계가 열립니다.</div>
+              </div>
+              <span class="pill amber">임시 저장</span>
+            </div>
+
+            <div class="status-row">
+              <div class="status-box">
+                <div class="status-label">작성 상태</div>
+                <div class="status-value">임시 저장</div>
+                <div class="hint">마지막 저장 3분 전</div>
+              </div>
+              <div class="status-box">
+                <div class="status-label">필수 항목</div>
+                <div class="status-value">4/5</div>
+                <div class="hint">목표 검증일 필요</div>
+              </div>
+              <div class="status-box">
+                <div class="status-label">프로젝트 상태</div>
+                <div class="status-value">등록 중</div>
+                <div class="hint">지식 준비 전 단계</div>
+              </div>
+              <div class="status-box">
+                <div class="status-label">다음 작업</div>
+                <div class="status-value">Source 수집</div>
+                <div class="hint">등록 완료 후 이동</div>
+              </div>
+            </div>
+
+            <div class="form">
+              <div class="form-section">
+                <div class="section-title">
+                  기본 정보
+                  <small>필수 3개</small>
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label>프로젝트 ID</label>
+                    <input value="PRJ-JBRAIN-202606-001" disabled />
+                    <div class="hint">최초 등록 시 자동 생성되며 변경할 수 없습니다.</div>
+                  </div>
+                  <div class="field">
+                    <label>프로젝트 유형</label>
+                    <select>
+                      <option>일반 지식형 챗봇</option>
+                      <option>업무 실행형 챗봇</option>
+                      <option>FAQ 중심 챗봇</option>
+                      <option>탄소중립 플랫폼형</option>
+                    </select>
+                    <div class="hint">선택한 유형은 이후 추천 Intent와 검증 질문 기본값에 사용됩니다.</div>
+                  </div>
+                </div>
+                <div style="height:14px"></div>
+                <div class="field">
+                  <label>프로젝트명 <span class="required">*</span></label>
+                  <input value="J-Brain" />
+                </div>
+                <div style="height:14px"></div>
+                <div class="field">
+                  <label>프로젝트 설명 <span class="required">*</span></label>
+                  <textarea>폐쇄망 고객 환경에 배포 가능한 Intent Pack 기반 AI 챗봇 Runtime 구축 프로젝트</textarea>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title">
+                  담당자 및 목표 일정
+                  <small>다음 단계 진입 조건</small>
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label>PM / 오너 <span class="required">*</span></label>
+                    <input value="황병철" />
+                  </div>
+                  <div class="field">
+                    <label>구축 담당자</label>
+                    <input value="JWP Intent Factory Team" />
+                  </div>
+                  <div class="field">
+                    <label>구축 시작일 <span class="required">*</span></label>
+                    <input value="2026-06-29" />
+                  </div>
+                  <div class="field">
+                    <label>목표 검증일 <span class="required">*</span></label>
+                    <input placeholder="예: 2026-07-10" />
+                    <div class="hint">이 값을 입력하면 등록 완료 조건이 충족됩니다.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title">
+                  운영 메모
+                  <small>선택</small>
+                </div>
+                <div class="field">
+                  <label>초기 구축 기준</label>
+                  <textarea>7월 중순 시연을 목표로 파일 Pack 기반 Runtime, FAQ/Source 검색, Pack 검증 흐름을 우선 적용합니다.</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="panel-stack">
+            <div class="panel">
+              <h3>등록 완료 조건</h3>
+              <div class="check-list">
+                <div class="check">
+                  <span class="dot done">✓</span>
+                  <span>프로젝트명 입력</span>
+                  <span class="pill green">완료</span>
+                </div>
+                <div class="check">
+                  <span class="dot done">✓</span>
+                  <span>프로젝트 설명 입력</span>
+                  <span class="pill green">완료</span>
+                </div>
+                <div class="check">
+                  <span class="dot done">✓</span>
+                  <span>PM / 오너 지정</span>
+                  <span class="pill green">완료</span>
+                </div>
+                <div class="check">
+                  <span class="dot done">✓</span>
+                  <span>구축 시작일 입력</span>
+                  <span class="pill green">완료</span>
+                </div>
+                <div class="check">
+                  <span class="dot todo">!</span>
+                  <span>목표 검증일 입력</span>
+                  <span class="pill amber">필요</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel next-panel">
+              <h3>다음 단계 연결</h3>
+              <div class="next-preview">
+                <div class="preview-row">
+                  <span class="dot done">2</span>
+                  <div>
+                    <strong>지식 준비</strong><br />
+                    등록 완료 후 Source 문서 업로드, 수집 상태 확인, 벡터화 작업을 시작합니다.
+                  </div>
+                </div>
+                <div class="preview-row">
+                  <span class="dot todo">→</span>
+                  <div>
+                    <strong>자동 전달 정보</strong><br />
+                    프로젝트 ID, 프로젝트 유형, 담당자, 목표 일정이 다음 단계의 작업 기준으로 전달됩니다.
+                  </div>
+                </div>
+                <button class="success disabled">등록 완료 후 지식 준비로 이동</button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>수정 이력</h3>
+              <div class="timeline">
+                <div class="history">
+                  <div class="history-time">10:42</div>
+                  <div class="history-body">프로젝트 설명이 수정되었습니다.</div>
+                </div>
+                <div class="history">
+                  <div class="history-time">10:38</div>
+                  <div class="history-body">프로젝트 유형이 일반 지식형 챗봇으로 설정되었습니다.</div>
+                </div>
+                <div class="history">
+                  <div class="history-time">10:31</div>
+                  <div class="history-body">임시 저장본이 생성되었습니다.</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="action-bar">
+          <div class="bar-note">
+            현재 1개 필수 항목이 남아 있습니다. 목표 검증일 입력 후 `등록 완료`를 실행하면 다음 단계인 `지식 준비`가 활성화됩니다.
+          </div>
+          <div class="buttons">
+            <button>취소</button>
+            <button>임시 저장</button>
+            <button class="primary">등록 완료</button>
+            <button class="success disabled">다음 단계로 이동</button>
+          </div>
+        </section>
+
+        <section class="note">
+          <strong>v5 설계 요약</strong><br />
+          이 화면은 최초 프로젝트 등록을 중심으로 구성하되, 상단 워크플로우와 우측 `다음 단계 연결` 패널을 통해 자연스럽게 `지식 준비` 단계로 이어집니다. 임시 저장 중에는 다음 단계 버튼을 비활성화하고, 등록 완료 조건을 충족하면 `등록 완료`와 `다음 단계로 이동`이 활성화되는 흐름입니다.
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>J-Brain MVP 시연 결과보고서</title>
+    <!-- html2pdf library for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #e0e5ec;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            z-index: 100;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #0a0a0a;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #3d3d3d;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #presentation-wrapper {
+            width: 1280px;
+            height: 720px;
+            transform-origin: top center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: white;
+        }
+        #presentation {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background: white;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            box-sizing: border-box;
+            background: white;
+        }
+        .slide.active {
+            display: flex;
+        }
+        
+        /* Header */
+        .header {
+            background-color: #0a0a0a;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            height: 90px;
+            box-sizing: border-box;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        .logo {
+            font-size: 36px;
+            font-weight: 900;
+            margin-right: 30px;
+            color: #ffffff;
+            font-family: 'Arial Black', sans-serif;
+        }
+        
+        /* Content Area */
+        .content {
+            padding: 40px 60px;
+            flex: 1;
+            position: relative;
+        }
+        .content h2 {
+            color: #0a0a0a;
+            border-bottom: 3px solid #3d3d3d;
+            padding-bottom: 12px;
+            margin-top: 0;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+        .content ul {
+            font-size: 26px;
+            line-height: 1.8;
+            color: #222;
+            padding-left: 30px;
+        }
+        .content li {
+            margin-bottom: 20px;
+        }
+        .content li ul {
+            font-size: 22px;
+            color: #555;
+            margin-top: 10px;
+        }
+        .highlight {
+            color: #3d3d3d;
+            font-weight: bold;
+        }
+        .badge {
+            background: #2e7d32;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 20px;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        
+        /* Cover Slide */
+        .cover-slide {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        .cover-slide h1 {
+            font-size: 64px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.3;
+        }
+        .cover-slide p {
+            font-size: 28px;
+            color: #cce0ff;
+            margin: 10px 0;
+        }
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            color: #888;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .cover-slide .footer {
+            color: rgba(255,255,255,0.5);
+            right: auto;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Table */
+        .slide-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            font-size: 24px;
+        }
+        .slide-table th, .slide-table td {
+            border: 2px solid #ddd;
+            padding: 18px;
+            text-align: left;
+        }
+        .slide-table th {
+            background-color: #f5f5f5;
+            color: #0a0a0a;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        /* Cards */
+        .card-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            flex: 1;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-top: 5px solid #3d3d3d;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #0a0a0a;
+            font-size: 26px;
+        }
+        .card p {
+            font-size: 22px;
+            color: #444;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <button id="prevBtn" onclick="prevSlide()" disabled>◀ 이전 페이지</button>
+    <span style="display:flex; align-items:center; font-size:18px; font-weight:bold; color:#333; margin:0 15px;">
+        <span id="pageIndicator">1 / 9</span>
+    </span>
+    <button id="nextBtn" onclick="nextSlide()">다음 페이지 ▶</button>
+    <button onclick="exportPDF()" style="background-color: #d32f2f; margin-left:20px;">📄 PDF 출력</button>
+</div>
+
+<div id="presentation-wrapper">
+    <div id="presentation">
+        
+        <!-- Slide 1: Cover -->
+        <div class="slide active cover-slide">
+            <h2 style="color:#ffffff; margin-bottom:20px; font-size:40px; border:none;">J-Brain 기반 탄소 중립 플랫폼</h2>
+            <h1>MVP 구축 완료 및 시연 보고서</h1>
+            <p style="font-size: 32px; color: #fff; margin-top:20px; font-weight:bold;">- 고객 내부망 환경 챗봇 제공 방안 실증 -</p>
+            <br><br>
+            <p>2026. 07. 05</p>
+            <p>JWP 개발팀</p>
+        </div>
+
+        <!-- Slide 2: [Slide 1~3] 추진 배경 및 문제 해결 방식 -->
+        <div class="slide">
+            <div class="header">
+                <div class="logo">JWP</div>
+                <h1>추진 배경 및 문제 해결 방식</h1>
+            </div>
+            <div class="content">
+                <h2>LLM 의존도 탈피 및 아키텍처 분리 전략 실증</h2>
+                
+                <div style="display: flex; justify-content: space-between; align-items: stretch; margin-top: 40px; gap: 20px;">
+                    <!-- As-Is Card -->
+                    <div style="flex: 1; background: #fff; border: 2px solid #e0e5ec; border-radius: 12px; padding: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div style="background: #ffebee; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+                            <span style="font-size: 40px;">🚨</span>
+                        </div>
+                        <h3 style="color: #d32f2f; font-size: 28px; margin: 0 0 20px 0;">배경 (As-Is)</h3>
+                        <p style="font-size: 21px; color: #444; line-height: 1.6; text-align: left; margin: 0; word-break: keep-all;">
+                            • <strong>보안 규제:</strong> 폐쇄망 환경의 외부망 연동 및 데이터 반출 불가<br><br>
+                            • <strong>비용 부담:</strong> 자체 On-Premise LLM 구축/운영의 막대한 리소스 소모<br><br>
+                            • <strong>환각 오류:</strong> 생성형 AI 특유의 할루시네이션 문제로 실무 적용 리스크
+                        </p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 40px; color: #b0bec5; font-weight: bold;">➔</span>
+                    </div>
+
+                    <!-- To-Be Card -->
+                    <div style="flex: 1; background: #fff; border: 2px solid #3d3d3d; border-radius: 12px; padding: 30px; box-shadow: 0 10px 20px rgba(61,61,61,0.1); display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div style="background: #f5f5f5; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+                            <span style="font-size: 40px;">💡</span>
+                        </div>
+                        <h3 style="color: #3d3d3d; font-size: 28px; margin: 0 0 20px 0;">해결책 (To-Be)</h3>
+                        <p style="font-size: 21px; color: #444; line-height: 1.6; text-align: left; margin: 0; word-break: keep-all;">
+                            • <strong>경량화 엔진:</strong> LLM에 전적으로 의존하지 않는 <strong>J-Brain 자체 NLU 공통 엔진</strong> 활용<br><br>
+                            • <strong>아키텍처 분리:</strong> 무거운 공통 플랫폼 엔진과 <strong>서비스별 두뇌 팩(Intent Pack)</strong> 완벽히 분리<br><br>
+                            • <strong>유연성:</strong> 도메인 지식만 가볍게 패키징
+                        </p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 40px; color: #b0bec5; font-weight: bold;">➔</span>
+                    </div>
+
+                    <!-- Result Card -->
+                    <div style="flex: 1; background: #fff; border: 2px solid #2e7d32; border-radius: 12px; padding: 30px; box-shadow: 0 10px 20px rgba(46,125,50,0.1); display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div style="background: #e8f5e9; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+                            <span style="font-size: 40px;">✅</span>
+                        </div>
+                        <h3 style="color: #2e7d32; font-size: 28px; margin: 0 0 20px 0;">MVP 검증 결과</h3>
+                        <p style="font-size: 21px; color: #444; line-height: 1.6; text-align: left; margin: 0; word-break: keep-all;">
+                            • <strong>보안 입증:</strong> 외부망(Factory) Pack 생성 후 내부망(Runtime) <strong>Import 파이프라인 구현</strong> 성공<br><br>
+                            • <strong>성능 확인:</strong> 폐쇄망 제약을 완벽히 준수하면서도 외부 API 없이 높은 NLU 추론 정확도 확보
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Slide 3: [Slide 4] 1차 MVP 시연 목표 달성 현황 -->
+        <div class="slide">
+            <div class="header">
+                <div class="logo">JWP</div>
+                <h1>1차 MVP 시연 목표 달성 현황</h1>
+            </div>
+            <div class="content">
+                <h2>당초 7월 중순 목표 C-lite MVP 핵심 기능 100% 구현</h2>
+                <table class="slide-table">
+                    <tr>
+                        <th width="25%">핵심 목표 기능</th>
+                        <th width="55%">구현 내용 및 시연 매핑</th>
+                        <th width="20%">달성 여부</th>
+                    </tr>
+                    <tr>
+                        <td><strong>A. 화면/기능 이동</strong></td>
+                        <td>`navigation_card`를 통한 화면 다이렉트 이동 구현<br><span style="color:#666;font-size:20px;">(탄소 배출량 대시보드 이동 시연)</span></td>
+                        <td style="text-align:center;"><span class="badge">✅ 완료</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>B. 문서/FAQ 검색</strong></td>
+                        <td>RAG 기반 지식 주입 및 AI 자동 FAQ 추출/근거 매핑 기능 구현<br><span style="color:#666;font-size:20px;">(탄소 중립 매뉴얼 질의 시연)</span></td>
+                        <td style="text-align:center;"><span class="badge">✅ 완료</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>C. 외부 API/데이터 연동</strong></td>
+                        <td>`query_card`를 활용한 사내외 API 실시간 연동 구현<br><span style="color:#666;font-size:20px;">(실시간 탄소 배출권 시세 조회 시연)</span></td>
+                        <td style="text-align:center;"><span class="badge">✅ 완료</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 4: [Slide 5~6] 구현된 아키텍처 및 공통화 전략 -->
+        <div class="slide">
+            <div class="header">
+                <div class="logo">JWP</div>
+                <h1>구현된 아키텍처 및 공통화 전략</h1>
+            </div>
+            <div class="content">
+                <h2>공통 플랫폼과 서비스별 Pack의 완벽한 분리</h2>
+                <div style="display:flex; gap:30px; margin-top:20px;">
+                    <div style="flex:1; border:2px solid #0a0a0a; padding:20px; border-radius:10px; background:#f5f5f5;">
+                        <h3 style="color:#0a0a0a; border-bottom:1px solid #ccc; padding-bottom:10px; margin-top:0; text-align:center;">공통 플랫폼 (JWP 제공)</h3>
+                        <p style="font-size:22px; color:#444; margin-bottom:10px; text-align:center;">변하지 않는 '엔진' 역할 완벽 수행</p>
+                        <ul style="font-size:20px; padding-left:20px;">
+                            <li>NLU 라우팅 및 매칭 엔진</li>
+                            <li>검색 런타임 프레임워크</li>
+                            <li>액션 실행 처리기</li>
+                        </ul>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:center;">
+                        <span style="font-size:40px; color:#3d3d3d;">➕</span>
+                    </div>
+                    <div style="flex:1; border:2px solid #3d3d3d; padding:20px; border-radius:10px; background:#fafafa;">
+                        <h3 style="color:#3d3d3d; border-bottom:1px solid #ccc; padding-bottom:10px; margin-top:0; text-align:center;">서비스별 Intent Pack</h3>
+                        <p style="font-size:22px; color:#444; margin-bottom:10px; text-align:center;">원클릭으로 챗봇 지능 교체/확장</p>
+                        <ul style="font-size:20px; padding-left:20px;">
+                            <li>탄소 중립 특화 지식 JSON 압축화</li>
+                            <li>무거운 엔진 재구축 없이 도메인 지식만 분리 주입</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top:30px; padding:15px; background:#e0e5ec; border-left:5px solid #3d3d3d; font-size:22px;">
+                    <strong>👉 시연 포인트 연계:</strong> `[1. 신규 프로젝트 등록]` 단계가 멀티테넌시 공통화 플랫폼의 강력함을 보여줍니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: [Slide 7] 탄소중립플랫폼 파일럿 적용 결과 -->
+        <div class="slide">
+            <div class="header">
+                <div class="logo">JWP</div>
+                <h1>탄소중립플랫폼 파일럿 적용 결과</h1>
+            </div>
+            <div class="content">
+                <h2>1차 파일럿 서비스 핵심 업무 Intent Pack 구현 완료</h2>
+                <div class="card-container">
+                    <div class="card">
+                        <h3>1. 상태 진단 / 시세 조회</h3>
+                        <p><strong>"오늘 KAU 탄소 배출권 시세 알려줘"</strong></p>
+                        <p style="color:#3d3d3d; font-weight:bold;">➔ 실시간 API 연동 답변 출력</p>
+                    </div>
+                    <div class="card">
+                        <h3>2. 사내 규정 / 매뉴얼 검색</h3>
+                        <p><strong>"사용자 인증 절차 알려줘"</strong></p>
+                        <p style="color:#3d3d3d; font-weight:bold;">➔ 매뉴얼 PDF 기반 할루시네이션 없는 정답 및 출처 제시</p>
+                    </div>
+                    <div class="card">
+                        <h3>3. 업무 화면 바로가기</h3>
+                        <p><strong>"탄소 배출 현황 띄워줘"</strong></p>
+                        <p style="color:#3d3d3d; font-weight:bold;">➔ 대시보드 URL 즉시 이동 버튼 제공</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: [Slide 10~13] Intent Factory 파이프라인 작동 검증 -->
+        <div class="slide">
+            <div class="header">
+                <div class="logo">JWP</div>
+                <h1>Intent Factory 파이프라인 작동 검증</h1>
+            </div>
+            <div class="content">
+                <h2>공장(Factory) 파이프라인 전체를 UI로 구현</h2>
+                <ul>
+                    <li><span class="highlight">Pack 구성 요소 완비:</span>
+                        <ul style="font-size:22px;">
+                            <li>Intent, Entity/Synonym(유의어 사전), Action, FAQ 등 장표에서 기획했던 모든 JSON 구성 요소를 J-Brain 관리자 웹 화면에서 완벽하게 제어 가능</li>
+                        </ul>
+                    </li>
+                    <li style="margin-top:20px;"><span class="highlight">Pack 생성 자동화:</span>
+                        <ul style="font-size:22px;">
+                            <li>지식 업로드 ➔ AI 의도 자동 추출 ➔ 수동 Action 연결 ➔ 무결성 검증 ➔ 버전업 빌드(v0.1.0) 원스톱 툴 완성</li>
+                        </ul>
+                    </li>
+                </ul>
+                <div style="margin-top:30px; padding:15px; background:#e0e5ec; border-left:5px solid #3d3d3d; font-size:22px;">
+                    <strong>👉 시연 포인트 연계:</strong> `[3. 의도 설계]` ~ `[5. Pack 검증 및 빌드]` 단계에서 이 강력한 관리자 경험(Admin UX)을 직접 눈으로 확인하실 수 있습니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: [Slide 14] 보안 및 운영 원칙 적용 -->
+        <div class="slide">
+            <div class="header">
+                <div class="logo">JWP</div>
+                <h1>보안 및 운영 원칙 적용</h1>
+            </div>
+            <div class="content">
+                <h2>내부 데이터 보호 및 시스템 투명성 확보</h2>
+                <ul>
+                    <li><span class="highlight">데이터 유출 차단 (하이브리드 RAG):</span>
+                        <ul style="font-size:24px;">
+                            <li>내부 지식 문서와 FAQ는 철저히 폐쇄망(Runtime) 내에서만 검색</li>
+                            <li>외부 LLM API 호출을 최소화하는 하이브리드 RAG 정책 적용 완료</li>
+                        </ul>
+                    </li>
+                    <li style="margin-top:40px;"><span class="highlight">White-box 기반의 모니터링 체계:</span>
+                        <ul style="font-size:24px;">
+                            <li>챗봇의 답변 도출 과정, 점수(Score) 및 매칭된 Intent를 명확하게 들여다볼 수 있는 <strong>[Runtime QA 대화 테스트]</strong> 도구 탑재</li>
+                            <li>블랙박스형 AI의 한계를 극복하고 운영 안정성 대폭 향상</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: [Slide 15] 향후 계획 -->
+        <div class="slide">
+            <div class="header">
+                <div class="logo">JWP</div>
+                <h1>향후 계획 (Next Steps)</h1>
+            </div>
+            <div class="content">
+                <h2>성공적인 MVP 시연을 기점 삼아 전사적 확산 추진</h2>
+                <ul style="line-height:2.0;">
+                    <li><span class="highlight">1. 시연 완료 후 (Post-Demo):</span>
+                        <ul style="font-size:24px;">
+                            <li>탄소중립플랫폼 파일럿 피드백 수렴 및 UI/UX 디테일 폴리싱</li>
+                        </ul>
+                    </li>
+                    <li><span class="highlight">2. 수평 전개 (Horizontal Roll-out):</span>
+                        <ul style="font-size:24px;">
+                            <li>HR, 재무, IT Helpdesk 등 사내 타 시스템으로 신규 프로젝트(Tenant)를 생성하여 챗봇 적용 범위 확대</li>
+                        </ul>
+                    </li>
+                    <li><span class="highlight">3. 시스템 고도화 과제:</span>
+                        <ul style="font-size:24px;">
+                            <li>1차 제외 범위였던 동적 DB 조회(Text-to-SQL) 및 복합 Action(데이터 등록/수정) 기능에 대한 R&D 본격 착수</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9: Live Demo -->
+        <div class="slide cover-slide" style="background:#0a0a0a;">
+            <h1>Live Demo</h1>
+            <p style="font-size: 32px; color: #ffffff; margin-top:20px; font-weight:bold;">[탄소중립플랫폼] J-Brain 챗봇 시연</p>
+            <div class="footer" style="text-align:center; width:100%; right:auto;">감사합니다</div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageIndicator = document.getElementById('pageIndicator');
+
+    function updateSlides() {
+        slides.forEach((slide, index) => {
+            if (index === currentSlide) {
+                slide.classList.add('active');
+            } else {
+                slide.classList.remove('active');
+            }
+        });
+        
+        prevBtn.disabled = currentSlide === 0;
+        nextBtn.disabled = currentSlide === slides.length - 1;
+        pageIndicator.innerText = `${currentSlide + 1} / ${slides.length}`;
+    }
+
+    function nextSlide() {
+        if (currentSlide < slides.length - 1) {
+            currentSlide++;
+            updateSlides();
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            currentSlide--;
+            updateSlides();
+        }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'Enter') {
+            nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+            prevSlide();
+        }
+    });
+
+    // Window resize scaling to fit wrapper
+    function resizePresentation() {
+        const wrapper = document.getElementById('presentation-wrapper');
+        const width = window.innerWidth - 40;
+        const height = window.innerHeight - 100;
+        
+        const scaleX = width / 1280;
+        const scaleY = height / 720;
+        const scale = Math.min(scaleX, scaleY);
+        
+        wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.marginBottom = `-${720 * (1 - scale)}px`;
+    }
+    
+    window.addEventListener('resize', resizePresentation);
+    resizePresentation();
+
+    // PDF Export Logic
+    async function exportPDF() {
+        const element = document.getElementById('presentation');
+        
+        // Save current UI state
+        const currentActive = currentSlide;
+        
+        // Prepare for PDF generation
+        element.style.height = 'auto';
+        element.style.overflow = 'visible';
+        slides.forEach(s => {
+            s.style.display = 'flex';
+            s.style.position = 'relative';
+            s.style.height = '720px';
+            s.style.pageBreakAfter = 'always';
+        });
+        
+        const opt = {
+            margin:       0,
+            filename:     'J-Brain_MVP_시연_결과보고서.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'px', format: [1280, 720], orientation: 'landscape' }
+        };
+        
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (error) {
+            console.error("PDF Export failed", error);
+            alert("PDF 생성 중 오류가 발생했습니다.");
+        } finally {
+            // Restore UI state
+            element.style.height = '720px';
+            element.style.overflow = 'hidden';
+            slides.forEach((s, idx) => {
+                s.style.position = 'absolute';
+                s.style.pageBreakAfter = 'auto';
+                if (idx === currentActive) {
+                    s.style.display = 'flex';
+                } else {
+                    s.style.display = 'none';
+                }
+            });
+        }
+    }
+</script>
+
+</body>
+</html>

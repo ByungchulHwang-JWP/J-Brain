@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JWP Intent Factory 6단계 Workflow Mock v2</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --soft-panel: #f8fafc;
+      --line: #dfe5ef;
+      --line-strong: #cbd5e1;
+      --ink: #111827;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --navy: #06245a;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --green-bg: #ecfdf5;
+      --amber: #b7791f;
+      --amber-bg: #fff7df;
+      --red: #dc2626;
+      --red-bg: #fff1f2;
+      --shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+      font-family: Inter, "Pretendard", "Noto Sans KR", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    button, input, select, textarea { font: inherit; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+      overflow: auto;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      color: var(--navy);
+      font-size: 20px;
+      font-weight: 900;
+    }
+    .mark {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--navy);
+      border-radius: 6px;
+      transform: rotate(45deg);
+    }
+    .side-title {
+      margin: 22px 0 10px;
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .side-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 42px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: #334155;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .side-link.active {
+      color: var(--navy);
+      background: #eef4ff;
+      box-shadow: inset 3px 0 0 var(--navy);
+    }
+    .side-link small {
+      color: var(--soft);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .side-note {
+      margin: 14px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--soft-panel);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 22px 34px 60px;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      margin: -22px -34px 24px;
+      padding: 16px 34px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+    }
+    .topbar h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .project-pill {
+      min-width: 330px;
+      padding: 11px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--navy);
+      font-weight: 900;
+    }
+    .user-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .hero-card {
+      padding: 26px 30px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: linear-gradient(135deg, #082c63, #155e75 55%, #2563eb);
+      box-shadow: var(--shadow);
+    }
+    .hero-card h2 {
+      margin: 8px 0;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .hero-card p {
+      max-width: 1040px;
+      margin: 0;
+      color: rgba(255,255,255,0.78);
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .summary-card {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+    .summary-card h3 { margin: 0; font-size: 18px; }
+    .summary-card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.9);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .chip.done { color: var(--green); background: var(--green-bg); }
+    .chip.warn { color: var(--amber); background: var(--amber-bg); }
+    .chip.fail { color: var(--red); background: var(--red-bg); }
+
+    .workflow-rail {
+      position: sticky;
+      top: 69px;
+      z-index: 5;
+      margin-bottom: 20px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+    .rail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .rail-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .phase-card {
+      min-height: 92px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft-panel);
+    }
+    .phase-card.done {
+      border-color: #a7f3d0;
+      background: #ecfdf5;
+    }
+    .phase-card.current {
+      border-color: #93c5fd;
+      background: #eff6ff;
+      box-shadow: inset 0 0 0 1px #60a5fa;
+    }
+    .phase-card.waiting {
+      color: #94a3b8;
+      background: #f8fafc;
+    }
+    .phase-card span {
+      display: block;
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .phase-card strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+    .phase-card small {
+      display: block;
+      margin-top: 10px;
+      color: var(--soft);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .section-title {
+      margin: 32px 0 16px;
+    }
+    .section-title h2 {
+      margin: 0;
+      font-size: 25px;
+      letter-spacing: 0;
+    }
+    .section-title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .phase-frame {
+      margin-bottom: 28px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #eef2f7;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .phase-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    .phase-header h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .phase-header p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .phase-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 900;
+      text-decoration: none;
+      box-shadow: 0 8px 16px rgba(6,36,90,0.14);
+    }
+    .secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #334155;
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .phase-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      padding: 18px;
+    }
+    .main-panel {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+    .aside {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .panel h4 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .tab {
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .tab.active {
+      background: var(--navy);
+      color: #fff;
+    }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .metric {
+      min-height: 102px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .metric small {
+      color: var(--muted);
+      font-weight: 900;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      color: var(--navy);
+      font-size: 30px;
+      line-height: 1;
+    }
+    .task-card {
+      min-height: 130px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8fafc;
+    }
+    .task-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--navy);
+      font-size: 16px;
+    }
+    .task-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .table th {
+      padding: 10px 12px;
+      background: #eef2f7;
+      color: #64748b;
+      text-align: left;
+      font-size: 12px;
+    }
+    .table td {
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      color: #334155;
+      vertical-align: top;
+      font-weight: 700;
+    }
+    .gate-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .gate-list li {
+      display: grid;
+      grid-template-columns: 24px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 44px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .dot {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .dot.done { background: var(--green); }
+    .dot.warn { background: #f59e0b; }
+    .drawer-note {
+      padding: 16px;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius);
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .mapping {
+      display: grid;
+      grid-template-columns: 1fr 34px 1fr 34px 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .mapping-box {
+      min-height: 120px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .mapping-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--navy);
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .footer-note {
+      margin-top: 24px;
+      padding: 18px 22px;
+      border-radius: var(--radius);
+      background: #fff;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 1280px) {
+      .app { grid-template-columns: 220px 1fr; }
+      .hero, .phase-body { grid-template-columns: 1fr; }
+      .rail-grid { grid-template-columns: repeat(3, 1fr); }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .mapping { grid-template-columns: 1fr; }
+      .mapping-arrow { min-height: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="mark"></span>JWINPARTNERS</div>
+
+      <div class="side-title">구축 워크플로우</div>
+      <a class="side-link active" href="#dashboard">워크플로우 대시보드</a>
+      <div class="side-note">프로젝트 선택/목록은 좌측 메뉴에서 제외하고 상단 프로젝트 전환으로 통합합니다.</div>
+      <a class="side-link" href="#phase-01">1. 프로젝트 준비 <small>기반</small></a>
+      <a class="side-link" href="#phase-02">2. 지식 준비 <small>Source/FAQ</small></a>
+      <a class="side-link" href="#phase-03">3. 의도 설계 <small>Intent/Entity</small></a>
+      <a class="side-link" href="#phase-04">4. 실행 연결 <small>Action</small></a>
+      <a class="side-link" href="#phase-05">5. Pack 검증/빌드 <small>QA/Export</small></a>
+      <a class="side-link" href="#phase-06">6. 배포/운영 개선 <small>Active/개선</small></a>
+
+      <div class="side-title">관리 기능</div>
+      <a class="side-link" href="#">Source 관리</a>
+      <a class="side-link" href="#">Intent 관리</a>
+      <a class="side-link" href="#">FAQ 관리</a>
+      <a class="side-link" href="#">Action 관리</a>
+      <a class="side-link" href="#">Pack Repository</a>
+      <a class="side-link" href="#">운영 분석</a>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>JWP Intent Factory 구축 콘솔</h1>
+        <div class="project-pill">현재 프로젝트: J-Brain · Draft v0.1.0</div>
+        <div class="user-pill">System Admin</div>
+      </header>
+
+      <section id="dashboard" class="hero">
+        <div class="hero-card">
+          <span class="pill">6단계 Workflow Mock v2</span>
+          <h2>12단계를 운영자가 이해하기 쉬운 6개 구축 단계로 재구성합니다</h2>
+          <p>
+            기존 12단계는 기능 메뉴 단위가 섞여 있어 진행 순서가 길게 느껴집니다.
+            v2에서는 유사 작업을 그룹화하고, 각 그룹 안에 탭과 작업 카드로 세부 기능을 배치합니다.
+          </p>
+        </div>
+        <aside class="summary-card">
+          <span class="chip done">추천 구조</span>
+          <h3>6단계 + 단계별 탭</h3>
+          <p>좌측 메뉴는 큰 흐름만 보여주고, 세부 기능은 현재 단계 화면 안에서 처리합니다.</p>
+          <a class="primary" href="#phase-01">6단계 Mock 보기</a>
+        </aside>
+      </section>
+
+      <section class="workflow-rail" aria-label="6단계 상태바">
+        <div class="rail-header">
+          <span>현재 프로젝트 진행 상태</span>
+          <span>좌측 메뉴는 이동, 이 영역은 상태와 다음 작업 판단에 집중</span>
+        </div>
+        <div class="rail-grid">
+          <div class="phase-card done"><span>01</span><strong>프로젝트 준비</strong><small>완료</small></div>
+          <div class="phase-card done"><span>02</span><strong>지식 준비</strong><small>완료</small></div>
+          <div class="phase-card current"><span>03</span><strong>의도 설계</strong><small>진행 중</small></div>
+          <div class="phase-card waiting"><span>04</span><strong>실행 연결</strong><small>대기</small></div>
+          <div class="phase-card waiting"><span>05</span><strong>Pack 검증/빌드</strong><small>대기</small></div>
+          <div class="phase-card waiting"><span>06</span><strong>배포/운영 개선</strong><small>대기</small></div>
+        </div>
+      </section>
+
+      <section class="section-title">
+        <h2>6단계 화면 구성안</h2>
+        <p>각 단계는 “작업 현황 → 주요 작업 → 검토/완료 조건 → 다음 단계” 흐름으로 통일합니다.</p>
+      </section>
+
+      <section id="phase-01" class="phase-frame">
+        <div class="phase-header">
+          <div>
+            <h3>01. 프로젝트 준비</h3>
+            <p>기존 1단계 기반 설정을 흡수합니다. 프로젝트 생성, 기본 정보, 상태, 이력을 관리합니다.</p>
+          </div>
+          <div class="phase-actions"><span class="chip done">프로젝트 저장</span><span class="chip">수정 이력</span><a class="secondary" href="#">임시 저장</a><a class="primary" href="#">저장하기</a></div>
+        </div>
+        <div class="phase-body">
+          <div class="main-panel">
+            <div class="panel">
+              <h4>프로젝트 정보</h4>
+              <div class="grid-2">
+                <div class="task-card"><strong>프로젝트 ID</strong><p>J-Brain · 자동 생성/변경 불가</p></div>
+                <div class="task-card"><strong>프로젝트명</strong><p>J-Brain</p></div>
+              </div>
+            </div>
+            <div class="grid-4">
+              <div class="metric"><small>등록 Source</small><strong>1</strong></div>
+              <div class="metric"><small>벡터화 완료</small><strong>1</strong></div>
+              <div class="metric"><small>Draft Pack</small><strong>1</strong></div>
+              <div class="metric"><small>상태</small><strong>활성</strong></div>
+            </div>
+          </div>
+          <aside class="aside">
+            <div class="panel"><h4>완료 조건</h4><ul class="gate-list"><li><span class="dot done">1</span>프로젝트 ID 확인<span class="chip done">완료</span></li><li><span class="dot done">2</span>프로젝트명 저장<span class="chip done">완료</span></li></ul></div>
+            <a class="primary" href="#phase-02">2단계 지식 준비</a>
+          </aside>
+        </div>
+      </section>
+
+      <section id="phase-02" class="phase-frame">
+        <div class="phase-header">
+          <div>
+            <h3>02. 지식 준비</h3>
+            <p>기존 지식 준비와 답변 근거를 통합합니다. Source/FAQ 수집, 벡터화, 검색 테스트, 근거 연결을 한 화면에서 처리합니다.</p>
+          </div>
+          <div class="phase-actions"><span class="chip done">Source 1건</span><span class="chip done">FAQ 2건</span><span class="chip warn">자동 후보 생성</span><a class="primary" href="#">문서/FAQ 등록</a></div>
+        </div>
+        <div class="phase-body">
+          <div class="main-panel">
+            <div class="tabs">
+              <span class="tab active">Source 수집</span><span class="tab">FAQ 원천</span><span class="tab">벡터화 작업</span><span class="tab">검색 테스트</span><span class="tab">답변 근거</span>
+            </div>
+            <div class="grid-4">
+              <div class="task-card"><strong>문서 업로드</strong><p>중앙 Modal로 파일 업로드. 화면 이동 없이 현재 흐름 유지.</p></div>
+              <div class="task-card"><strong>FAQ 원천 등록</strong><p>FAQ ID 자동 생성, 승인된 FAQ만 Pack 반영.</p></div>
+              <div class="task-card"><strong>벡터화 확인</strong><p>작업 상태와 실패 원인을 Drawer로 확인.</p></div>
+              <div class="task-card"><strong>답변 근거 연결</strong><p>FAQ/Source 근거를 함께 연결.</p></div>
+            </div>
+            <div class="panel">
+              <h4>자동 생성 후보 Summary</h4>
+              <div class="grid-4">
+                <div class="metric"><small>Intent 후보</small><strong>18</strong></div>
+                <div class="metric"><small>Entity 후보</small><strong>16</strong></div>
+                <div class="metric"><small>FAQ 후보</small><strong>2</strong></div>
+                <div class="metric"><small>Action 후보</small><strong>18</strong></div>
+              </div>
+            </div>
+          </div>
+          <aside class="aside">
+            <div class="panel"><h4>완료 조건</h4><ul class="gate-list"><li><span class="dot done">1</span>Source/FAQ 등록<span class="chip done">완료</span></li><li><span class="dot done">2</span>검색 테스트<span class="chip done">완료</span></li><li><span class="dot done">3</span>근거 연결<span class="chip done">완료</span></li></ul></div>
+            <a class="primary" href="#phase-03">3단계 의도 설계</a>
+          </aside>
+        </div>
+      </section>
+
+      <section id="phase-03" class="phase-frame">
+        <div class="phase-header">
+          <div>
+            <h3>03. 의도 설계</h3>
+            <p>기존 의도 설계, 질문 커버리지, 용어 사전을 통합합니다. Intent 후보 승인, 예문 보강, Entity/Synonym 정리를 같은 맥락에서 처리합니다.</p>
+          </div>
+          <div class="phase-actions"><span class="chip done">Intent 18건</span><span class="chip done">승인 후보 6건</span><span class="chip done">Entity 16건</span><a class="primary" href="#">Intent 등록</a></div>
+        </div>
+        <div class="phase-body">
+          <div class="main-panel">
+            <div class="tabs">
+              <span class="tab active">Intent 후보</span><span class="tab">등록 Intent</span><span class="tab">질문 커버리지</span><span class="tab">용어 사전</span><span class="tab">병합/보류</span>
+            </div>
+            <div class="panel">
+              <h4>Intent 후보 보드</h4>
+              <table class="table">
+                <thead><tr><th>Intent</th><th>Category</th><th>예문</th><th>Entity</th><th>Action 후보</th><th>상태</th></tr></thead>
+                <tbody>
+                  <tr><td>J-Brain 주요 기능 알려줘</td><td>SEARCH_DOC</td><td>4개</td><td>J-Brain, 주요 기능</td><td>ACT_J_BRAIN_SEARCH_DOC</td><td><span class="chip done">승인</span></td></tr>
+                  <tr><td>운영 현황 보여줘</td><td>NAVIGATE</td><td>5개</td><td>운영 현황</td><td>ACT_GO_DASHBOARD</td><td><span class="chip done">승인</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="drawer-note">Intent 등록은 별도 페이지 이동 대신 현재 단계의 우측 Drawer로 처리합니다. Intent ID는 자동 생성, Category 선택 시 Source Scope 또는 Action 후보 영역이 바뀝니다.</div>
+          </div>
+          <aside class="aside">
+            <div class="panel"><h4>완료 조건</h4><ul class="gate-list"><li><span class="dot done">1</span>승인 Intent 확보<span class="chip done">완료</span></li><li><span class="dot done">2</span>예문 3개 이상<span class="chip done">완료</span></li><li><span class="dot done">3</span>용어 후보 검토<span class="chip done">완료</span></li></ul></div>
+            <a class="primary" href="#phase-04">4단계 실행 연결</a>
+          </aside>
+        </div>
+      </section>
+
+      <section id="phase-04" class="phase-frame">
+        <div class="phase-header">
+          <div>
+            <h3>04. 실행 연결</h3>
+            <p>Intent와 Action을 연결하고 화면 이동, 문서 검색, API/Query 실행 가능성을 테스트합니다.</p>
+          </div>
+          <div class="phase-actions"><span class="chip done">연결률 100%</span><span class="chip">미사용 Action 0건</span><a class="primary" href="#">Action 테스트</a></div>
+        </div>
+        <div class="phase-body">
+          <div class="main-panel">
+            <div class="mapping">
+              <div class="mapping-box"><h4>Intent</h4><p>사용자 질문의 목적과 필요한 Entity를 정의합니다.</p></div>
+              <div class="mapping-arrow">→</div>
+              <div class="mapping-box"><h4>Action</h4><p>NAVIGATE, SEARCH_DOC, QUERY, GUIDE 중 하나로 실행 방식을 결정합니다.</p></div>
+              <div class="mapping-arrow">→</div>
+              <div class="mapping-box"><h4>Runtime Result</h4><p>화면 이동, 검색 근거, 정형 조회 결과를 반환합니다.</p></div>
+            </div>
+            <div class="panel">
+              <h4>Intent-Action 연결 목록</h4>
+              <table class="table">
+                <thead><tr><th>Intent</th><th>Action</th><th>유형</th><th>테스트</th></tr></thead>
+                <tbody>
+                  <tr><td>문서 목록 열어줘</td><td>ACT_NAV_SOURCE_LIST</td><td>NAVIGATE</td><td><span class="chip done">통과</span></td></tr>
+                  <tr><td>J-Brain 주요 기능 알려줘</td><td>ACT_J_BRAIN_SEARCH_DOC</td><td>SEARCH_DOC</td><td><span class="chip done">통과</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <aside class="aside">
+            <div class="panel"><h4>완료 조건</h4><ul class="gate-list"><li><span class="dot done">1</span>미연결 Intent 없음<span class="chip done">완료</span></li><li><span class="dot done">2</span>대표 Action 테스트<span class="chip done">완료</span></li></ul></div>
+            <a class="primary" href="#phase-05">5단계 Pack 검증/빌드</a>
+          </aside>
+        </div>
+      </section>
+
+      <section id="phase-05" class="phase-frame">
+        <div class="phase-header">
+          <div>
+            <h3>05. Pack 검증/빌드</h3>
+            <p>기존 Pack 품질검증, Runtime 시뮬레이션, Pack Build를 통합합니다. 배포 전 품질 확인과 ZIP 산출물을 한 흐름으로 처리합니다.</p>
+          </div>
+          <div class="phase-actions"><span class="chip done">검증 Pass 100%</span><span class="chip done">Runtime QA</span><span class="chip warn">Export 대기</span><a class="primary" href="#">Pack Build</a></div>
+        </div>
+        <div class="phase-body">
+          <div class="main-panel">
+            <div class="tabs">
+              <span class="tab active">검증 질문</span><span class="tab">검증 결과</span><span class="tab">Runtime QA</span><span class="tab">Build/Export</span>
+            </div>
+            <div class="grid-3">
+              <div class="task-card"><strong>Validation Question</strong><p>질문별 기대 Intent/Action/Confidence를 확인합니다.</p></div>
+              <div class="task-card"><strong>Runtime 시뮬레이션</strong><p>Pack 기반 응답과 근거 표시를 확인합니다.</p></div>
+              <div class="task-card"><strong>Export ZIP</strong><p>검증 통과 후 Service-Pack ZIP을 생성합니다.</p></div>
+            </div>
+            <div class="panel">
+              <h4>최근 검증 결과</h4>
+              <table class="table">
+                <thead><tr><th>질문</th><th>기대 Intent</th><th>기대 Action</th><th>결과</th></tr></thead>
+                <tbody><tr><td>J-Brain 주요 기능 알려줘</td><td>INTENT_J_BRAIN_SEARCH_DOC</td><td>ACT_J_BRAIN_SEARCH_DOC</td><td><span class="chip done">PASS</span></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <aside class="aside">
+            <div class="panel"><h4>완료 조건</h4><ul class="gate-list"><li><span class="dot done">1</span>검증 질문 통과<span class="chip done">완료</span></li><li><span class="dot done">2</span>Runtime QA 확인<span class="chip done">완료</span></li><li><span class="dot warn">3</span>ZIP Export<span class="chip warn">대기</span></li></ul></div>
+            <a class="primary" href="#phase-06">6단계 배포/운영 개선</a>
+          </aside>
+        </div>
+      </section>
+
+      <section id="phase-06" class="phase-frame">
+        <div class="phase-header">
+          <div>
+            <h3>06. 배포 및 운영 개선</h3>
+            <p>기존 배포/활성화와 운영 분석/개선을 통합합니다. Active 전환 후 운영 피드백을 다음 Draft Pack 개선 사이클로 연결합니다.</p>
+          </div>
+          <div class="phase-actions"><span class="chip done">Runtime Store 1건</span><span class="chip warn">Active 대기</span><span class="chip">개선 후보 0건</span><a class="primary" href="#">Pack Repository</a></div>
+        </div>
+        <div class="phase-body">
+          <div class="main-panel">
+            <div class="tabs">
+              <span class="tab active">배포/활성화</span><span class="tab">승인/반려</span><span class="tab">Rollback</span><span class="tab">미응답 분석</span><span class="tab">개선 요청</span><span class="tab">운영 리포트</span>
+            </div>
+            <div class="panel">
+              <h4>Runtime Pack Store</h4>
+              <table class="table">
+                <thead><tr><th>Pack</th><th>Status</th><th>승인</th><th>Action</th></tr></thead>
+                <tbody><tr><td>J-Brain-intent-pack v0.1.0</td><td><span class="chip done">validated</span></td><td>-</td><td>Approve · Reject · Activate</td></tr></tbody>
+              </table>
+            </div>
+            <div class="grid-3">
+              <div class="task-card"><strong>미응답 분석</strong><p>Fallback/Very Low 질문을 개선 후보로 분류합니다.</p></div>
+              <div class="task-card"><strong>개선 요청 관리</strong><p>FAQ/Intent/Action 보강 요청을 다음 Draft에 연결합니다.</p></div>
+              <div class="task-card"><strong>다음 Draft Pack</strong><p>운영 피드백을 2~4단계 보강 작업으로 되돌립니다.</p></div>
+            </div>
+          </div>
+          <aside class="aside">
+            <div class="panel"><h4>완료 조건</h4><ul class="gate-list"><li><span class="dot warn">1</span>Approved Pack<span class="chip warn">대기</span></li><li><span class="dot warn">2</span>Active Pack<span class="chip warn">대기</span></li><li><span class="dot done">3</span>감사 로그<span class="chip done">완료</span></li></ul></div>
+            <a class="primary" href="#dashboard">대시보드로 이동</a>
+          </aside>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        12단계 매핑: 1 기반 설정 → 프로젝트 준비 / 2 지식 준비 + 6 답변 근거 → 지식 준비 /
+        3 의도 설계 + 4 질문 커버리지 + 5 용어 사전 → 의도 설계 /
+        7 실행 연결 → 실행 연결 /
+        8 Pack 품질검증 + 9 Runtime 시뮬레이션 + 10 Pack Build → Pack 검증/빌드 /
+        11 배포/활성화 + 12 운영 분석/개선 → 배포 및 운영 개선.
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ChatWidget from '../ChatWidget';
@@ -8,9 +8,35 @@ const THEMES = [
   { key: 'dark',  icon: '🌙', label: 'AG Dark' },
 ];
 
+const WORKFLOW_PHASE_MENUS = [
+  { id: 'workflow-phase-1', title: '1. 프로젝트 준비', url: '/admin/workflow/projects/:projectId/stages/1' },
+  { id: 'workflow-phase-2', title: '2. 지식 준비', url: '/admin/workflow/projects/:projectId/stages/2' },
+  { id: 'workflow-phase-3', title: '3. 의도 설계', url: '/admin/workflow/projects/:projectId/stages/3' },
+  { id: 'workflow-phase-4', title: '4. 실행 연결', url: '/admin/workflow/projects/:projectId/stages/4' },
+  { id: 'workflow-phase-5', title: '5. Pack 검증/빌드', url: '/admin/workflow/projects/:projectId/stages/5' },
+  { id: 'workflow-phase-6', title: '6. 배포 및 운영 개선', url: '/admin/workflow/projects/:projectId/stages/6' },
+];
+
+const normalizeWorkflowMenus = (menuGroups = []) => menuGroups.map((group) => {
+  if (group.title !== '구축 워크플로우') return group;
+
+  const dashboard = (group.children || []).find((child) => child.url === '/admin/workflow') || {
+    id: 'workflow-dashboard',
+    title: '워크플로우 대시보드',
+    url: '/admin/workflow',
+  };
+
+  return {
+    ...group,
+    title: '구축 워크플로우',
+    children: [dashboard, ...WORKFLOW_PHASE_MENUS],
+  };
+});
+
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const mainContentRef = useRef(null);
   const [menus, setMenus] = useState([]);
   const [expandedGroups, setExpandedGroups] = useState({});
   const [theme, setTheme] = useState(() => localStorage.getItem('jbrain-theme') || 'light');
@@ -22,6 +48,11 @@ const AdminLayout = () => {
   }, [theme]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    mainContentRef.current?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
+
+  useEffect(() => {
     const fetchMenus = async () => {
       try {
         const token = localStorage.getItem('ai_access_token');
@@ -31,7 +62,7 @@ const AdminLayout = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        setMenus(res.data);
+        setMenus(normalizeWorkflowMenus(res.data));
         
         const initialExpanded = {};
         res.data.forEach(group => {
@@ -58,6 +89,34 @@ const AdminLayout = () => {
     setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const currentWorkflowProjectId = () => localStorage.getItem('jbrain-workflow-project-id') || '';
+
+  const resolveMenuUrl = (url) => {
+    if (!url) return url;
+    if (url.includes(':projectId') && !currentWorkflowProjectId()) {
+      return '/admin/workflow/projects';
+    }
+    return url.replace(':projectId', encodeURIComponent(currentWorkflowProjectId()));
+  };
+
+  const isMenuActive = (url) => {
+    const resolvedUrl = resolveMenuUrl(url);
+    if (!resolvedUrl) return false;
+    if (location.pathname === resolvedUrl) return true;
+    if (url.includes(':projectId')) {
+      const pattern = url
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(':projectId', '[^/]+');
+      return new RegExp(`^${pattern}(/.*)?$`).test(location.pathname);
+    }
+    return resolvedUrl !== '/admin' && location.pathname.startsWith(resolvedUrl + '/');
+  };
+
+  const handleMenuClick = (url) => {
+    const resolvedUrl = resolveMenuUrl(url);
+    if (resolvedUrl) navigate(resolvedUrl);
+  };
+
   const menuIcons = {
     'icon-dashboard': '📊',
     'icon-project': '🧭',
@@ -69,6 +128,8 @@ const AdminLayout = () => {
     'icon-folder': '📁',
     'icon-chat': '💬',
     'icon-settings': '⚙️',
+    'icon-workflow': '🧭',
+    'icon-system': '⚙️',
   };
 
   return (
@@ -112,11 +173,9 @@ const AdminLayout = () => {
                       <div 
                         key={child.id}
                         className={`lnb-item ${
-                          location.pathname === child.url ||
-                          (child.url && child.url !== '/admin' && location.pathname.startsWith(child.url + '/'))
-                            ? 'active' : ''
+                          isMenuActive(child.url) ? 'active' : ''
                         }`}
-                        onClick={() => navigate(child.url)}
+                        onClick={() => handleMenuClick(child.url)}
                       >
                         {child.title}
                       </div>
@@ -147,7 +206,7 @@ const AdminLayout = () => {
           </div>
         </nav>
 
-        <div className="content">
+        <div className="content" ref={mainContentRef}>
           <Outlet />
         </div>
       </div>

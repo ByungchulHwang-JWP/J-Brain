@@ -3,13 +3,14 @@ import SourceScopeEditor from './SourceScopeEditor';
 
 const fieldStyle = {
   width: '100%',
-  padding: '10px 12px',
+  padding: '12px 14px',
   border: '1px solid var(--color-border)',
-  borderRadius: '6px',
+  borderRadius: '8px',
   background: 'var(--color-input-bg)',
   color: 'var(--color-text-main)',
   fontFamily: 'inherit',
-  fontSize: '14px',
+  fontSize: '15px',
+  lineHeight: '1.5',
 };
 
 const textareaStyle = {
@@ -21,10 +22,20 @@ const textareaStyle = {
 const categoryOptions = ['NAVIGATION', 'SEARCH_DOC', 'DATA_QUERY', 'FAQ', 'ACTION', 'GUIDE'];
 const statusOptions = ['draft', 'active', 'inactive'];
 
-const IntentForm = ({ form, setForm, mode }) => {
+const categoryGuides = {
+  NAVIGATION: '화면/메뉴 이동 Intent입니다. Action은 NAVEGATE 계열 화면 이동 Action을 선택합니다.',
+  SEARCH_DOC: '문서/FAQ 검색 Intent입니다. 아래 Source 검색 범위에서 참조할 지식 문서를 확인하고 범위를 지정합니다.',
+  DATA_QUERY: '정형 데이터 조회 Intent입니다. 운영 API 또는 SQL Template Action과 연결해야 합니다.',
+  FAQ: '정형 FAQ 응답 Intent입니다. FAQ 관리에서 승인된 답변과 함께 관리하는 것을 권장합니다.',
+  ACTION: '외부 API/업무 실행 Intent입니다. 허용된 Whitelist Action과 연결해야 합니다.',
+  GUIDE: '사용자 안내 Intent입니다. 별도 실행 없이 안내성 Action 또는 FAQ로 연결할 수 있습니다.',
+};
+
+const IntentForm = ({ form, setForm, mode, actionOptions = [], sourceOptions = [] }) => {
   const [exampleInput, setExampleInput] = useState('');
   const update = (patch) => setForm((current) => ({ ...current, ...patch }));
   const examples = form.examples || [];
+  const selectedCategory = form.category || 'SEARCH_DOC';
 
   const addExample = () => {
     const value = exampleInput.trim();
@@ -42,52 +53,109 @@ const IntentForm = ({ form, setForm, mode }) => {
   };
 
   return (
-    <div style={{ display: 'grid', gap: '18px' }}>
-      <div className="table-area" style={{ padding: '22px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px' }}>
-          <label>
-            <span className="modal-label">Intent ID</span>
+    <div style={{ display: 'grid', gap: '24px', marginTop: '12px' }}>
+      <div className="table-area" style={{ padding: '26px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '32px 24px' }}>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>Intent ID</span>
             <input
               style={fieldStyle}
               value={form.intent_id || ''}
               onChange={(e) => update({ intent_id: e.target.value })}
-              disabled={mode === 'edit'}
-              placeholder="예: NETZERO_SCOPE1_GUIDE"
+              disabled
+              placeholder="자동 생성됩니다."
             />
           </label>
-          <label>
-            <span className="modal-label">Intent 이름</span>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>Intent 이름</span>
             <input style={fieldStyle} value={form.intent_name || ''} onChange={(e) => update({ intent_name: e.target.value })} placeholder="예: Scope 1 기준 안내" />
           </label>
-          <label>
-            <span className="modal-label">Category</span>
-            <select style={fieldStyle} value={form.category || 'SEARCH_DOC'} onChange={(e) => update({ category: e.target.value })}>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>Category</span>
+            <select
+              style={fieldStyle}
+              value={selectedCategory}
+              onChange={(e) => {
+                const nextCategory = e.target.value;
+                update({
+                  category: nextCategory,
+                  source_scope: nextCategory === 'SEARCH_DOC'
+                    ? (form.source_scope || { source_category: '', source_status: 'completed', document_types: [], tags: [], top_k: 5, score_threshold: 0.65 })
+                    : form.source_scope,
+                });
+              }}
+            >
               {categoryOptions.map((option) => <option key={option} value={option}>{option}</option>)}
             </select>
           </label>
-          <label>
-            <span className="modal-label">Status</span>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>Status</span>
             <select style={fieldStyle} value={form.status || 'draft'} onChange={(e) => update({ status: e.target.value })}>
               {statusOptions.map((option) => <option key={option} value={option}>{option}</option>)}
             </select>
           </label>
-          <label>
-            <span className="modal-label">Action ID</span>
-            <input style={fieldStyle} value={form.action_id || ''} onChange={(e) => update({ action_id: e.target.value })} placeholder="예: NAV_ADMIN_QA" />
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>Action 연결</span>
+            <select
+              style={fieldStyle}
+              value={form.action_id || ''}
+              onChange={(e) => update({ action_id: e.target.value })}
+            >
+              <option value="">Action 선택 전</option>
+              {actionOptions.map((action) => (
+                <option key={action.action_id} value={action.action_id}>
+                  {action.action_id} / {action.action_name}
+                </option>
+              ))}
+            </select>
           </label>
-          <label>
-            <span className="modal-label">우선순위</span>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>우선순위</span>
             <input type="number" style={fieldStyle} value={form.priority ?? 100} onChange={(e) => update({ priority: Number(e.target.value) })} />
           </label>
         </div>
 
-        <label style={{ display: 'block', marginTop: '16px' }}>
-          <span className="modal-label">설명</span>
-          <textarea style={{ ...textareaStyle, minHeight: '80px' }} value={form.description || ''} onChange={(e) => update({ description: e.target.value })} placeholder="운영자가 Intent 목적을 이해할 수 있는 설명을 입력합니다." />
+        <div style={{ marginTop: '16px', padding: '14px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-elevated)', color: 'var(--color-text-sub)', fontSize: '13px', lineHeight: 1.6 }}>
+          <strong style={{ display: 'block', color: 'var(--color-text-main)', marginBottom: '4px' }}>Category 기준 작업 안내</strong>
+          {categoryGuides[selectedCategory] || '선택한 Category 기준으로 Action과 Source 범위를 설정합니다.'}
+        </div>
+
+        {selectedCategory === 'SEARCH_DOC' && (
+          <div style={{ marginTop: '16px', padding: '14px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-surface)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <strong style={{ color: 'var(--color-text-main)' }}>등록 Source 선택</strong>
+                <p style={{ margin: '4px 0 0', color: 'var(--color-text-sub)', fontSize: '13px' }}>SEARCH_DOC Intent가 참조할 프로젝트 지식 문서를 확인합니다.</p>
+              </div>
+              <span className="badge active">{sourceOptions.length}건</span>
+            </div>
+            <select
+              style={fieldStyle}
+              value={form.source_scope?.source_category || ''}
+              onChange={(e) => update({
+                source_scope: {
+                  ...(form.source_scope || { source_status: 'completed', document_types: [], tags: [], top_k: 5, score_threshold: 0.65 }),
+                  source_category: e.target.value,
+                },
+              })}
+            >
+              <option value="">프로젝트 전체 Source 검색</option>
+              {sourceOptions.map((source) => (
+                <option key={source.id} value={source.filename || source.id}>
+                  {source.filename || source.id} / {source.status || '상태 없음'}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '32px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>설명</span>
+            <textarea style={{ ...textareaStyle, minHeight: '100px' }} value={form.description || ''} onChange={(e) => update({ description: e.target.value })} placeholder="운영자가 Intent 목적을 이해할 수 있는 설명을 입력합니다." />
         </label>
 
-        <div style={{ display: 'block', marginTop: '16px' }}>
-          <span className="modal-label">예시 질문</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '32px' }}>
+            <span className="modal-label" style={{ marginBottom: 0, fontSize: '14px' }}>예시 질문</span>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
             <input
               style={fieldStyle}

@@ -21,7 +21,11 @@ class MenuContractTest(unittest.TestCase):
         missing = []
         for url in leaf_urls:
             route_path = url.replace("/admin/", "")
-            if f'path="{route_path}"' not in source:
+            has_dynamic_workflow_stage_route = (
+                route_path.startswith("workflow/projects/:projectId/stages/")
+                and 'path="workflow/projects/:projectId/stages/:stageNo"' in source
+            )
+            if f'path="{route_path}"' not in source and not has_dynamic_workflow_stage_route:
                 missing.append(url)
 
         self.assertEqual(missing, [])
@@ -29,7 +33,7 @@ class MenuContractTest(unittest.TestCase):
     def test_runtime_routes_keep_existing_project_qa_contract(self):
         source = APP_JSX.read_text(encoding="utf-8")
         self.assertIn('path="runtime/qa" element={<ProjectQA />}', source)
-        self.assertIn('path="runtime/intent-match" element={<RetrievalTest />}', source)
+        self.assertIn('path="runtime/intent-match" element={<IntentMatchTest />}', source)
 
 
 if __name__ == "__main__":

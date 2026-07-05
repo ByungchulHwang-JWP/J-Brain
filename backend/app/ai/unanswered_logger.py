@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +19,7 @@ class UnansweredLogger:
         intent_id: str | None,
         action_id: str | None,
         confidence_label: str,
+        project_id: str | None = None,
         matches: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -25,6 +28,7 @@ class UnansweredLogger:
             "log_id": log_id,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "status": "open",
+            "project_id": project_id,
             "question": question,
             "pack_id": pack_id,
             "pack_version": pack_version,
@@ -47,6 +51,37 @@ class UnansweredLogger:
                 continue
             records.append(json.loads(line))
         return list(reversed(records[-limit:]))
+
+    def update_status(
+        self,
+        log_id: str,
+        status: str,
+        extra_fields: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        if not self.log_path.exists():
+            raise FileNotFoundError(f"unanswered log file not found: {self.log_path}")
+
+        records = []
+        updated_record = None
+        for line in self.log_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            if record.get("log_id") == log_id:
+                record.update(extra_fields or {})
+                record["status"] = status
+                record["updated_at"] = datetime.now(timezone.utc).isoformat()
+                updated_record = record
+            records.append(record)
+
+        if not updated_record:
+            raise KeyError(log_id)
+
+        with self.log_path.open("w", encoding="utf-8") as file:
+            for record in records:
+                file.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+        return updated_record
 
     def _next_log_id(self) -> str:
         count = 0

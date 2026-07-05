@@ -119,29 +119,50 @@ const ActionCard = ({ card }) => {
 
   if (card.type === 'document_card') {
     const sources = Array.isArray(card.sources) ? card.sources : [];
+    const summary = card.source_summary || {};
 
     return (
       <div style={baseCardStyle}>
         {renderHeader('문서', card.title)}
         {card.message && <p style={messageStyle}>{card.message}</p>}
-        {renderCardMeta(card)}
+        {renderCardMeta(card, [
+          `FAQ ${summary.faq_count ?? 0}`,
+          `문서 ${summary.document_count ?? 0}`,
+        ])}
         {card.query && <div style={dataPanelStyle}>검색 질의: {card.query}</div>}
         {sources.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {sources.map((sourceItem, index) => {
               const source = sourceItem && typeof sourceItem === 'object' ? sourceItem : { snippet: sourceItem };
+              const isFaq = source.source_type === 'faq';
 
               return (
-                <div key={source.source_id || index} style={compactRowStyle}>
+                <div key={source.faq_id || source.source_id || index} style={compactRowStyle}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
-                    <strong style={{ color: 'var(--color-text-main)', fontSize: '13px' }}>{source.title || '제목 없음'}</strong>
+                    <strong style={{ color: 'var(--color-text-main)', fontSize: '13px' }}>
+                      {isFaq ? source.question || source.title || 'FAQ 질문 없음' : source.title || '제목 없음'}
+                    </strong>
                     {source.score !== undefined && source.score !== null && (
-                      <span style={{ color: 'var(--color-primary)', fontSize: '12px', fontWeight: 700 }}>{source.score}</span>
+                      <span style={{ color: 'var(--color-primary)', fontSize: '12px', fontWeight: 700 }}>Score {source.score}</span>
                     )}
                   </div>
-                  {source.snippet && <div style={{ lineHeight: 1.5 }}>{String(source.snippet)}</div>}
+                  {isFaq ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: 1.5 }}>
+                      <div><strong style={{ color: 'var(--color-text-main)' }}>답변</strong>: {source.answer || source.snippet || '-'}</div>
+                      <div style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>
+                        FAQ ID {source.faq_id || '-'} · 카테고리 {source.category || '-'} · Source ID {source.source_id || '-'}
+                      </div>
+                      {Array.isArray(source.tags) && source.tags.length > 0 && (
+                        <div style={metaStyle}>
+                          {source.tags.map(tag => <span key={tag} style={chipStyle}>{tag}</span>)}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    source.snippet && <div style={{ lineHeight: 1.5 }}>{String(source.snippet)}</div>
+                  )}
                   <div style={{ marginTop: '8px', color: 'var(--color-text-muted)', fontSize: '12px' }}>
-                    {[source.source_type, source.source_id].filter(Boolean).join(' · ')}
+                    {[source.source_type, source.source_id, source.source_ref].filter(Boolean).join(' · ')}
                   </div>
                 </div>
               );

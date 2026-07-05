@@ -8,9 +8,11 @@ pgvector
 PyJWT
 python-dotenv
 langchain
+langchain-text-splitters
 langchain-postgres
 langgraph
 pdfplumber
+python-docx
 pydantic-settings
 langchain-openai
 python-multipart

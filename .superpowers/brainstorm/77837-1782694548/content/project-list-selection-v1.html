@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로젝트 목록/선택 Mock v1</title>
+  <style>
+    :root{--bg:#f4f7fb;--panel:#fff;--line:#d9e2ef;--text:#142033;--muted:#667085;--navy:#08265a;--blue:#0b5cff;--green:#168a55;--amber:#b7791f;--red:#d92d20;--violet:#6941c6;--soft-blue:#eaf2ff;--soft-green:#e9f8f0;--soft-amber:#fff6df;--soft-red:#fff1f0;--soft-violet:#f1edff;--shadow:0 16px 40px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{max-width:1760px;margin:0 auto;padding:32px}.shell{display:grid;grid-template-columns:268px 1fr;gap:24px;min-height:calc(100vh - 64px)}.side{background:#0f172a;color:#fff;border-radius:18px;padding:22px 18px;box-shadow:var(--shadow);position:sticky;top:32px;height:calc(100vh - 64px)}.brand{font-size:20px;font-weight:950;margin-bottom:28px}.menu-title{color:#98a2b3;font-size:12px;font-weight:900;margin:22px 0 10px}.menu-item{padding:11px 14px;border-radius:12px;color:#cbd5e1;font-size:14px;font-weight:760;margin-bottom:4px}.menu-item.active{background:#1d4ed8;color:#fff}.main{display:flex;flex-direction:column;gap:18px}.topbar,.card,.panel,.action-bar{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 22px}.breadcrumb{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}h1{font-size:30px;line-height:1.18;margin:0}.top-actions{display:flex;gap:10px;align-items:center}.search{border:1px solid #d6deeb;border-radius:12px;background:#fff;padding:12px 14px;min-width:280px;font-size:14px}.pill{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}.pill.blue{background:var(--soft-blue);color:var(--navy)}.pill.green{background:var(--soft-green);color:var(--green)}.pill.amber{background:var(--soft-amber);color:var(--amber)}.pill.red{background:var(--soft-red);color:var(--red)}.pill.violet{background:var(--soft-violet);color:var(--violet)}button{border:1px solid #cfd8e6;background:#fff;color:#10213f;min-height:42px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:900;white-space:nowrap}button.primary{background:var(--navy);border-color:var(--navy);color:#fff}button.success{background:var(--green);border-color:var(--green);color:#fff}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px}.kpi-label{color:var(--muted);font-size:12px;font-weight:850;margin-bottom:8px}.kpi-value{font-size:28px;font-weight:950;color:var(--navy)}.kpi-sub{font-size:12px;color:var(--muted);line-height:1.4}.layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:18px;align-items:start}.card-head{display:flex;justify-content:space-between;gap:16px;padding:22px 24px;border-bottom:1px solid #e8edf5}.card-title{font-size:20px;font-weight:950;margin-bottom:6px}.card-desc{color:var(--muted);font-size:14px;line-height:1.55}.body{padding:24px;display:grid;gap:18px}.project-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.project-card{border:1px solid #e4e9f2;border-radius:18px;background:#fff;padding:18px;display:grid;gap:14px}.project-card.selected{border-color:#8cb7ff;background:#f7fbff;box-shadow:inset 0 0 0 2px rgba(11,92,255,.08)}.project-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.project-name{font-size:18px;font-weight:950;color:#111827;margin-bottom:5px}.project-meta{font-size:13px;color:var(--muted);line-height:1.45}.project-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini{border:1px solid #e7edf6;background:#f8fafc;border-radius:12px;padding:10px}.mini-label{font-size:11px;color:var(--muted);font-weight:850;margin-bottom:6px}.mini-value{font-size:15px;font-weight:950;color:#111827}.progress{height:8px;background:#edf2f7;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;background:var(--green);border-radius:99px}.project-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.panel{padding:18px}.panel h3{margin:0 0 12px;font-size:16px;font-weight:950}.check-list{display:grid;gap:10px}.check{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e7edf6;font-size:13px;font-weight:850}.dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:950}.dot.done{background:#d1fadf;color:var(--green)}.dot.todo{background:#fff1c2;color:var(--amber)}.dot.info{background:#dbeafe;color:var(--blue)}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#667085;background:#f8fafc;font-size:12px;padding:12px 14px;border-bottom:1px solid #e8edf5}td{padding:13px 14px;border-bottom:1px solid #eef2f7;vertical-align:top;color:#344054;font-weight:720;line-height:1.45}.name{color:#111827;font-weight:950;margin-bottom:4px}.meta{color:var(--muted);font-size:12px;font-weight:700}.action-bar{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;bottom:16px;z-index:2;background:rgba(255,255,255,.96);backdrop-filter:blur(14px)}.bar-note{font-size:13px;color:var(--muted);line-height:1.45}.buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.note{background:#111827;color:#fff;border-radius:18px;padding:22px;line-height:1.7;box-shadow:var(--shadow)}
+    @media(max-width:1280px){.project-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:1180px){.shell{grid-template-columns:1fr}.side{display:none}.layout{grid-template-columns:1fr}}@media(max-width:720px){.page{padding:16px}.topbar,.action-bar{align-items:flex-start;flex-direction:column}.top-actions{width:100%;flex-direction:column;align-items:stretch}.search{min-width:0}.summary,.project-stats{grid-template-columns:1fr}.buttons{width:100%;justify-content:stretch}button{flex:1}}
+  </style>
+</head>
+<body>
+<div class="page"><div class="shell">
+  <aside class="side">
+    <div class="brand">JWINPARTNERS</div>
+    <div class="menu-title">대시보드</div><div class="menu-item">운영 현황</div><div class="menu-item">구축 워크플로우</div>
+    <div class="menu-title">프로젝트 준비</div><div class="menu-item active">프로젝트 관리</div><div class="menu-item">프로젝트 등록/설정</div><div class="menu-item">지식 준비</div>
+    <div class="menu-title">Intent Factory</div><div class="menu-item">Intent 관리</div><div class="menu-item">Action 관리</div>
+    <div class="menu-title">Pack 제작/배포</div><div class="menu-item">Pack Repository</div><div class="menu-item">배포/활성화</div>
+    <div class="menu-title">운영 및 분석</div><div class="menu-item">운영 리포트</div><div class="menu-item">감사 로그</div>
+  </aside>
+  <main class="main">
+    <section class="topbar">
+      <div><div class="breadcrumb">프로젝트 준비 &gt; 프로젝트 관리</div><h1>프로젝트 목록/선택</h1></div>
+      <div class="top-actions"><input class="search" value="J-Brain" /><button>필터</button><button class="primary">새 프로젝트 등록</button></div>
+    </section>
+
+    <section class="summary">
+      <div class="kpi"><div class="kpi-label">전체 프로젝트</div><div class="kpi-value">8개</div><div class="kpi-sub">운영 3 · 구축 4 · 보류 1</div></div>
+      <div class="kpi"><div class="kpi-label">Active Pack 운영</div><div class="kpi-value">3개</div><div class="kpi-sub">고객 Runtime 적용</div></div>
+      <div class="kpi"><div class="kpi-label">Draft 진행</div><div class="kpi-value">4개</div><div class="kpi-sub">개선/신규 구축</div></div>
+      <div class="kpi"><div class="kpi-label">오늘 이슈</div><div class="kpi-value">11건</div><div class="kpi-sub">미응답/검증 실패 포함</div></div>
+    </section>
+
+    <section class="layout">
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">프로젝트 카드</div><div class="card-desc">프로젝트를 선택하면 상단 현재 프로젝트가 변경되고, 구축 워크플로우/Pack/운영 분석 화면이 해당 프로젝트 기준으로 표시됩니다.</div></div><span class="pill blue">선택: J-Brain</span></div>
+        <div class="body">
+          <div class="project-grid">
+            <div class="project-card selected">
+              <div class="project-head"><div><div class="project-name">J-Brain</div><div class="project-meta">폐쇄망 Runtime Pack 기반 공통 챗봇 플랫폼</div></div><span class="pill amber">구축 중</span></div>
+              <div class="project-stats"><div class="mini"><div class="mini-label">현재 단계</div><div class="mini-value">7. 실행 연결</div></div><div class="mini"><div class="mini-label">Draft Pack</div><div class="mini-value">v0.2.0</div></div><div class="mini"><div class="mini-label">Active Pack</div><div class="mini-value">v0.1.0</div></div></div>
+              <div><div class="progress"><span style="width:58%"></span></div><div class="project-meta" style="margin-top:8px">진행률 58% · 미연결 Action 4건</div></div>
+              <div class="project-actions"><button>설정</button><button class="primary">선택</button><button class="success">워크플로우 열기</button></div>
+            </div>
+            <div class="project-card">
+              <div class="project-head"><div><div class="project-name">KT NetZero</div><div class="project-meta">탄소중립 플랫폼 FAQ/문서 검색 챗봇</div></div><span class="pill green">운영 중</span></div>
+              <div class="project-stats"><div class="mini"><div class="mini-label">현재 단계</div><div class="mini-value">12. 운영 분석</div></div><div class="mini"><div class="mini-label">Draft Pack</div><div class="mini-value">v1.3.0</div></div><div class="mini"><div class="mini-label">Active Pack</div><div class="mini-value">v1.2.0</div></div></div>
+              <div><div class="progress"><span style="width:100%"></span></div><div class="project-meta" style="margin-top:8px">운영 성공률 94.8% · 개선 후보 9건</div></div>
+              <div class="project-actions"><button>설정</button><button class="primary">선택</button><button>운영 분석</button></div>
+            </div>
+            <div class="project-card">
+              <div class="project-head"><div><div class="project-name">ERP Helpdesk</div><div class="project-meta">사내 업무 시스템 메뉴/API 실행형 챗봇</div></div><span class="pill blue">검증 중</span></div>
+              <div class="project-stats"><div class="mini"><div class="mini-label">현재 단계</div><div class="mini-value">8. Pack 검증</div></div><div class="mini"><div class="mini-label">Draft Pack</div><div class="mini-value">v0.5.0</div></div><div class="mini"><div class="mini-label">Active Pack</div><div class="mini-value">없음</div></div></div>
+              <div><div class="progress"><span style="width:72%"></span></div><div class="project-meta" style="margin-top:8px">검증 Fail 3건 · 승인 전</div></div>
+              <div class="project-actions"><button>설정</button><button class="primary">선택</button><button>검증 열기</button></div>
+            </div>
+            <div class="project-card">
+              <div class="project-head"><div><div class="project-name">HR FAQ</div><div class="project-meta">인사 FAQ 중심 챗봇</div></div><span class="pill violet">등록 중</span></div>
+              <div class="project-stats"><div class="mini"><div class="mini-label">현재 단계</div><div class="mini-value">1. 기반 설정</div></div><div class="mini"><div class="mini-label">Draft Pack</div><div class="mini-value">없음</div></div><div class="mini"><div class="mini-label">Active Pack</div><div class="mini-value">없음</div></div></div>
+              <div><div class="progress"><span style="width:12%"></span></div><div class="project-meta" style="margin-top:8px">프로젝트 등록 정보 임시 저장</div></div>
+              <div class="project-actions"><button>설정</button><button class="primary">선택</button><button>등록 계속</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h3>선택 프로젝트 요약</h3>
+        <div class="check-list">
+          <div class="check"><span class="dot info">i</span><span>프로젝트</span><span class="pill blue">J-Brain</span></div>
+          <div class="check"><span class="dot todo">!</span><span>현재 단계</span><span class="pill amber">실행 연결</span></div>
+          <div class="check"><span class="dot done">✓</span><span>완료 단계</span><span class="pill green">6/12</span></div>
+          <div class="check"><span class="dot info">i</span><span>다음 작업</span><span class="pill blue">Action 4건</span></div>
+        </div>
+        <div class="body" style="padding:18px 0 0">
+          <table><thead><tr><th>최근 작업</th><th>시간</th></tr></thead><tbody><tr><td><div class="name">답변 근거 확정</div><div class="meta">FAQ 18건</div></td><td>1시간 전</td></tr><tr><td><div class="name">용어 사전 저장</div><div class="meta">Synonym 46개</div></td><td>2시간 전</td></tr><tr><td><div class="name">Action 연결 시작</div><div class="meta">SEARCH_DOC</div></td><td>3시간 전</td></tr></tbody></table>
+        </div>
+      </aside>
+    </section>
+
+    <section class="action-bar"><div class="bar-note">프로젝트를 선택하면 이후 모든 워크플로우와 관리 화면이 해당 프로젝트 기준으로 동작합니다.</div><div class="buttons"><button>최근 프로젝트</button><button>보류 프로젝트 보기</button><button class="primary">선택 프로젝트 열기</button><button class="success">새 프로젝트 등록</button></div></section>
+    <section class="note"><strong>프로젝트 목록/선택 설계 요약</strong><br>이 화면은 단순 목록이 아니라 프로젝트별 구축 단계, Draft Pack, Active Pack, 운영 상태를 함께 비교하는 진입 화면입니다. 운영자가 프로젝트를 선택하면 구축 워크플로우 대시보드와 모든 관리 화면의 기준 프로젝트가 변경됩니다.</section>
+  </main>
+</div></div>
+</body>
+</html>

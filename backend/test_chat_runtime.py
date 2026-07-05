@@ -80,6 +80,39 @@ class ChatRuntimeTest(unittest.TestCase):
         self.assertEqual(response["message"]["message_type"], "fallback")
         self.assertNotIn("log_id", response)
 
+    def test_search_doc_question_returns_faq_evidence_diagnostics(self):
+        response = build_runtime_response(
+            "project-123",
+            "Scope 1 기준 알려줘",
+            self.pack,
+            top_k=3,
+            log_fallback=False,
+        )
+
+        self.assertEqual(response["card"]["type"], "document_card")
+        self.assertGreaterEqual(response["diagnostics"]["faq_evidence_count"], 1)
+        self.assertEqual(response["card"]["faq_matches"][0]["faq_id"], "FAQ-NZ-002")
+        self.assertIn("question", response["card"]["faq_matches"][0])
+        self.assertIn("answer", response["card"]["faq_matches"][0])
+
+    def test_runtime_response_includes_operator_qa_summary(self):
+        response = build_runtime_response(
+            "project-123",
+            "Scope 1 기준 알려줘",
+            self.pack,
+            top_k=3,
+            log_fallback=False,
+        )
+
+        summary = response["qa_summary"]
+        self.assertEqual(summary["pack"]["pack_id"], "netzero-intent-pack")
+        self.assertEqual(summary["pack"]["pack_version"], "0.1.0")
+        self.assertEqual(summary["intent"]["intent_id"], response["diagnostics"]["top_intent_id"])
+        self.assertEqual(summary["action"]["card_type"], "document_card")
+        self.assertGreaterEqual(summary["evidence"]["faq_count"], 1)
+        self.assertIn("top_matches", summary)
+        self.assertLessEqual(len(summary["top_matches"]), 3)
+
 
 class ChatRuntimeEndpointTest(unittest.TestCase):
     def setUp(self):

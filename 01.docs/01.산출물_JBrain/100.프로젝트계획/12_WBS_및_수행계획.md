@@ -191,13 +191,118 @@
 | Pack Import 확장 | 기존 JSON Pack Import 시 Intent, Entity/Synonym, Action Parameter 기반 Entity Link 적재 | 완료 |
 | Pack Builder Draft | DB의 Intent/Example/Entity/Synonym/Action Parameter/Source Scope를 JSON Pack 초안으로 조회 | 완료 |
 | Runtime Pack 선택 흐름 | Runtime 테스트 화면에서 파일 Pack과 DB Draft Pack 확인 흐름 제공 | 완료 |
+| 운영자 워크플로우 | 구축 순서형 대시보드와 High-end 메뉴 구조 정리 | 완료 |
+| Pack Export / ZIP | DB Draft를 표준 Intent Pack 파일 구조로 Export하고 ZIP 생성 | 완료 |
+| Pack Repository v0.1 | Pack Export 이력, 버전, 검증 상태, ZIP 경로 관리 | 완료 |
+| Pack Import / Active / Rollback | Export ZIP을 Runtime Pack Store로 반입하고 Active Pack 전환 및 직전 버전 Rollback 처리 | 완료 |
 
 잔여 작업과 리스크는 다음과 같다.
 
 | 항목 | 현재 상태 | 후속 방향 |
 |---|---|---|
-| Pack ZIP 배포 | 미구현 | Pack Draft를 파일 구조로 Export하고 ZIP 패키지 생성 기능 구현 |
-| Pack Repository | 미구현 | 버전, 승인 상태, 배포 이력을 관리하는 Repository 테이블/화면 구현 |
+| Pack 승인 Workflow | 미구현 | Pack 검수, 승인, 배포 가능 상태 전환 기능 구현 |
+| Pack Import/Rollback 운영화 | 1차 구현 완료 | 전자서명, 승인 이력, 운영자 권한, 장애 복구 정책 보강 |
 | Runtime DB 직접 연동 | 보류 | 운영 원칙상 Runtime은 검증된 Pack 기반으로 유지하고, DB는 Pack Build 전 관리 저장소로 사용 |
+| Export Pack Runtime 선택 | 1차 구현 완료 | Active Pack 자동 적용 정책과 운영 채널별 Pack 선택 정책 보강 |
 | 실제 고객 API/SQL 실행 | 보류 | 승인된 API/SQL Template, 권한, 감사 로그 설계 후 연결 |
 | 운영 권한/감사 | 일부 보류 | Entity/Intent 변경 이력과 Pack 승인 Workflow 추가 필요 |
+
+## 12. 2026-06-27 Pack Export v0.2 구현 반영
+
+DB 기반 Pack Draft를 폐쇄망 반입 가능한 파일 Pack 형태로 전환하는 1차 기능을 구현했다.
+
+| 구분 | 반영 내용 | 상태 |
+|---|---|---|
+| 표준 Pack 파일 생성 | Manifest, Profile, NLU, Action, Knowledge, Templates, Validation 필수 파일 생성 | 완료 |
+| Pack ZIP 생성 | Export 결과를 Service-Pack ZIP으로 생성하고 다운로드 API 제공 | 완료 |
+| Pack Validation | Export 후 `IntentPackLoader` 기준 필수 파일 및 참조 무결성 검증 | 완료 |
+| Pack Repository v0.1 | `intent_pack_exports` 테이블에 Export 이력, 상태, 검증 결과, Counts 저장 | 완료 |
+| Pack Builder UI | Draft 생성, Export/ZIP 생성, 검증 결과, ZIP 다운로드 버튼 제공 | 완료 |
+| Pack Repository UI | 프로젝트별 Export 이력, 검증 상태, ZIP 다운로드 링크 표시 | 완료 |
+
+Pack Export v0.2까지는 Pack 파일 생성과 다운로드가 핵심 범위이며, Runtime은 운영 원칙에 따라 검증된 파일 Pack 기반 구조를 유지한다.
+
+## 13. 2026-06-27 Pack Import / Active / Rollback v0.3 구현 반영
+
+Export된 Service-Pack ZIP을 고객 내부망 Runtime Pack Store에 반입하고, 프로젝트별 Active Pack을 운영할 수 있는 1차 구조를 구현했다.
+
+| 구분 | 반영 내용 | 상태 |
+|---|---|---|
+| Runtime Pack Store | `runtime_pack_store` 테이블과 파일 저장소 기반 Pack 반입 구조 추가 | 완료 |
+| Pack Import 검증 | ZIP 압축 해제, 필수 파일 검증, Manifest 검증, `IntentPackLoader` 검증 수행 | 완료 |
+| Active Pack 관리 | 프로젝트별 Active Pack Version 저장 및 Runtime 후보 조회 구조 추가 | 완료 |
+| Rollback | 신규 Pack 활성화 시 직전 정상 Pack을 보관하고 Rollback API 제공 | 완료 |
+| 감사 로그 | Import, Activate, Rollback 처리 결과를 `pack_operation_audit_logs`에 기록 | 완료 |
+| Pack Repository UI | Export 이력, Runtime Store, Active Pack, Rollback 후보, 감사 로그 표시 | 완료 |
+| Runtime QA 연계 | Active Pack 선택 후보를 `/admin/qa` 화면에 노출하고 파일 Pack 기반 Runtime 호출 유지 | 완료 |
+
+다음 우선순위는 Pack 승인 Workflow와 Action 상세 관리다. 특히 상용 운영 기준에서는 Pack을 생성한 사람이 바로 운영 반영하지 않도록 검수/승인/배포 가능 상태를 분리하고, API/SQL/화면 이동 Action을 DB에서 관리할 수 있어야 한다.
+
+## 14. 2026-06-28 Action 관리 v0.1 구현 반영
+
+Intent가 실행할 Action을 운영자가 직접 등록/수정하고, Pack Export 결과에 반영할 수 있는 1차 관리 기능을 구현했다.
+
+| 구분 | 반영 내용 | 상태 |
+|---|---|---|
+| Action DB | `intent_actions` 테이블 추가 및 프로젝트별 Action 마스터 관리 구조 구현 | 완료 |
+| Action API | Action 목록, 상세, 등록, 수정, 보관 처리 API 추가 | 완료 |
+| Pack Import 연계 | 기존 JSON Pack Import 시 `action_registry`, `screen_routes`, `api_mappings`, `sql_templates`를 DB Action으로 적재 | 완료 |
+| Pack Export 연계 | DB Action 상세 정보를 `action_registry`, `screen_routes`, `api_mappings`, `sql_templates` 파일에 반영 | 완료 |
+| Action 관리 화면 | `/admin/intent-factory/actions` 화면을 실제 목록/등록/수정 UI로 전환 | 완료 |
+| Intent 연결 UX | Intent 등록/수정 화면에서 등록된 Action 후보를 선택할 수 있도록 보강 | 완료 |
+
+다음 우선순위는 Pack 검증 화면과 Pack 승인 Workflow다. Action이 관리 가능해졌으므로, 이제 운영자가 작성한 Intent/Entity/Action 조합을 검증 질문으로 확인하고 승인된 Pack만 활성화할 수 있게 만드는 단계가 필요하다.
+
+## 15. 2026-06-28 Pack 검증 및 승인 Workflow v0.5 구현 반영
+
+Pack을 운영 반영하기 전에 검증 질문 기준으로 품질을 확인하고, 승인된 Pack만 Active 전환할 수 있는 1차 Workflow를 구현했다.
+
+| 구분 | 반영 내용 | 상태 |
+|---|---|---|
+| 검증 질문 DB | `pack_validation_questions` 테이블 추가 및 프로젝트/Pack 기준 검증 질문 관리 | 완료 |
+| 검증 결과 DB | `pack_validation_results` 테이블 추가 및 Pack 검증 실행 결과 저장 | 완료 |
+| Pack 검증 API | 검증 질문 CRUD, Pack 검증 실행, 검증 결과 조회 API 구현 | 완료 |
+| 승인/반려 API | Runtime Pack 승인/반려 API 및 감사 로그 기록 구현 | 완료 |
+| Activate 승인 정책 | `approved` 상태 Pack만 Active 전환 가능하도록 정책 강화 | 완료 |
+| Pack 검증 화면 | `/admin/packs/validation` 화면에서 질문 등록, Pack 선택, 검증 실행, 결과 확인 가능 | 완료 |
+| Pack Repository 승인 UI | Runtime Pack Store 목록에서 Approve, Reject, Activate 흐름 제공 | 완료 |
+
+잔여 리스크는 다음 단계로 이관한다.
+
+| 항목 | 현재 상태 | 후속 방향 |
+|---|---|---|
+| 운영 권한 분리 | 1차 미구현 | 검증자, 승인자, 배포자 권한 분리 |
+| 다중 결재선 | 제외 범위 | 필요 시 승인 Workflow v0.2에서 결재선/승인 코멘트 확장 |
+| Pack 전자서명/암호화 | 제외 범위 | 폐쇄망 반입 보안 요건 확정 후 구현 |
+| 미응답 개선 루프 | 미구현 | 운영 로그와 미응답 질문을 Intent 개선 요청으로 전환 |
+| 실제 고객 API/SQL 실행 | 보류 | 승인된 Action Template 기반으로 읽기 전용부터 단계적 연결 |
+
+## 16. 2026-06-28 FAQ 관리 v0.1 구현 반영
+
+FAQ를 Source 문서와 별도로 운영자가 직접 등록/수정하고, Pack Export 결과의 `knowledge/faqs.json`에 반영할 수 있는 1차 관리 기능을 구현했다.
+
+| 구분 | 반영 내용 | 상태 |
+|---|---|---|
+| FAQ DB | `intent_faqs` 테이블 추가 및 프로젝트별 FAQ 관리 구조 구현 | 완료 |
+| FAQ API | FAQ 목록, 상세, 등록, 수정, 보관 처리 API 추가 | 완료 |
+| FAQ 관리 화면 | `/admin/intent-factory/faqs` 화면을 실제 목록/등록/수정 UI로 전환 | 완료 |
+| Pack Draft 연계 | DB의 승인된 활성 FAQ를 Pack Draft `knowledge.faqs`에 반영 | 완료 |
+| Pack Export 연계 | Export ZIP의 `knowledge/faqs.json`에 FAQ 목록을 포함 | 완료 |
+| Pack 반영 제어 | FAQ별 `approved_for_pack` 값으로 Pack 포함 여부 제어 | 완료 |
+
+다음 우선순위는 FAQ/문서 검색 품질 확인과 운영 피드백 루프다. FAQ가 Pack에 포함되므로 Runtime 검색 테스트에서 FAQ 답변이 의도대로 노출되는지 확인하고, 미응답 질문을 FAQ 또는 Intent 개선 요청으로 전환하는 흐름을 구현해야 한다.
+
+## 17. 2026-06-29 FAQ Runtime 검색 연계 v0.7 구현 반영
+
+FAQ 관리 화면에서 등록한 FAQ가 Pack Export, Import, Validation, Approval, Active 흐름 이후 Runtime `SEARCH_DOC` 검색 근거로 확인될 수 있도록 1차 연계를 보강했다.
+
+| 구분 | 반영 내용 | 상태 |
+|---|---|---|
+| SEARCH_DOC 검색 구조 | Runtime 검색 Adapter가 Pack의 `knowledge/faqs.json`과 승인 문서를 함께 검색하는 구조 명확화 | 완료 |
+| FAQ 검색 근거 | FAQ 결과에 FAQ ID, 질문, 답변, 카테고리, 태그, Source ID, Score 필드 제공 | 완료 |
+| Runtime QA 표시 | `/admin/qa` Action Card에서 FAQ 근거와 문서 근거 건수를 표시하고 FAQ 상세 근거를 노출 | 완료 |
+| Runtime 진단 정보 | Runtime 응답 `diagnostics`에 FAQ 근거 수와 문서 근거 수 추가 | 완료 |
+| Pack 추적성 | Pack Builder와 Pack Repository에서 FAQ 포함 건수를 표시하여 Build/Export 이후 반영 여부 확인 가능 | 완료 |
+| FAQ 후보 구조 | 미응답 질문을 FAQ 후보로 전환하기 위한 `faq_candidates` 테이블 및 기본 API 초안 추가 | 완료 |
+
+상용 운영 기준에서 다음 단계는 미응답 분석 화면을 실제 로그 기반으로 구현하고, 운영자가 미응답 질문을 FAQ 후보 또는 Intent 개선 요청으로 전환하는 피드백 루프를 완성하는 것이다.

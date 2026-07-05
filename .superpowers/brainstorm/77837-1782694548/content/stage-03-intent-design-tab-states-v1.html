@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>의도 설계 탭 상태 Mock v1</title>
+  <style>
+    :root {
+      --bg:#f4f7fb; --panel:#fff; --line:#d9e2ef; --text:#142033; --muted:#667085;
+      --navy:#08265a; --blue:#0b5cff; --green:#168a55; --amber:#b7791f; --red:#d92d20; --violet:#6941c6;
+      --soft-blue:#eaf2ff; --soft-green:#e9f8f0; --soft-amber:#fff6df; --soft-red:#fff1f0; --soft-violet:#f1edff;
+      --shadow:0 16px 40px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .page{max-width:1760px;margin:0 auto;padding:32px}
+    .shell{display:grid;grid-template-columns:268px 1fr;gap:24px;min-height:calc(100vh - 64px)}
+    .side{background:#0f172a;color:white;border-radius:18px;padding:22px 18px;box-shadow:var(--shadow)}
+    .brand{font-size:20px;font-weight:950;margin-bottom:28px}
+    .menu-title{color:#98a2b3;font-size:12px;font-weight:900;margin:22px 0 10px}
+    .menu-item{padding:11px 14px;border-radius:12px;color:#cbd5e1;font-size:14px;font-weight:760;margin-bottom:4px}
+    .menu-item.done{color:#bbf7d0}.menu-item.active{background:#1d4ed8;color:white}.menu-item.sub{padding-left:26px;font-size:13px;color:#aebaca}.menu-item.sub.active{color:white;background:rgba(29,78,216,.78)}
+    .main{display:flex;flex-direction:column;gap:18px}
+    .topbar,.workflow,.card,.panel,.action-bar{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 22px}
+    .breadcrumb{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}
+    h1{font-size:30px;line-height:1.18;margin:0;letter-spacing:0}
+    .stage-chip{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;background:var(--soft-violet);color:var(--violet);font-size:13px;font-weight:950;white-space:nowrap}
+    .workflow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:14px}
+    .workflow-step{min-height:78px;border:1px solid #e5eaf2;border-radius:14px;padding:12px;background:#fbfcff}
+    .workflow-step.done{border-color:#b7e4c7;background:#f0fdf4}.workflow-step.current{border-color:#ccb8ff;background:#f7f4ff}.workflow-step.next{border-color:#8cb7ff;background:#eff6ff}
+    .step-no{color:var(--muted);font-size:12px;font-weight:950;margin-bottom:7px}.step-name{color:#111827;font-size:14px;font-weight:950}.step-state{color:var(--muted);margin-top:7px;font-size:12px;font-weight:850}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{min-height:36px;border-radius:999px;background:#f8fafc;border:1px solid #dce3ef;padding:0 14px;font-size:13px;font-weight:900;color:#10213f}
+    .tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+    .screen{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:18px;align-items:start}
+    .card-head{display:flex;justify-content:space-between;gap:16px;padding:22px 24px;border-bottom:1px solid #e8edf5}
+    .card-title{font-size:19px;font-weight:950;margin-bottom:6px}.card-desc{color:var(--muted);font-size:14px;line-height:1.55}
+    .pill{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}
+    .pill.blue{background:var(--soft-blue);color:var(--navy)}.pill.green{background:var(--soft-green);color:var(--green)}.pill.amber{background:var(--soft-amber);color:var(--amber)}.pill.red{background:var(--soft-red);color:var(--red)}.pill.violet{background:var(--soft-violet);color:var(--violet)}
+    .body{padding:24px;display:grid;gap:18px}.table-card{border:1px solid #e4e9f2;border-radius:16px;overflow:hidden;background:#fff}
+    .subhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid #edf1f7}.subhead-title{font-size:16px;font-weight:950}
+    table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#667085;background:#f8fafc;font-size:12px;padding:12px 14px;border-bottom:1px solid #e8edf5}td{padding:13px 14px;border-bottom:1px solid #eef2f7;vertical-align:top;color:#344054;font-weight:720;line-height:1.45}
+    .name{color:#111827;font-weight:950;margin-bottom:4px}.meta{color:var(--muted);font-size:12px;font-weight:700}
+    .detail{border:1px solid #e4e9f2;border-radius:16px;background:#fbfcff;padding:18px;display:grid;gap:14px}
+    .detail-title{font-size:17px;font-weight:950}.detail-body{font-size:13px;color:#475467;line-height:1.65}
+    .example-list{display:grid;gap:8px}.example{display:flex;justify-content:space-between;gap:10px;align-items:center;background:white;border:1px solid #e7edf6;border-radius:12px;padding:10px 12px;font-size:13px;color:#344054;font-weight:760}
+    .merge-group{display:grid;grid-template-columns:1fr 1fr;gap:12px}.merge-box{border:1px solid #e4e9f2;border-radius:14px;background:#fff;padding:14px}
+    .merge-title{font-weight:950;color:#111827;margin-bottom:8px}.merge-desc{font-size:13px;color:#475467;line-height:1.55}
+    .panel-stack{display:flex;flex-direction:column;gap:14px}.panel{padding:18px}.panel h3{margin:0 0 12px;font-size:16px;font-weight:950}
+    .check-list{display:grid;gap:10px}.check{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e7edf6;font-size:13px;font-weight:850}
+    .dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:950}.dot.done{background:#d1fadf;color:var(--green)}.dot.todo{background:#fff1c2;color:var(--amber)}.dot.bad{background:#fee4e2;color:var(--red)}.dot.info{background:#dbeafe;color:var(--blue)}
+    .action-bar{position:sticky;bottom:16px;z-index:2;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .bar-note{font-size:13px;color:var(--muted);line-height:1.45}.buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    button{border:1px solid #cfd8e6;background:white;color:#10213f;min-height:42px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:900;cursor:default;white-space:nowrap}
+    button.primary{background:var(--navy);border-color:var(--navy);color:white}button.success{background:var(--green);border-color:var(--green);color:white}button.danger{background:#fff;border-color:#f1b8b5;color:var(--red)}button.disabled{color:#98a2b3;background:#f2f4f7}
+    .mock-section-title{font-size:22px;font-weight:950;margin:18px 0 0;color:#111827}
+    .note{background:#111827;color:white;border-radius:18px;padding:22px;line-height:1.7;box-shadow:var(--shadow)}
+    @media(max-width:1180px){.shell{grid-template-columns:1fr}.side{display:none}.screen,.merge-group{grid-template-columns:1fr}.workflow{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:720px){.page{padding:16px}.topbar,.card-head,.action-bar{align-items:flex-start;flex-direction:column}.workflow{grid-template-columns:1fr}.buttons{width:100%;justify-content:stretch}button{flex:1}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <aside class="side">
+        <div class="brand">JWINPARTNERS</div>
+        <div class="menu-title">대시보드</div>
+        <div class="menu-item">운영 현황</div>
+        <div class="menu-item">구축 워크플로우</div>
+        <div class="menu-title">프로젝트 준비</div>
+        <div class="menu-item done">프로젝트 관리</div>
+        <div class="menu-item done">지식 준비</div>
+        <div class="menu-item sub">Source 관리</div>
+        <div class="menu-item sub">FAQ 원천 등록</div>
+        <div class="menu-item sub">검색 테스트</div>
+        <div class="menu-title">Intent Factory</div>
+        <div class="menu-item active">Intent 관리</div>
+        <div class="menu-item sub active">의도 설계</div>
+        <div class="menu-item sub">질문패턴 관리</div>
+        <div class="menu-item sub">Entity/Synonym 관리</div>
+        <div class="menu-item">FAQ 관리</div>
+        <div class="menu-item">답변 근거 관리</div>
+        <div class="menu-item">Action 관리</div>
+        <div class="menu-title">Pack 제작/배포</div>
+        <div class="menu-item">Pack Builder</div>
+        <div class="menu-item">Pack 검증</div>
+        <div class="menu-item">Pack Repository</div>
+        <div class="menu-item">배포/활성화</div>
+        <div class="menu-title">Runtime 테스트</div>
+        <div class="menu-item">Runtime QA</div>
+        <div class="menu-item">Action 실행 테스트</div>
+      </aside>
+
+      <main class="main">
+        <section class="topbar">
+          <div>
+            <div class="breadcrumb">Intent Factory &gt; Intent 관리 &gt; 의도 설계</div>
+            <h1>Intent 설계 탭 상태</h1>
+          </div>
+          <div class="stage-chip">3단계 의도 설계 · 탭별 화면 Mock</div>
+        </section>
+
+        <section class="workflow">
+          <div class="workflow-step done"><div class="step-no">01</div><div class="step-name">기반 설정</div><div class="step-state">완료</div></div>
+          <div class="workflow-step done"><div class="step-no">02</div><div class="step-name">지식 준비</div><div class="step-state">완료</div></div>
+          <div class="workflow-step current"><div class="step-no">03</div><div class="step-name">의도 설계</div><div class="step-state">탭 검토</div></div>
+          <div class="workflow-step next"><div class="step-no">04</div><div class="step-name">질문 커버리지</div><div class="step-state">대기</div></div>
+          <div class="workflow-step"><div class="step-no">05</div><div class="step-name">용어 사전</div><div class="step-state">대기</div></div>
+          <div class="workflow-step"><div class="step-no">06</div><div class="step-name">답변 근거</div><div class="step-state">대기</div></div>
+        </section>
+
+        <div class="mock-section-title">1. 등록 Intent 탭</div>
+        <section class="screen">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">등록된 Intent 관리</div>
+                <div class="card-desc">정식 등록된 Intent의 Action 연결, 예문 수, 근거 연결 상태를 확인하고 다음 `질문 커버리지` 단계로 넘길 대상을 정리합니다.</div>
+              </div>
+              <span class="pill green">등록 5개</span>
+            </div>
+            <div class="body">
+              <div class="tabs">
+                <button class="tab">추천 후보</button><button class="tab active">등록 Intent</button><button class="tab">병합 후보</button><button class="tab">보류</button>
+              </div>
+              <div class="table-card">
+                <div class="subhead"><div class="subhead-title">정식 Intent 목록</div><span class="pill blue">질문 커버리지 대상 5개</span></div>
+                <table>
+                  <thead><tr><th>Intent</th><th>Action</th><th>예문</th><th>근거</th><th>상태</th></tr></thead>
+                  <tbody>
+                    <tr><td><div class="name">Pack Export 개념 안내</div><div class="meta">intent.pack.export.guide</div></td><td>SEARCH_DOC</td><td>3개</td><td>3건</td><td><span class="pill green">정상</span></td></tr>
+                    <tr><td><div class="name">Runtime QA 확인 항목</div><div class="meta">intent.runtime.qa.guide</div></td><td>SEARCH_DOC</td><td>4개</td><td>2건</td><td><span class="pill green">정상</span></td></tr>
+                    <tr><td><div class="name">Pack 검증 화면 이동</div><div class="meta">intent.navigate.pack.validation</div></td><td>NAVIGATE</td><td>2개</td><td>화면 1건</td><td><span class="pill amber">예문 부족</span></td></tr>
+                    <tr><td><div class="name">Source 검색 테스트 안내</div><div class="meta">intent.search.test.guide</div></td><td>SEARCH_DOC</td><td>3개</td><td>2건</td><td><span class="pill green">정상</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="detail">
+                <div class="detail-title">선택 Intent 상세</div>
+                <div class="detail-body">등록 Intent 탭에서는 신규 후보 검토보다, 이미 등록된 Intent가 다음 단계로 넘어갈 준비가 되었는지를 확인합니다. 예문 수가 부족한 Intent는 `질문 커버리지` 단계에서 우선 보강 대상으로 표시됩니다.</div>
+                <div class="example-list">
+                  <div class="example"><span>질문 커버리지 전달 대상</span><span class="pill green">5개</span></div>
+                  <div class="example"><span>예문 부족 Intent</span><span class="pill amber">1개</span></div>
+                  <div class="example"><span>Action 미연결 Intent</span><span class="pill green">0개</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="panel-stack">
+            <div class="panel"><h3>완료 조건</h3><div class="check-list">
+              <div class="check"><span class="dot done">✓</span><span>대표 Intent 5개 이상</span><span class="pill green">완료</span></div>
+              <div class="check"><span class="dot done">✓</span><span>Action 모두 지정</span><span class="pill green">완료</span></div>
+              <div class="check"><span class="dot todo">!</span><span>예문 부족 1건 보강</span><span class="pill amber">다음 단계</span></div>
+            </div></div>
+            <div class="panel"><h3>탭 액션</h3><div class="detail-body">등록 Intent는 수정, 비활성화, 질문 커버리지 전달을 수행합니다. 삭제보다 비활성화를 기본 정책으로 둡니다.</div></div>
+          </aside>
+        </section>
+        <section class="action-bar">
+          <div class="bar-note">등록 Intent 5개를 질문 커버리지 단계로 전달할 수 있습니다.</div>
+          <div class="buttons"><button>Intent 수정</button><button>비활성화</button><button class="primary">질문 커버리지로 전달</button><button class="success">다음 단계로 이동</button></div>
+        </section>
+
+        <div class="mock-section-title">2. 병합 후보 탭</div>
+        <section class="screen">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">중복/유사 Intent 병합 검토</div>
+                <div class="card-desc">의미가 비슷한 후보를 한 Intent로 합칠지, 별도 Intent로 유지할지 결정합니다. 병합 결정은 예문과 근거를 함께 통합합니다.</div>
+              </div>
+              <span class="pill amber">병합 후보 3묶음</span>
+            </div>
+            <div class="body">
+              <div class="tabs">
+                <button class="tab">추천 후보</button><button class="tab">등록 Intent</button><button class="tab active">병합 후보</button><button class="tab">보류</button>
+              </div>
+              <div class="table-card">
+                <div class="subhead"><div class="subhead-title">병합 검토 목록</div><span class="pill amber">1건 선택됨</span></div>
+                <table>
+                  <thead><tr><th>후보 묶음</th><th>대상</th><th>유사도</th><th>추천</th><th>상태</th></tr></thead>
+                  <tbody>
+                    <tr><td><div class="name">Pack Export / ZIP 생성 안내</div><div class="meta">개념 안내와 결과물 안내가 혼재</div></td><td>2개</td><td>0.87</td><td>병합</td><td><span class="pill amber">검토</span></td></tr>
+                    <tr><td><div class="name">검증 질문 등록 / Pack 검증 화면 이동</div><div class="meta">기능 설명과 화면 이동 의도가 다름</div></td><td>2개</td><td>0.73</td><td>분리 유지</td><td><span class="pill blue">권장</span></td></tr>
+                    <tr><td><div class="name">Runtime QA / 검색 테스트</div><div class="meta">테스트 목적은 유사하나 단계가 다름</div></td><td>2개</td><td>0.68</td><td>분리 유지</td><td><span class="pill blue">권장</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="merge-group">
+                <div class="merge-box">
+                  <div class="merge-title">후보 A: Pack Export 개념 안내</div>
+                  <div class="merge-desc">Pack Export의 의미, 목적, Runtime 전달 구조를 설명합니다. 예문 3개, 근거 3건이 있습니다.</div>
+                </div>
+                <div class="merge-box">
+                  <div class="merge-title">후보 B: Pack ZIP 생성 안내</div>
+                  <div class="merge-desc">Export 결과물 ZIP 생성과 다운로드에 집중합니다. 예문 2개, 근거 1건이 있습니다.</div>
+                </div>
+              </div>
+              <div class="detail">
+                <div class="detail-title">병합 후 Intent 초안</div>
+                <div class="detail-body">Intent 이름은 `Pack Export 및 배포 패키지 안내`로 통합하고, Action은 SEARCH_DOC을 유지합니다. 예문 5개와 근거 4건이 하나의 Intent에 연결됩니다.</div>
+              </div>
+            </div>
+          </div>
+          <aside class="panel-stack">
+            <div class="panel"><h3>병합 판단 기준</h3><div class="check-list">
+              <div class="check"><span class="dot done">✓</span><span>사용자 의도가 같은가</span><span class="pill green">예</span></div>
+              <div class="check"><span class="dot done">✓</span><span>Action 유형이 같은가</span><span class="pill green">예</span></div>
+              <div class="check"><span class="dot todo">!</span><span>답변 범위가 과도하게 넓어지는가</span><span class="pill amber">검토</span></div>
+            </div></div>
+            <div class="panel"><h3>탭 액션</h3><div class="detail-body">병합 실행 시 원본 후보는 병합 이력으로 보존하고, 통합 Intent만 다음 단계로 전달합니다.</div></div>
+          </aside>
+        </section>
+        <section class="action-bar">
+          <div class="bar-note">선택한 후보는 병합 추천 상태입니다. 병합 후 Intent 이름과 예문을 확인하세요.</div>
+          <div class="buttons"><button>분리 유지</button><button>보류</button><button class="primary">병합 실행</button><button class="success disabled">다음 단계로 이동</button></div>
+        </section>
+
+        <div class="mock-section-title">3. 보류 탭</div>
+        <section class="screen">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">보류 Intent 후보 관리</div>
+                <div class="card-desc">근거가 부족하거나 지금 확정하기 어려운 후보를 보관합니다. 삭제하지 않고 Source 보강, FAQ 후보 추가, 실패 질문 분석 대상으로 전환합니다.</div>
+              </div>
+              <span class="pill red">보류 4개</span>
+            </div>
+            <div class="body">
+              <div class="tabs">
+                <button class="tab">추천 후보</button><button class="tab">등록 Intent</button><button class="tab">병합 후보</button><button class="tab active">보류</button>
+              </div>
+              <div class="table-card">
+                <div class="subhead"><div class="subhead-title">보류 후보 목록</div><span class="pill red">보강 필요</span></div>
+                <table>
+                  <thead><tr><th>후보</th><th>보류 사유</th><th>권장 조치</th><th>소유자</th><th>상태</th></tr></thead>
+                  <tbody>
+                    <tr><td><div class="name">고객사 SSO 연동 방법</div><div class="meta">운영 연계 범위 후보</div></td><td>현재 구축 범위 제외</td><td>추후 기능으로 이동</td><td>PM</td><td><span class="pill red">보류</span></td></tr>
+                    <tr><td><div class="name">실제 DB Query 실행</div><div class="meta">QUERY_EXECUTE 후보</div></td><td>운영 DB 미연동</td><td>Action 단계에서 재검토</td><td>Backend</td><td><span class="pill amber">재검토</span></td></tr>
+                    <tr><td><div class="name">Pack 전자서명 정책</div><div class="meta">배포 보안 후보</div></td><td>v0.1 제외 범위</td><td>보안 로드맵 등록</td><td>Security</td><td><span class="pill red">보류</span></td></tr>
+                    <tr><td><div class="name">미응답 질문 자동 FAQ 생성</div><div class="meta">운영 개선 후보</div></td><td>LLM 사용 정책 필요</td><td>미응답 분석으로 이동</td><td>AI</td><td><span class="pill amber">검토 대기</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="detail">
+                <div class="detail-title">보류 후보 처리 원칙</div>
+                <div class="detail-body">보류 후보는 삭제 대상이 아닙니다. 현재 단계에서 Intent로 확정하지 않을 뿐이며, 사유와 권장 조치를 남겨 이후 Source 보강, Action 설계, 운영 분석 단계에서 다시 검토합니다.</div>
+                <div class="example-list">
+                  <div class="example"><span>Source 보강 필요</span><span class="pill amber">1개</span></div>
+                  <div class="example"><span>추후 기능 후보</span><span class="pill red">2개</span></div>
+                  <div class="example"><span>Action 단계 재검토</span><span class="pill blue">1개</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="panel-stack">
+            <div class="panel"><h3>보류 사유 분포</h3><div class="check-list">
+              <div class="check"><span class="dot bad">!</span><span>현재 범위 제외</span><span class="pill red">2개</span></div>
+              <div class="check"><span class="dot todo">!</span><span>근거 부족</span><span class="pill amber">1개</span></div>
+              <div class="check"><span class="dot info">i</span><span>다른 단계 검토</span><span class="pill blue">1개</span></div>
+            </div></div>
+            <div class="panel"><h3>탭 액션</h3><div class="detail-body">보류 탭에서는 재검토 요청, Source 보강 필요 표시, 추후 기능 후보 전환, 삭제를 수행합니다. 삭제는 감사 이력과 함께 제한적으로만 허용합니다.</div></div>
+          </aside>
+        </section>
+        <section class="action-bar">
+          <div class="bar-note">보류 후보는 다음 단계 이동을 막지 않지만, 사유와 후속 조치가 반드시 남아야 합니다.</div>
+          <div class="buttons"><button>재검토 요청</button><button>Source 보강 필요</button><button class="primary">추후 기능 후보로 전환</button><button class="danger">삭제</button></div>
+        </section>
+
+        <section class="note">
+          <strong>탭 상태 설계 요약</strong><br />
+          `등록 Intent`, `병합 후보`, `보류`는 별도 페이지가 아니라 같은 의도 설계 화면의 탭 상태로 동작합니다. 좌측 메뉴와 상단 워크플로우는 유지하고, 본문 목록/상세/하단 액션만 탭 목적에 맞게 바뀝니다. 이렇게 하면 운영자는 현재 단계 맥락을 잃지 않고 후보를 등록, 병합, 보류 처리할 수 있습니다.
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

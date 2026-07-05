@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useProjects from '../hooks/useProjects';
+import { UploadCloud, X } from 'lucide-react';
 
 const SourceList = () => {
   const navigate = useNavigate();
@@ -9,6 +10,9 @@ const SourceList = () => {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
   const [domainFilter, setDomainFilter] = useState('');
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const { projects } = useProjects();
 
   const token = () => localStorage.getItem('ai_access_token');
@@ -22,22 +26,52 @@ const SourceList = () => {
 
   useEffect(() => {
     if (!domainFilter) return;
-    const fetchSources = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`/api/v1/projects/${domainFilter}/sources`, {
-          headers: { Authorization: `Bearer ${token()}` }
-        });
-        setSources(res.data || []);
-      } catch (err) {
-        console.error('문서 목록 조회 실패:', err);
-        setSources([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchSources();
   }, [domainFilter]);
+
+  const fetchSources = async () => {
+    if (!domainFilter) return;
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/v1/projects/${domainFilter}/sources`, {
+        headers: { Authorization: `Bearer ${token()}` }
+      });
+      setSources(res.data || []);
+    } catch (err) {
+      console.error('문서 목록 조회 실패:', err);
+      setSources([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpload = async (event) => {
+    event.preventDefault();
+    if (!uploadFile) {
+      alert('업로드할 파일을 선택해 주세요.');
+      return;
+    }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      await axios.post(`/api/v1/projects/${domainFilter}/sources`, formData, {
+        headers: {
+          Authorization: `Bearer ${token()}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setUploadFile(null);
+      setUploadOpen(false);
+      await fetchSources();
+      alert('Source가 등록되었습니다. 백그라운드에서 벡터화 작업이 시작됩니다.');
+    } catch (err) {
+      console.error('Source 등록 실패:', err);
+      alert('Source 등록 중 오류가 발생했습니다: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setUploading(false);
+    }
+  };
 
 
   const handleSelectAll = (e) => {
@@ -86,7 +120,7 @@ const SourceList = () => {
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="btn-secondary" onClick={handleDelete}>선택 삭제</button>
           <button className="btn-secondary" onClick={() => navigate('/admin/jobs/new')}>선택 항목 인덱싱 실행</button>
-          <button className="btn-primary" onClick={() => navigate('/admin/sources/new')}>+ Source 등록</button>
+          <button className="btn-primary" onClick={() => setUploadOpen(true)}>+ Source 등록</button>
         </div>
       </div>
 
@@ -170,6 +204,51 @@ const SourceList = () => {
           </tbody>
         </table>
       </div>
+
+      {uploadOpen && (
+        <div className="workflow-overlay" onClick={() => setUploadOpen(false)}>
+          <div className="workflow-modal workflow-modal-wide" onClick={(event) => event.stopPropagation()}>
+            <div className="workflow-drawer-head">
+              <div>
+                <span>Source 등록</span>
+                <h3>문서 업로드</h3>
+              </div>
+              <button type="button" className="workflow-icon-button" onClick={() => setUploadOpen(false)} aria-label="닫기"><X size={18} /></button>
+            </div>
+            <form className="workflow-panel-form" onSubmit={handleUpload}>
+              <label>
+                <span>대상 프로젝트</span>
+                <input value={domainFilter || '-'} disabled />
+              </label>
+              <label>
+                <span>Source 유형</span>
+                <select value="file" disabled>
+                  <option>파일 업로드 (PDF, DOCX, TXT, MD)</option>
+                </select>
+              </label>
+              <label className="workflow-file-box">
+                <UploadCloud size={24} />
+                <strong>{uploadFile ? uploadFile.name : '파일을 선택해 주세요'}</strong>
+                <small>지원 형식: PDF, DOCX, TXT, MD</small>
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.txt,.md"
+                  onChange={(event) => setUploadFile(event.target.files?.[0] || null)}
+                />
+              </label>
+              <div className="workflow-option-list">
+                <label><input type="checkbox" checked readOnly /> 텍스트 청킹 및 Vector DB 임베딩 생성</label>
+                <label><input type="checkbox" checked readOnly /> Entity/Relation 추출 준비</label>
+                <label><input type="checkbox" checked readOnly /> 검색 테스트 대상으로 포함</label>
+              </div>
+              <div className="workflow-drawer-actions">
+                <button className="btn-secondary" type="button" onClick={() => setUploadOpen(false)}>취소</button>
+                <button className="btn-primary" type="submit" disabled={uploading || !domainFilter}>{uploading ? '업로드 중...' : '업로드 및 벡터화 시작'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useProjects from '../hooks/useProjects';
+import { isAuthError } from '../api/httpClient';
 
 const SourceNew = () => {
   const navigate = useNavigate();
@@ -55,6 +56,10 @@ const SourceNew = () => {
       navigate('/admin/sources');
     } catch (error) {
       console.error(error);
+      if (isAuthError(error)) {
+        alert('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+        return;
+      }
       alert('문서 등록에 실패했습니다: ' + (error.response?.data?.detail || error.message));
     } finally {
       setIsSubmitting(false);

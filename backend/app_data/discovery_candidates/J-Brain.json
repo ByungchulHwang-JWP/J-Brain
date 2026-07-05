@@ -1,0 +1,2615 @@
+{
+  "project_id": "J-Brain",
+  "runs": [
+    {
+      "run_id": "DISC-169BEBFF9267",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-EB2F856C78A1",
+          "run_id": "DISC-169BEBFF9267",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:06:58.690524+00:00",
+          "updated_at": "2026-07-02T08:13:24.027227+00:00"
+        },
+        {
+          "candidate_id": "CAND-93D92AB35186",
+          "run_id": "DISC-169BEBFF9267",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:06:58.690524+00:00",
+          "updated_at": "2026-07-02T08:13:24.030354+00:00"
+        },
+        {
+          "candidate_id": "CAND-AAEA008149C4",
+          "run_id": "DISC-169BEBFF9267",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:06:58.690524+00:00",
+          "updated_at": "2026-07-02T08:13:24.032283+00:00"
+        },
+        {
+          "candidate_id": "CAND-8C19A42D9E0C",
+          "run_id": "DISC-169BEBFF9267",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "54bead11-9868-443b-88f4-f0da7d9f1282"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:06:58.690524+00:00",
+          "updated_at": "2026-07-02T08:13:24.033937+00:00"
+        },
+        {
+          "candidate_id": "CAND-9054C4CB7FEF",
+          "run_id": "DISC-169BEBFF9267",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:06:58.690524+00:00",
+          "updated_at": "2026-07-02T08:13:24.035390+00:00"
+        },
+        {
+          "candidate_id": "CAND-1CDFE8A7EF76",
+          "run_id": "DISC-169BEBFF9267",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_OVERVIEW",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "J-Brain_Manual.txt 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "54bead11-9868-443b-88f4-f0da7d9f1282",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:06:58.690524+00:00",
+          "updated_at": "2026-07-02T08:13:24.036833+00:00"
+        }
+      ],
+      "created_at": "2026-07-02T08:06:58.690524+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-9AD13EFEEE19",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-A9C0BCA804B4",
+          "run_id": "DISC-9AD13EFEEE19",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:12:47.024716+00:00",
+          "updated_at": "2026-07-02T08:13:24.038285+00:00"
+        },
+        {
+          "candidate_id": "CAND-6CA3C6F78345",
+          "run_id": "DISC-9AD13EFEEE19",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:12:47.024716+00:00",
+          "updated_at": "2026-07-02T08:13:24.039736+00:00"
+        },
+        {
+          "candidate_id": "CAND-773FDE75A67B",
+          "run_id": "DISC-9AD13EFEEE19",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:12:47.024716+00:00",
+          "updated_at": "2026-07-02T08:13:24.041194+00:00"
+        },
+        {
+          "candidate_id": "CAND-8C3236020F41",
+          "run_id": "DISC-9AD13EFEEE19",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "54bead11-9868-443b-88f4-f0da7d9f1282"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:12:47.024716+00:00",
+          "updated_at": "2026-07-02T08:13:24.042658+00:00"
+        },
+        {
+          "candidate_id": "CAND-FDCA75EAA908",
+          "run_id": "DISC-9AD13EFEEE19",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:12:47.024716+00:00",
+          "updated_at": "2026-07-02T08:13:24.044092+00:00"
+        },
+        {
+          "candidate_id": "CAND-FCD52C86E50B",
+          "run_id": "DISC-9AD13EFEEE19",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_OVERVIEW",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "J-Brain_Manual.txt 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "54bead11-9868-443b-88f4-f0da7d9f1282",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:12:47.024716+00:00",
+          "updated_at": "2026-07-02T08:13:24.045532+00:00"
+        }
+      ],
+      "created_at": "2026-07-02T08:12:47.024716+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-35770F267BF4",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-737DF5DC7976",
+          "run_id": "DISC-35770F267BF4",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:21.048090+00:00",
+          "updated_at": "2026-07-02T08:26:28.636568+00:00"
+        },
+        {
+          "candidate_id": "CAND-98C866F39C5C",
+          "run_id": "DISC-35770F267BF4",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:21.048090+00:00",
+          "updated_at": "2026-07-02T08:26:28.640967+00:00"
+        },
+        {
+          "candidate_id": "CAND-05C6E42DB099",
+          "run_id": "DISC-35770F267BF4",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:21.048090+00:00",
+          "updated_at": "2026-07-02T08:26:28.644584+00:00"
+        },
+        {
+          "candidate_id": "CAND-0EC776E63491",
+          "run_id": "DISC-35770F267BF4",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "54bead11-9868-443b-88f4-f0da7d9f1282"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:21.048090+00:00",
+          "updated_at": "2026-07-02T08:26:28.647590+00:00"
+        },
+        {
+          "candidate_id": "CAND-073FF231B8BB",
+          "run_id": "DISC-35770F267BF4",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:21.048090+00:00",
+          "updated_at": "2026-07-02T08:26:28.650596+00:00"
+        },
+        {
+          "candidate_id": "CAND-5FF031F3BD96",
+          "run_id": "DISC-35770F267BF4",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "J-Brain_Manual.txt 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "54bead11-9868-443b-88f4-f0da7d9f1282",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:21.048090+00:00",
+          "updated_at": "2026-07-02T08:26:28.653627+00:00"
+        }
+      ],
+      "created_at": "2026-07-02T08:23:21.048090+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-82F00CF88A34",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-791FE62BD87A",
+          "run_id": "DISC-82F00CF88A34",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:23.513780+00:00",
+          "updated_at": "2026-07-02T08:26:28.656909+00:00"
+        },
+        {
+          "candidate_id": "CAND-063F4BEC8205",
+          "run_id": "DISC-82F00CF88A34",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:23.513780+00:00",
+          "updated_at": "2026-07-02T08:26:28.660225+00:00"
+        },
+        {
+          "candidate_id": "CAND-5A1AB7F501DA",
+          "run_id": "DISC-82F00CF88A34",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:23.513780+00:00",
+          "updated_at": "2026-07-02T08:26:28.663333+00:00"
+        },
+        {
+          "candidate_id": "CAND-B587DACD92C2",
+          "run_id": "DISC-82F00CF88A34",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "54bead11-9868-443b-88f4-f0da7d9f1282"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:23.513780+00:00",
+          "updated_at": "2026-07-02T08:26:28.667031+00:00"
+        },
+        {
+          "candidate_id": "CAND-050C0CACDDCA",
+          "run_id": "DISC-82F00CF88A34",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:23.513780+00:00",
+          "updated_at": "2026-07-02T08:26:28.669953+00:00"
+        },
+        {
+          "candidate_id": "CAND-274F64D2A662",
+          "run_id": "DISC-82F00CF88A34",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "J-Brain_Manual.txt 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "54bead11-9868-443b-88f4-f0da7d9f1282",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:23.513780+00:00",
+          "updated_at": "2026-07-02T08:26:28.673186+00:00"
+        }
+      ],
+      "created_at": "2026-07-02T08:23:23.513780+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-DED3D68FF948",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-AED82B52CAC8",
+          "run_id": "DISC-DED3D68FF948",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:24.446085+00:00",
+          "updated_at": "2026-07-02T08:26:28.676169+00:00"
+        },
+        {
+          "candidate_id": "CAND-3EA451593E89",
+          "run_id": "DISC-DED3D68FF948",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:24.446085+00:00",
+          "updated_at": "2026-07-02T08:26:28.679176+00:00"
+        },
+        {
+          "candidate_id": "CAND-1EA6431FB9BD",
+          "run_id": "DISC-DED3D68FF948",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:24.446085+00:00",
+          "updated_at": "2026-07-02T08:26:28.682073+00:00"
+        },
+        {
+          "candidate_id": "CAND-8F82333FE99D",
+          "run_id": "DISC-DED3D68FF948",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "54bead11-9868-443b-88f4-f0da7d9f1282"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:24.446085+00:00",
+          "updated_at": "2026-07-02T08:26:28.684848+00:00"
+        },
+        {
+          "candidate_id": "CAND-D65D67596ADA",
+          "run_id": "DISC-DED3D68FF948",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:24.446085+00:00",
+          "updated_at": "2026-07-02T08:26:28.687606+00:00"
+        },
+        {
+          "candidate_id": "CAND-D92312F7FDBE",
+          "run_id": "DISC-DED3D68FF948",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "J-Brain_Manual.txt 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "54bead11-9868-443b-88f4-f0da7d9f1282",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:23:24.446085+00:00",
+          "updated_at": "2026-07-02T08:26:28.690572+00:00"
+        }
+      ],
+      "created_at": "2026-07-02T08:23:24.446085+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-ECA166A546E9",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-637A67BAB027",
+          "run_id": "DISC-ECA166A546E9",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:25:39.652084+00:00",
+          "updated_at": "2026-07-02T08:26:28.693474+00:00"
+        },
+        {
+          "candidate_id": "CAND-46803451D319",
+          "run_id": "DISC-ECA166A546E9",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:25:39.652084+00:00",
+          "updated_at": "2026-07-02T08:26:28.696188+00:00"
+        },
+        {
+          "candidate_id": "CAND-109E9792479A",
+          "run_id": "DISC-ECA166A546E9",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:25:39.652084+00:00",
+          "updated_at": "2026-07-02T08:26:28.698877+00:00"
+        },
+        {
+          "candidate_id": "CAND-B41425F3F071",
+          "run_id": "DISC-ECA166A546E9",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "54bead11-9868-443b-88f4-f0da7d9f1282"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:25:39.652084+00:00",
+          "updated_at": "2026-07-02T08:26:28.701545+00:00"
+        },
+        {
+          "candidate_id": "CAND-870251FDFF73",
+          "run_id": "DISC-ECA166A546E9",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:25:39.652084+00:00",
+          "updated_at": "2026-07-02T08:26:28.704289+00:00"
+        },
+        {
+          "candidate_id": "CAND-BF18E924EEFD",
+          "run_id": "DISC-ECA166A546E9",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "J-Brain_Manual.txt 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "54bead11-9868-443b-88f4-f0da7d9f1282",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-02T08:25:39.652084+00:00",
+          "updated_at": "2026-07-02T08:26:28.707106+00:00"
+        }
+      ],
+      "created_at": "2026-07-02T08:25:39.652084+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-7C368409A2EA",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-4EA53CC4C9E1",
+          "run_id": "DISC-7C368409A2EA",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T07:21:01.714497+00:00",
+          "updated_at": "2026-07-04T07:21:27.591611+00:00"
+        },
+        {
+          "candidate_id": "CAND-3C814874C7F0",
+          "run_id": "DISC-7C368409A2EA",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T07:21:01.714497+00:00",
+          "updated_at": "2026-07-04T07:21:27.595754+00:00"
+        },
+        {
+          "candidate_id": "CAND-0C31FB678D31",
+          "run_id": "DISC-7C368409A2EA",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T07:21:01.714497+00:00",
+          "updated_at": "2026-07-04T07:21:27.600755+00:00"
+        },
+        {
+          "candidate_id": "CAND-1305A635C64F",
+          "run_id": "DISC-7C368409A2EA",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T07:21:01.714497+00:00",
+          "updated_at": "2026-07-04T07:21:27.604476+00:00"
+        },
+        {
+          "candidate_id": "CAND-31766446149E",
+          "run_id": "DISC-7C368409A2EA",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "03",
+                "synonyms": [
+                  "03"
+                ],
+                "code": "03"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "md",
+                "synonyms": [
+                  "md"
+                ],
+                "code": "MD"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T07:21:01.714497+00:00",
+          "updated_at": "2026-07-04T07:21:27.608014+00:00"
+        },
+        {
+          "candidate_id": "CAND-0701268C238A",
+          "run_id": "DISC-7C368409A2EA",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_OVERVIEW",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T07:21:01.714497+00:00",
+          "updated_at": "2026-07-04T07:21:27.611370+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T07:21:01.714497+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-F3BAF8FD1E6A",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-B27642022F0D",
+          "run_id": "DISC-F3BAF8FD1E6A",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T10:59:35.022208+00:00",
+          "updated_at": "2026-07-04T11:00:09.814184+00:00"
+        },
+        {
+          "candidate_id": "CAND-3842E2542667",
+          "run_id": "DISC-F3BAF8FD1E6A",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T10:59:35.022208+00:00",
+          "updated_at": "2026-07-04T11:00:09.819331+00:00"
+        },
+        {
+          "candidate_id": "CAND-CD98311EA7DD",
+          "run_id": "DISC-F3BAF8FD1E6A",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T10:59:35.022208+00:00",
+          "updated_at": "2026-07-04T11:00:09.823593+00:00"
+        },
+        {
+          "candidate_id": "CAND-F4F7BEB7487D",
+          "run_id": "DISC-F3BAF8FD1E6A",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T10:59:35.022208+00:00",
+          "updated_at": "2026-07-04T11:00:09.828052+00:00"
+        },
+        {
+          "candidate_id": "CAND-3EF06AC7471C",
+          "run_id": "DISC-F3BAF8FD1E6A",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "03",
+                "synonyms": [
+                  "03"
+                ],
+                "code": "03"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "md",
+                "synonyms": [
+                  "md"
+                ],
+                "code": "MD"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T10:59:35.022208+00:00",
+          "updated_at": "2026-07-04T11:00:09.832046+00:00"
+        },
+        {
+          "candidate_id": "CAND-7A351CB86E5F",
+          "run_id": "DISC-F3BAF8FD1E6A",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T10:59:35.022208+00:00",
+          "updated_at": "2026-07-04T11:00:09.836468+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T10:59:35.022208+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-01B471780AF8",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-6A930C803A99",
+          "run_id": "DISC-01B471780AF8",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:13:41.197673+00:00",
+          "updated_at": "2026-07-04T11:17:00.517668+00:00"
+        },
+        {
+          "candidate_id": "CAND-4C3DA63B70EE",
+          "run_id": "DISC-01B471780AF8",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:13:41.197673+00:00",
+          "updated_at": "2026-07-04T11:17:00.523996+00:00"
+        },
+        {
+          "candidate_id": "CAND-8F62A526D99D",
+          "run_id": "DISC-01B471780AF8",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:13:41.197673+00:00",
+          "updated_at": "2026-07-04T11:17:00.530711+00:00"
+        },
+        {
+          "candidate_id": "CAND-165CDDEE3D6C",
+          "run_id": "DISC-01B471780AF8",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "95f39447-e1ba-48dc-8122-46a181cbdbfa",
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:13:41.197673+00:00",
+          "updated_at": "2026-07-04T11:17:00.536620+00:00"
+        },
+        {
+          "candidate_id": "CAND-50DBD6CDA36F",
+          "run_id": "DISC-01B471780AF8",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:13:41.197673+00:00",
+          "updated_at": "2026-07-04T11:17:00.544310+00:00"
+        },
+        {
+          "candidate_id": "CAND-993106DE47D4",
+          "run_id": "DISC-01B471780AF8",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:13:41.197673+00:00",
+          "updated_at": "2026-07-04T11:17:00.550354+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T11:13:41.197673+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-8FD211453D85",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-E99CE48042CC",
+          "run_id": "DISC-8FD211453D85",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:15.927170+00:00",
+          "updated_at": "2026-07-04T11:17:00.556367+00:00"
+        },
+        {
+          "candidate_id": "CAND-A0B757959F76",
+          "run_id": "DISC-8FD211453D85",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:15.927170+00:00",
+          "updated_at": "2026-07-04T11:17:00.562193+00:00"
+        },
+        {
+          "candidate_id": "CAND-BB1FD87FBAB9",
+          "run_id": "DISC-8FD211453D85",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:15.927170+00:00",
+          "updated_at": "2026-07-04T11:17:00.567930+00:00"
+        },
+        {
+          "candidate_id": "CAND-D26A4A8BD102",
+          "run_id": "DISC-8FD211453D85",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "95f39447-e1ba-48dc-8122-46a181cbdbfa",
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:15.927170+00:00",
+          "updated_at": "2026-07-04T11:17:00.574189+00:00"
+        },
+        {
+          "candidate_id": "CAND-95E9D6ABF894",
+          "run_id": "DISC-8FD211453D85",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:15.927170+00:00",
+          "updated_at": "2026-07-04T11:17:00.579505+00:00"
+        },
+        {
+          "candidate_id": "CAND-A0187537541B",
+          "run_id": "DISC-8FD211453D85",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:15.927170+00:00",
+          "updated_at": "2026-07-04T11:17:00.585688+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T11:16:15.927170+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-597F805E7C38",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-0E2313DA12B8",
+          "run_id": "DISC-597F805E7C38",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:20.922411+00:00",
+          "updated_at": "2026-07-04T11:17:00.591110+00:00"
+        },
+        {
+          "candidate_id": "CAND-3DF3F8360FCD",
+          "run_id": "DISC-597F805E7C38",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:20.922411+00:00",
+          "updated_at": "2026-07-04T11:17:00.596549+00:00"
+        },
+        {
+          "candidate_id": "CAND-4176593A7F1B",
+          "run_id": "DISC-597F805E7C38",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:20.922411+00:00",
+          "updated_at": "2026-07-04T11:17:00.603292+00:00"
+        },
+        {
+          "candidate_id": "CAND-E542C74593BF",
+          "run_id": "DISC-597F805E7C38",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "95f39447-e1ba-48dc-8122-46a181cbdbfa",
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:20.922411+00:00",
+          "updated_at": "2026-07-04T11:17:00.609554+00:00"
+        },
+        {
+          "candidate_id": "CAND-6E49C893BAA4",
+          "run_id": "DISC-597F805E7C38",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:20.922411+00:00",
+          "updated_at": "2026-07-04T11:17:00.615374+00:00"
+        },
+        {
+          "candidate_id": "CAND-35EA30F330B4",
+          "run_id": "DISC-597F805E7C38",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:20.922411+00:00",
+          "updated_at": "2026-07-04T11:17:00.620716+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T11:16:20.922411+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-E221D53333FA",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-FEE4031F0C7A",
+          "run_id": "DISC-E221D53333FA",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:31.567024+00:00",
+          "updated_at": "2026-07-04T11:17:00.626414+00:00"
+        },
+        {
+          "candidate_id": "CAND-F0FE8186DF44",
+          "run_id": "DISC-E221D53333FA",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:31.567024+00:00",
+          "updated_at": "2026-07-04T11:17:00.631698+00:00"
+        },
+        {
+          "candidate_id": "CAND-FF58DC114D67",
+          "run_id": "DISC-E221D53333FA",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:31.567024+00:00",
+          "updated_at": "2026-07-04T11:17:00.637066+00:00"
+        },
+        {
+          "candidate_id": "CAND-E50786E52456",
+          "run_id": "DISC-E221D53333FA",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "95f39447-e1ba-48dc-8122-46a181cbdbfa",
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:31.567024+00:00",
+          "updated_at": "2026-07-04T11:17:00.642854+00:00"
+        },
+        {
+          "candidate_id": "CAND-A87698A13CAB",
+          "run_id": "DISC-E221D53333FA",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:31.567024+00:00",
+          "updated_at": "2026-07-04T11:17:00.648048+00:00"
+        },
+        {
+          "candidate_id": "CAND-4D797BC89ED6",
+          "run_id": "DISC-E221D53333FA",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:16:31.567024+00:00",
+          "updated_at": "2026-07-04T11:17:00.653353+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T11:16:31.567024+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-C4E9BC917703",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-BB5614C9708D",
+          "run_id": "DISC-C4E9BC917703",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:57:34.702763+00:00",
+          "updated_at": "2026-07-04T12:05:50.062813+00:00"
+        },
+        {
+          "candidate_id": "CAND-5DFAA2167D85",
+          "run_id": "DISC-C4E9BC917703",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:57:34.702763+00:00",
+          "updated_at": "2026-07-04T12:06:11.833746+00:00"
+        },
+        {
+          "candidate_id": "CAND-8DA825D23B67",
+          "run_id": "DISC-C4E9BC917703",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:57:34.702763+00:00",
+          "updated_at": "2026-07-04T12:06:11.846145+00:00"
+        },
+        {
+          "candidate_id": "CAND-67B6B94939C4",
+          "run_id": "DISC-C4E9BC917703",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "95f39447-e1ba-48dc-8122-46a181cbdbfa",
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:57:34.702763+00:00",
+          "updated_at": "2026-07-04T12:05:26.971999+00:00"
+        },
+        {
+          "candidate_id": "CAND-B1CC40E34022",
+          "run_id": "DISC-C4E9BC917703",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:57:34.702763+00:00",
+          "updated_at": "2026-07-04T12:06:11.857494+00:00"
+        },
+        {
+          "candidate_id": "CAND-F4D66AC07A9B",
+          "run_id": "DISC-C4E9BC917703",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:57:34.702763+00:00",
+          "updated_at": "2026-07-04T12:06:11.869885+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T11:57:34.702763+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    },
+    {
+      "run_id": "DISC-48ADB0567144",
+      "project_id": "J-Brain",
+      "status": "completed",
+      "summary": {
+        "total": 6,
+        "approved": 6,
+        "applied": 6,
+        "pending": 0,
+        "rejected": 0,
+        "by_type": {
+          "CATEGORY": 1,
+          "ACTION": 1,
+          "INTENT": 1,
+          "SOURCE_SCOPE": 1,
+          "ENTITY": 1,
+          "FAQ": 1
+        },
+        "by_status": {
+          "applied": 6
+        }
+      },
+      "candidates": [
+        {
+          "candidate_id": "CAND-DCE9E9EC41E3",
+          "run_id": "DISC-48ADB0567144",
+          "project_id": "J-Brain",
+          "candidate_type": "CATEGORY",
+          "title": "문서 검색 카테고리",
+          "payload": {
+            "category": "SEARCH_DOC",
+            "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다."
+          },
+          "confidence_score": 0.82,
+          "reason": "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:58:23.882998+00:00",
+          "updated_at": "2026-07-04T12:05:50.074919+00:00"
+        },
+        {
+          "candidate_id": "CAND-C0AE32A09C65",
+          "run_id": "DISC-48ADB0567144",
+          "project_id": "J-Brain",
+          "candidate_type": "ACTION",
+          "title": "문서 검색 Action",
+          "payload": {
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "action_name": "J-Brain 문서 검색",
+            "action_type": "SEARCH_DOC",
+            "execution_mode": "local",
+            "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다."
+          },
+          "confidence_score": 0.8,
+          "reason": "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:58:23.882998+00:00",
+          "updated_at": "2026-07-04T12:06:11.882081+00:00"
+        },
+        {
+          "candidate_id": "CAND-F0B68810CB7A",
+          "run_id": "DISC-48ADB0567144",
+          "project_id": "J-Brain",
+          "candidate_type": "INTENT",
+          "title": "J-Brain 문서/기능 질의",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "intent_name": "J-Brain 문서/기능 질의",
+            "category": "SEARCH_DOC",
+            "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+            "examples": [
+              "J-Brain 주요 기능 알려줘",
+              "J-Brain 사용 방법 알려줘",
+              "J-Brain 문서에서 관련 내용 찾아줘"
+            ],
+            "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다."
+          },
+          "confidence_score": 0.76,
+          "reason": "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:58:23.882998+00:00",
+          "updated_at": "2026-07-04T12:06:11.893344+00:00"
+        },
+        {
+          "candidate_id": "CAND-A325F7FD20F2",
+          "run_id": "DISC-48ADB0567144",
+          "project_id": "J-Brain",
+          "candidate_type": "SOURCE_SCOPE",
+          "title": "J-Brain 검색 범위",
+          "payload": {
+            "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+            "source_category": "J-Brain",
+            "source_ids": [
+              "95f39447-e1ba-48dc-8122-46a181cbdbfa",
+              "86d68ced-f75e-4d13-b507-7a60c7bc6656"
+            ],
+            "source_status": "completed",
+            "top_k": 5,
+            "score_threshold": 0.65
+          },
+          "confidence_score": 0.78,
+          "reason": "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:58:23.882998+00:00",
+          "updated_at": "2026-07-04T12:05:26.982269+00:00"
+        },
+        {
+          "candidate_id": "CAND-2A0B94D9193D",
+          "run_id": "DISC-48ADB0567144",
+          "project_id": "J-Brain",
+          "candidate_type": "ENTITY",
+          "title": "핵심 업무 용어",
+          "payload": {
+            "entity_type": "J_BRAIN_TERM",
+            "display_name": "J-Brain 핵심 용어",
+            "value_type": "string",
+            "synonyms": [
+              {
+                "canonical_value": "J-Brain",
+                "synonyms": [
+                  "J-Brain"
+                ],
+                "code": "J_BRAIN"
+              },
+              {
+                "canonical_value": "Brain",
+                "synonyms": [
+                  "Brain"
+                ],
+                "code": "BRAIN"
+              },
+              {
+                "canonical_value": "업로드",
+                "synonyms": [
+                  "업로드"
+                ],
+                "code": "업로드"
+              },
+              {
+                "canonical_value": "파일",
+                "synonyms": [
+                  "파일"
+                ],
+                "code": "파일"
+              },
+              {
+                "canonical_value": "운영자",
+                "synonyms": [
+                  "운영자"
+                ],
+                "code": "운영자"
+              }
+            ]
+          },
+          "confidence_score": 0.68,
+          "reason": "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:58:23.882998+00:00",
+          "updated_at": "2026-07-04T12:06:11.906075+00:00"
+        },
+        {
+          "candidate_id": "CAND-DBF9B76E2DE0",
+          "run_id": "DISC-48ADB0567144",
+          "project_id": "J-Brain",
+          "candidate_type": "FAQ",
+          "title": "J-Brain 대표 FAQ",
+          "payload": {
+            "faq_id": "FAQ_J_BRAIN_AUTO",
+            "question": "J-Brain의 주요 내용은 무엇인가요?",
+            "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+            "category": "자동 생성 후보",
+            "tags": [
+              "auto-discovery",
+              "J-Brain"
+            ],
+            "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+            "action_id": "SEARCH_DOC"
+          },
+          "confidence_score": 0.7,
+          "reason": "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
+          "status": "applied",
+          "created_at": "2026-07-04T11:58:23.882998+00:00",
+          "updated_at": "2026-07-04T12:06:11.919272+00:00"
+        }
+      ],
+      "created_at": "2026-07-04T11:58:23.882998+00:00",
+      "updated_at": "2026-07-04T12:06:11.919272+00:00"
+    }
+  ]
+}

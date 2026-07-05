@@ -1,0 +1,26 @@
+[
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+    "text": "J-Brain 주요 기능 알려줘",
+    "example": "J-Brain 주요 기능 알려줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+    "text": "J-Brain 사용 방법 알려줘",
+    "example": "J-Brain 사용 방법 알려줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+    "text": "J-Brain 문서에서 관련 내용 찾아줘",
+    "example": "J-Brain 문서에서 관련 내용 찾아줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  }
+]

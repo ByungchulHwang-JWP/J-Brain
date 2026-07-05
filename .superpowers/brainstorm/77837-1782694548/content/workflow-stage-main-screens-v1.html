@@ -1,0 +1,239 @@
+<h2>구축 워크플로우 단계별 메인 화면 Mock v1</h2>
+<p class="subtitle">대시보드의 각 단계 카드를 선택했을 때 이동하는 “단계별 작업 메인 화면” 구조입니다. 목표는 운영자가 해당 단계에서 무엇을 확인하고, 무엇을 입력하고, 무엇을 완료해야 하는지 바로 알게 하는 것입니다.</p>
+
+<div class="mockup">
+  <div class="mockup-header">대시보드 제목 변경안: 구축 워크플로우 단계</div>
+  <div class="mockup-body">
+    <div style="background:#f6f8fb;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:18px">
+      <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:12px;color:#667085;font-weight:900">현재 프로젝트</div>
+            <div style="font-size:20px;font-weight:900;color:#10213f">JWP 금융 상담 챗봇</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="mock-button">프로젝트 전환</button>
+            <button class="mock-button">프로젝트 설정</button>
+          </div>
+        </div>
+        <div style="margin-top:18px">
+          <div style="font-size:22px;font-weight:900;color:#10213f">구축 워크플로우 단계</div>
+          <div style="font-size:13px;color:#667085;margin-top:6px">프로젝트 기반 설정부터 운영 분석/개선까지, 각 단계의 완료 조건과 다음 작업을 안내합니다.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div style="background:white;border:2px solid #0b5cff;border-radius:12px;padding:14px">
+          <div style="font-size:11px;color:#0b5cff;font-weight:900">1단계</div>
+          <div style="font-size:16px;font-weight:900;margin-top:4px">기반 설정</div>
+          <div style="font-size:12px;color:#667085;margin-top:8px">프로젝트, 고객사, 서비스, 메뉴/API 기준 정보를 준비합니다.</div>
+          <button class="mock-button" style="margin-top:12px;width:100%;background:#0b5cff;color:white">메인 화면 보기</button>
+        </div>
+        <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:14px">
+          <div style="font-size:11px;color:#15803d;font-weight:900">2단계</div>
+          <div style="font-size:16px;font-weight:900;margin-top:4px">지식 준비</div>
+          <div style="font-size:12px;color:#667085;margin-top:8px">문서, FAQ, 매뉴얼, URL Source를 수집하고 벡터화합니다.</div>
+          <button class="mock-button" style="margin-top:12px;width:100%">메인 화면 보기</button>
+        </div>
+        <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:14px">
+          <div style="font-size:11px;color:#7c3aed;font-weight:900">3단계</div>
+          <div style="font-size:16px;font-weight:900;margin-top:4px">의도 설계</div>
+          <div style="font-size:12px;color:#667085;margin-top:8px">사용자 질문 의도와 Action 연결 구조를 설계합니다.</div>
+          <button class="mock-button" style="margin-top:12px;width:100%">메인 화면 보기</button>
+        </div>
+        <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:14px">
+          <div style="font-size:11px;color:#f97316;font-weight:900">4단계</div>
+          <div style="font-size:16px;font-weight:900;margin-top:4px">질문 커버리지</div>
+          <div style="font-size:12px;color:#667085;margin-top:8px">Intent별 질문패턴을 확장하고 커버리지 부족을 보강합니다.</div>
+          <button class="mock-button" style="margin-top:12px;width:100%">메인 화면 보기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>각 단계 선택 시 이동하는 메인 화면</h3>
+  <p class="subtitle">아래는 단계별 상세 화면의 첫 화면 구조입니다. 모든 상세 화면은 “상태 요약 → 해야 할 일 → 입력/검수 영역 → 완료 조건 → 다음 단계 이동” 패턴을 공통으로 사용합니다.</p>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="card-body">
+      <h3>1. 기반 설정 메인</h3>
+      <p><strong>화면 목적:</strong> 프로젝트를 시작하기 위한 고객사/서비스/환경/연계 기준을 확정합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">기반 설정</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
+            <div class="placeholder">
+              프로젝트 정보 카드<br>
+              고객사, 서비스명, 환경, 담당자, 목표 배포일
+            </div>
+            <div class="placeholder">
+              완료 조건<br>
+              6개 중 4개 완료<br>
+              누락: 메뉴/API 정보, Runtime 환경
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px">
+            <button class="mock-button">고객사/서비스 입력</button>
+            <button class="mock-button">메뉴/화면/API 등록</button>
+            <button class="mock-button">Runtime 환경 설정</button>
+          </div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> 프로젝트 설정, 고객사/서비스 정보, 메뉴/화면/API 정보 관리</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h3>2. 지식 준비 메인</h3>
+      <p><strong>화면 목적:</strong> 고객 자료를 Source로 등록하고 벡터화/분석 상태를 확인합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">지식 준비</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div class="placeholder">Source 24건</div>
+            <div class="placeholder">벡터화 성공 21건</div>
+            <div class="placeholder">오류 1건</div>
+            <div class="placeholder">검색 가능 88%</div>
+          </div>
+          <div class="placeholder" style="margin-top:10px">Source 목록 / 업로드 / URL 등록 / 벡터화 작업 재실행</div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> Source 관리, 지식 업로드, 벡터화 작업 현황, 검색 테스트</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h3>3. 의도 설계 메인</h3>
+      <p><strong>화면 목적:</strong> 사용자가 물어볼 의도를 정의하고 각 Intent가 어떤 Action으로 이어지는지 설계합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">의도 설계</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:.9fr 1.1fr;gap:12px">
+            <div class="placeholder">Intent 목록<br>156개 / 미연결 8개 / 검토 필요 3개</div>
+            <div class="placeholder">Intent 편집 패널<br>Intent 설명, Category, Action 연결, Source Scope</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="mock-button">Intent 추가</button>
+            <button class="mock-button">AI 후보 검토</button>
+            <button class="mock-button">Action 연결 누락 보기</button>
+          </div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> Intent 관리, Intent 상세, Action 관리</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h3>4. 질문 커버리지 메인</h3>
+      <p><strong>화면 목적:</strong> Intent별 질문패턴 수와 표현 다양성을 점검하고 부족한 패턴을 보강합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">질문 커버리지</div>
+        <div class="mockup-body">
+          <div class="placeholder">Coverage Heatmap<br>Intent별 질문패턴 충분/부족/중복 상태</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px">
+            <button class="mock-button">질문패턴 생성</button>
+            <button class="mock-button">중복 질문 정리</button>
+            <button class="mock-button">검증 질문으로 추가</button>
+          </div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> Intent 상세, 질문패턴 편집, Pack 검증 질문</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h3>5. 용어 사전 메인</h3>
+      <p><strong>화면 목적:</strong> Entity와 Synonym을 정리하여 사용자의 표현 차이를 흡수합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">용어 사전</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="placeholder">Entity 목록<br>공장, 현장, 기간, Scope, 지표</div>
+            <div class="placeholder">Synonym 편집<br>A공장 / 에이공장 / A Factory</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="mock-button">Entity 추가</button>
+            <button class="mock-button">Synonym 추천 검토</button>
+          </div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> Entity/Synonym 관리, Intent Entity 연결</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h3>6. 답변 근거 메인</h3>
+      <p><strong>화면 목적:</strong> FAQ와 Source 문서를 SEARCH_DOC Action의 근거로 연결합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">답변 근거</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div class="placeholder">FAQ 632건</div>
+            <div class="placeholder">Source 연결 421건</div>
+            <div class="placeholder">근거 부족 5건</div>
+          </div>
+          <div class="placeholder" style="margin-top:10px">FAQ 목록 / Source 연결 / Runtime 검색 미리보기</div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> FAQ 관리, Source 관리, Runtime QA</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h3>7. 실행 연결 메인</h3>
+      <p><strong>화면 목적:</strong> Intent 결과가 화면 이동, 검색, API/SQL 조회 등 어떤 실행으로 연결되는지 관리합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">실행 연결</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div class="placeholder">NAVIGATE 12</div>
+            <div class="placeholder">SEARCH_DOC 8</div>
+            <div class="placeholder">QUERY 14</div>
+            <div class="placeholder">미연결 8</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="mock-button">Action 등록</button>
+            <button class="mock-button">Intent 연결</button>
+            <button class="mock-button">실행 테스트</button>
+          </div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> Action 관리, Intent 상세, Action 실행 테스트</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h3>8~12. Pack/Runtime 운영 메인</h3>
+      <p><strong>화면 목적:</strong> 품질검증, Runtime 시뮬레이션, Pack Build, 배포, 운영 분석/개선까지 이어지는 후반 단계를 관리합니다.</p>
+      <div class="mockup">
+        <div class="mockup-header">Pack & Runtime 운영</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+            <div class="placeholder">Pack 품질검증</div>
+            <div class="placeholder">Runtime 시뮬레이션</div>
+            <div class="placeholder">Pack Build</div>
+            <div class="placeholder">배포/활성화</div>
+            <div class="placeholder">운영 분석/개선</div>
+          </div>
+        </div>
+      </div>
+      <p><strong>주요 이동:</strong> Pack 검증, Pack Builder, Pack Repository, Runtime QA, 미응답 분석</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>추천 UX 원칙</h3>
+  <p>각 단계 화면은 단순 등록 화면이 아니라 “단계 작업실”처럼 구성합니다. 운영자는 먼저 상태와 부족 항목을 보고, 바로 아래에서 입력/검수/대량 작업을 수행한 뒤, 완료 조건을 충족하면 다음 단계로 넘어갑니다.</p>
+</div>

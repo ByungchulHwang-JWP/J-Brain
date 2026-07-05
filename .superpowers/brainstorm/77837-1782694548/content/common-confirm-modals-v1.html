@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>공통 확인 모달 Mock v1</title>
+  <style>
+    :root{--bg:#f4f7fb;--panel:#fff;--line:#d9e2ef;--text:#142033;--muted:#667085;--navy:#08265a;--blue:#0b5cff;--green:#168a55;--amber:#b7791f;--red:#d92d20;--violet:#6941c6;--soft-blue:#eaf2ff;--soft-green:#e9f8f0;--soft-amber:#fff6df;--soft-red:#fff1f0;--soft-violet:#f1edff;--shadow:0 16px 40px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{max-width:1760px;margin:0 auto;padding:32px}.topbar,.panel,.modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 22px;margin-bottom:18px}.breadcrumb{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}h1{font-size:30px;line-height:1.18;margin:0}.chip{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 12px;border-radius:999px;background:var(--soft-blue);color:var(--navy);font-size:13px;font-weight:950}.intro{background:#111827;color:#fff;border-radius:18px;padding:22px;line-height:1.7;box-shadow:var(--shadow);margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.modal{overflow:hidden}.modal-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:22px 24px;border-bottom:1px solid #e8edf5}.modal-title{font-size:19px;font-weight:950;margin-bottom:6px}.modal-desc{font-size:14px;color:var(--muted);line-height:1.55}.icon{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:950}.icon.info{background:var(--soft-blue);color:var(--blue)}.icon.ok{background:var(--soft-green);color:var(--green)}.icon.warn{background:var(--soft-amber);color:var(--amber)}.icon.danger{background:var(--soft-red);color:var(--red)}.body{padding:22px 24px;display:grid;gap:14px}.summary{border:1px solid #e4e9f2;border-radius:14px;background:#f8fafc;padding:14px;display:grid;gap:10px}.row{display:grid;grid-template-columns:140px 1fr;gap:12px;font-size:13px;color:#344054;line-height:1.45}.row strong{color:#111827}.pill{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;width:max-content}.pill.blue{background:var(--soft-blue);color:var(--navy)}.pill.green{background:var(--soft-green);color:var(--green)}.pill.amber{background:var(--soft-amber);color:var(--amber)}.pill.red{background:var(--soft-red);color:var(--red)}.pill.violet{background:var(--soft-violet);color:var(--violet)}label{font-size:13px;font-weight:900;color:#344054}input,textarea,select{width:100%;border:1px solid #d6deeb;border-radius:12px;padding:12px 13px;font-size:14px;outline:none;background:#fff}textarea{min-height:90px;resize:vertical;line-height:1.5}.field{display:grid;gap:8px}.check{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;font-size:13px;color:#475467;line-height:1.55}.box{width:20px;height:20px;border-radius:6px;border:1px solid #b8c4d6;background:#fff}.box.checked{background:var(--green);border-color:var(--green);position:relative}.box.checked:after{content:"✓";color:#fff;font-size:13px;font-weight:950;position:absolute;left:4px;top:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px;align-items:center;padding:16px 24px;border-top:1px solid #e8edf5;background:#fbfcff}button{border:1px solid #cfd8e6;background:#fff;color:#10213f;min-height:42px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:900;white-space:nowrap}button.primary{background:var(--navy);border-color:var(--navy);color:#fff}button.success{background:var(--green);border-color:var(--green);color:#fff}button.warning{background:var(--amber);border-color:var(--amber);color:#fff}button.danger{background:var(--red);border-color:var(--red);color:#fff}button.disabled{color:#98a2b3;background:#f2f4f7}.policy{margin-top:18px;padding:22px}.policy-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.policy-card{border:1px solid #e4e9f2;border-radius:14px;background:#f8fafc;padding:14px}.policy-title{font-size:15px;font-weight:950;margin-bottom:8px}.policy-desc{font-size:13px;color:#667085;line-height:1.55}
+    @media(max-width:1180px){.grid{grid-template-columns:1fr}.policy-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.page{padding:16px}.topbar,.modal-head{align-items:flex-start;flex-direction:column}.row{grid-template-columns:1fr}.modal-actions{align-items:stretch;flex-direction:column}button{width:100%}.policy-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="page">
+  <section class="topbar">
+    <div><div class="breadcrumb">공통 UX 패턴 &gt; 확인 모달</div><h1>공통 확인 모달 모음</h1></div>
+    <div class="chip">상용 운영 안전장치</div>
+  </section>
+  <section class="intro">
+    공통 확인 모달은 단순 알림이 아니라 운영 사고를 막는 마지막 안전장치입니다. 일반 저장은 가볍게, Active 전환·Rollback·삭제 같은 고위험 작업은 영향 범위와 감사 로그를 명확히 보여주고 확인 입력을 요구합니다.
+  </section>
+
+  <section class="grid">
+    <article class="modal">
+      <div class="modal-head"><div><div class="modal-title">새 Draft Pack 시작</div><div class="modal-desc">운영 개선 후보를 기반으로 다음 버전 Draft Pack을 생성합니다.</div></div><div class="icon info">↻</div></div>
+      <div class="body">
+        <div class="summary"><div class="row"><span>기준 Pack</span><strong>J-Brain v0.2.0 Active</strong></div><div class="row"><span>새 Draft</span><strong>J-Brain v0.3.0 Draft</strong></div><div class="row"><span>포함 후보</span><strong>미응답/Low Confidence 12건</strong></div><div class="row"><span>시작 단계</span><strong>질문 커버리지, 용어 사전, 실행 연결</strong></div></div>
+        <div class="check"><span class="box checked"></span><span>현재 Active Pack은 유지하고 새 Draft만 생성합니다.</span></div>
+      </div>
+      <div class="modal-actions"><button>취소</button><button class="primary">Draft 생성</button></div>
+    </article>
+
+    <article class="modal">
+      <div class="modal-head"><div><div class="modal-title">Pack 승인 요청</div><div class="modal-desc">검증 통과 Pack을 활성화 승인 대상으로 제출합니다.</div></div><div class="icon ok">✓</div></div>
+      <div class="body">
+        <div class="summary"><div class="row"><span>Pack</span><strong>J-Brain-Service-Pack-v0.3.0.zip</strong></div><div class="row"><span>검증 결과</span><strong>28/28 Pass</strong></div><div class="row"><span>변경 요약</span><strong>Intent +3, FAQ +5, Action +1</strong></div><div class="row"><span>승인자</span><strong>프로젝트 PM</strong></div></div>
+        <div class="field"><label>승인 요청 메모</label><textarea>운영 미응답 개선 후보 12건을 반영한 Pack입니다.</textarea></div>
+      </div>
+      <div class="modal-actions"><button>취소</button><button class="success">승인 요청</button></div>
+    </article>
+
+    <article class="modal">
+      <div class="modal-head"><div><div class="modal-title">Pack 반려</div><div class="modal-desc">승인 요청된 Pack을 반려하고 사유를 남깁니다.</div></div><div class="icon warn">!</div></div>
+      <div class="body">
+        <div class="summary"><div class="row"><span>대상 Pack</span><strong>J-Brain v0.3.0</strong></div><div class="row"><span>현재 상태</span><strong>승인 대기</strong></div><div class="row"><span>반려 후 상태</span><strong>Rejected / 재요청 가능</strong></div></div>
+        <div class="field"><label>반려 사유 필수</label><textarea>Action 실행 테스트 결과 1건의 권한 조건이 명확하지 않습니다.</textarea></div>
+      </div>
+      <div class="modal-actions"><button>취소</button><button class="warning">반려 처리</button></div>
+    </article>
+
+    <article class="modal">
+      <div class="modal-head"><div><div class="modal-title">Active Pack 전환</div><div class="modal-desc">승인된 Pack을 프로젝트의 Active Version으로 전환합니다.</div></div><div class="icon warn">⚑</div></div>
+      <div class="body">
+        <div class="summary"><div class="row"><span>현재 Active</span><strong>v0.2.0</strong></div><div class="row"><span>전환 대상</span><strong>v0.3.0 Approved</strong></div><div class="row"><span>Rollback 후보</span><strong>v0.2.0 자동 보관</strong></div><div class="row"><span>영향 범위</span><strong>J-Brain Runtime 전체 사용자</strong></div></div>
+        <div class="check"><span class="box checked"></span><span>전환 후 모든 신규 질문은 v0.3.0 기준으로 처리됩니다.</span></div>
+      </div>
+      <div class="modal-actions"><button>취소</button><button class="success">Active 전환</button></div>
+    </article>
+
+    <article class="modal">
+      <div class="modal-head"><div><div class="modal-title">Rollback 실행</div><div class="modal-desc">현재 Active Pack을 직전 정상 Pack으로 되돌립니다.</div></div><div class="icon danger">↩</div></div>
+      <div class="body">
+        <div class="summary"><div class="row"><span>현재 Active</span><strong>v0.3.0</strong></div><div class="row"><span>Rollback 대상</span><strong>v0.2.0</strong></div><div class="row"><span>사유</span><strong>Action 실패율 증가</strong></div><div class="row"><span>감사 로그</span><strong>필수 저장</strong></div></div>
+        <div class="field"><label>확인 문구 입력</label><input value="ROLLBACK v0.2.0" /></div>
+      </div>
+      <div class="modal-actions"><button>취소</button><button class="danger">Rollback 실행</button></div>
+    </article>
+
+    <article class="modal">
+      <div class="modal-head"><div><div class="modal-title">Intent 비활성화</div><div class="modal-desc">Intent를 삭제하지 않고 Runtime 매칭 대상에서 제외합니다.</div></div><div class="icon warn">−</div></div>
+      <div class="body">
+        <div class="summary"><div class="row"><span>대상 Intent</span><strong>intent.api.active_pack_status</strong></div><div class="row"><span>연결 Action</span><strong>action.api.active_pack_status</strong></div><div class="row"><span>영향</span><strong>해당 질문군 Low Confidence 처리 가능</strong></div></div>
+        <div class="field"><label>비활성화 사유</label><textarea>API 연결 정책 확정 전까지 임시 비활성화합니다.</textarea></div>
+      </div>
+      <div class="modal-actions"><button>취소</button><button class="warning">비활성화</button></div>
+    </article>
+  </section>
+
+  <section class="panel policy">
+    <h2 style="margin:0 0 16px;font-size:22px">모달 정책</h2>
+    <div class="policy-grid">
+      <div class="policy-card"><div class="policy-title">일반 확인</div><div class="policy-desc">저장, 이동, Draft 생성처럼 되돌릴 수 있는 작업은 요약과 확인 버튼만 제공합니다.</div></div>
+      <div class="policy-card"><div class="policy-title">승인/반려</div><div class="policy-desc">검증 결과, 변경 요약, 승인자/반려 사유를 반드시 남깁니다.</div></div>
+      <div class="policy-card"><div class="policy-title">운영 영향 작업</div><div class="policy-desc">Active 전환, Rollback은 영향 범위와 Rollback 후보를 표시합니다.</div></div>
+      <div class="policy-card"><div class="policy-title">위험 작업</div><div class="policy-desc">Rollback, 삭제, 강제 전환은 확인 문구 입력과 감사 로그 저장을 요구합니다.</div></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

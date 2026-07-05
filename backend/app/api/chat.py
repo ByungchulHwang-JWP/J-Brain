@@ -53,54 +53,105 @@ async def chat_with_bot(
         "참고 문서에 없는 내용은 '주어진 문서에 해당 내용이 없습니다'라고 솔직하게 답변하세요."
     )
 
-    # 2. 하이브리드 검색 (Vector + Graph + Keyword Fallback)
-    retrieve_result = {"context": "", "sources": [], "graph": []}
+    # 2. Intent Pack 라우팅
+    action_card = None
     try:
-        from app.ai.retriever import hybrid_retrieve
-        retrieve_result = await hybrid_retrieve(req.query, project_id, db)
-        logger.info(
-            f"[CHAT] 검색 완료: {len(retrieve_result['sources'])}개 소스, "
-            f"{len(retrieve_result['graph'])}개 그래프 팩트"
-        )
+        from app.ai.project_pack_resolver import ProjectPackResolver
+        from app.ai.intent_matcher import IntentMatcher
+        from app.ai.action_router import ActionRouter
+        from app.services.pack_store_service import get_active_pack
+        from app.api.intent_packs import get_pack_loader
+        from app.ai.intent_pack_loader import IntentPackValidationError
+
+        active_record = await get_active_pack(db, project_id)
+        logger.info(f"[CHAT] active_record: {active_record}")
+        if active_record:
+            pack_config = ProjectPackResolver().resolve_from_active_record(project_id, active_record)
+            pack_id = pack_config.get("pack_id")
+            pack_version = pack_config.get("pack_version")
+            logger.info(f"[CHAT] pack_config: pack_id={pack_id}, pack_version={pack_version}")
+            if pack_id and pack_version:
+                try:
+                    pack = get_pack_loader().load_pack(pack_id, pack_version)
+                    matches = IntentMatcher(pack).match(req.query, top_k=3)
+                    logger.info(f"[CHAT] Intent matches: {[(m['intent_id'], m['score'], m['confidence_label']) for m in matches[:3]]}")
+                    router_card = ActionRouter(pack).route(req.query, matches)
+                    logger.info(f"[CHAT] router_card type={router_card.get('type')}, route={router_card.get('route')}")
+                    if router_card.get("type") != "fallback_card":
+                        action_card = router_card
+                except IntentPackValidationError as e:
+                    logger.error(f"[CHAT] IntentPack Validation 에러: {e}")
+                except Exception as e:
+                    logger.error(f"[CHAT] IntentPack Load 에러: {e}", exc_info=True)
+        else:
+            logger.warning(f"[CHAT] 프로젝트 {project_id}에 활성 Pack이 없습니다.")
     except Exception as e:
-        logger.error(f"[CHAT] hybrid_retrieve 실패: {e}")
+        logger.error(f"[CHAT] Intent Router 실패: {e}", exc_info=True)
+
+
+    # 3. 하이브리드 검색 (Action이 없거나 Fallback인 경우 수행)
+    retrieve_result = {"context": "", "sources": [], "graph": []}
+    
+    if action_card and action_card.get("type") == "document_card":
+        sources = action_card.get("sources", [])
+        retrieve_result["sources"] = sources
+        retrieve_result["context"] = "\n".join([f"- {s.get('title')}: {s.get('snippet')}" for s in sources])
+    elif not action_card:
+        try:
+            from app.ai.retriever import hybrid_retrieve
+            retrieve_result = await hybrid_retrieve(req.query, project_id, db)
+            logger.info(
+                f"[CHAT] 검색 완료: {len(retrieve_result['sources'])}개 소스, "
+                f"{len(retrieve_result['graph'])}개 그래프 팩트"
+            )
+        except Exception as e:
+            logger.error(f"[CHAT] hybrid_retrieve 실패: {e}")
 
     context = retrieve_result.get("context", "")
     sources = retrieve_result.get("sources", [])
     graph_facts = retrieve_result.get("graph", [])
 
-    # 3. LLM 스트리밍 응답
+    # 4. 스트리밍 응답
     async def response_generator():
         full_response = ""
         try:
-            from langchain_openai import ChatOpenAI
-            from langchain_core.messages import SystemMessage, HumanMessage
+            if action_card and action_card.get("type") != "document_card":
+                msg = action_card.get("message", "요청하신 작업을 수행합니다.")
+                full_response += msg
+                yield msg
+            elif action_card and action_card.get("type") == "document_card" and action_card.get("faq_matches"):
+                faq = action_card["faq_matches"][0]
+                msg = faq.get("answer", "FAQ 답변이 등록되어 있지 않습니다.")
+                full_response += msg
+                yield msg
+            else:
+                from langchain_openai import ChatOpenAI
+                from langchain_core.messages import SystemMessage, HumanMessage
 
-            llm = ChatOpenAI(
-                model="gpt-4o-mini",
-                api_key=settings.OPENAI_API_KEY,
-                streaming=True,
-                temperature=0.1
-            )
+                llm = ChatOpenAI(
+                    model="gpt-4o-mini",
+                    api_key=settings.OPENAI_API_KEY,
+                    streaming=True,
+                    temperature=0.1
+                )
 
-            ctx_section = f"\n\n[참고 문서]\n{context}" if context else "\n\n[참고 문서 없음]"
-            messages = [
-                SystemMessage(content=sys_prompt),
-                HumanMessage(content=f"{ctx_section}\n\n[질문]\n{req.query}")
-            ]
+                ctx_section = f"\n\n[참고 문서]\n{context}" if context else "\n\n[참고 문서 없음]"
+                messages = [
+                    SystemMessage(content=sys_prompt),
+                    HumanMessage(content=f"{ctx_section}\n\n[질문]\n{req.query}")
+                ]
 
-            # 스트리밍 청크 전송
-            async for chunk in llm.astream(messages):
-                if chunk.content:
-                    full_response += chunk.content
-                    yield chunk.content
+                async for chunk in llm.astream(messages):
+                    if chunk.content:
+                        full_response += chunk.content
+                        yield chunk.content
 
         except Exception as e:
             err_msg = f"\n오류가 발생했습니다: {str(e)}"
             full_response = err_msg
             yield err_msg
 
-        # 4. 응답 완료 후 출처 정보를 별도 마커로 전송 (프론트엔드에서 파싱)
+        # 5. 응답 완료 후 출처 정보 및 Action 카드를 별도 마커로 전송
         if sources or graph_facts:
             source_data = {
                 "type": "SOURCES",
@@ -108,6 +159,9 @@ async def chat_with_bot(
                 "graph_facts": graph_facts
             }
             yield f"\n\n__SOURCES__{json.dumps(source_data, ensure_ascii=False)}__SOURCES_END__"
+            
+        if action_card:
+            yield f"\n\n__ACTION_CARD__{json.dumps(action_card, ensure_ascii=False)}__ACTION_CARD_END__"
 
         # 5. 대화 이력 저장
         try:

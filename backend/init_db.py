@@ -35,9 +35,9 @@ async def init_db():
             )
         '''))
 
-        # Create workspaces table
+        # Create projects table
         await conn.execute(text('''
-            CREATE TABLE IF NOT EXISTS workspaces (
+            CREATE TABLE IF NOT EXISTS projects (
                 id VARCHAR(50) PRIMARY KEY,
                 name VARCHAR(100) NOT NULL,
                 description TEXT,
@@ -45,13 +45,13 @@ async def init_db():
             )
         '''))
 
-        # Create workspace_users table (RBAC)
+        # Create project_users table (RBAC)
         await conn.execute(text('''
-            CREATE TABLE IF NOT EXISTS workspace_users (
-                workspace_id VARCHAR(50) REFERENCES workspaces(id),
+            CREATE TABLE IF NOT EXISTS project_users (
+                project_id VARCHAR(50) REFERENCES projects(id),
                 user_id INTEGER REFERENCES admin_users(id),
                 role VARCHAR(20) DEFAULT 'viewer',
-                PRIMARY KEY (workspace_id, user_id)
+                PRIMARY KEY (project_id, user_id)
             )
         '''))
 
@@ -59,7 +59,7 @@ async def init_db():
         await conn.execute(text('''
             CREATE TABLE IF NOT EXISTS sources (
                 id SERIAL PRIMARY KEY,
-                workspace_id VARCHAR(50) REFERENCES workspaces(id),
+                project_id VARCHAR(50) REFERENCES projects(id),
                 filename VARCHAR(255) NOT NULL,
                 filepath VARCHAR(500) NOT NULL,
                 status VARCHAR(20) DEFAULT 'pending',
@@ -71,7 +71,7 @@ async def init_db():
         await conn.execute(text('''
             CREATE TABLE IF NOT EXISTS prompts (
                 id SERIAL PRIMARY KEY,
-                workspace_id VARCHAR(50) REFERENCES workspaces(id),
+                project_id VARCHAR(50) REFERENCES projects(id),
                 version INTEGER NOT NULL,
                 system_prompt TEXT NOT NULL,
                 is_active BOOLEAN DEFAULT FALSE,
@@ -94,11 +94,11 @@ async def init_db():
         await conn.execute(text('''
             CREATE TABLE IF NOT EXISTS entities (
                 id SERIAL PRIMARY KEY,
-                workspace_id VARCHAR(50) REFERENCES workspaces(id),
+                project_id VARCHAR(50) REFERENCES projects(id),
                 name VARCHAR(255) NOT NULL,
                 type VARCHAR(50),
                 description TEXT,
-                UNIQUE(workspace_id, name)
+                UNIQUE(project_id, name)
             )
         '''))
 
@@ -106,11 +106,33 @@ async def init_db():
         await conn.execute(text('''
             CREATE TABLE IF NOT EXISTS relations (
                 id SERIAL PRIMARY KEY,
-                workspace_id VARCHAR(50) REFERENCES workspaces(id),
+                project_id VARCHAR(50) REFERENCES projects(id),
                 source_entity_id INTEGER REFERENCES entities(id),
                 target_entity_id INTEGER REFERENCES entities(id),
                 relation_type VARCHAR(100),
                 description TEXT
+            )
+        '''))
+
+        # Create chat_sessions table
+        await conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS chat_sessions (
+                id SERIAL PRIMARY KEY,
+                project_id VARCHAR(50) REFERENCES projects(id),
+                user_id INTEGER REFERENCES admin_users(id),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        '''))
+
+        # Create chat_history table
+        await conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS chat_history (
+                id SERIAL PRIMARY KEY,
+                session_id INTEGER REFERENCES chat_sessions(id),
+                user_id INTEGER REFERENCES admin_users(id),
+                query TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         '''))
 

@@ -1,0 +1,12 @@
+[
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "display_name": "J-Brain 핵심 용어",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": null,
+    "description": null,
+    "status": "active",
+    "synonym_count": 5
+  }
+]

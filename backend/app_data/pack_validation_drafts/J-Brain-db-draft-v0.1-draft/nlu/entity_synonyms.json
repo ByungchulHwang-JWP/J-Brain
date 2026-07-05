@@ -1,0 +1,47 @@
+[
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "03",
+    "synonyms": [
+      "03"
+    ],
+    "code": "03",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "Brain",
+    "synonyms": [
+      "Brain"
+    ],
+    "code": "BRAIN",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "J-Brain",
+    "synonyms": [
+      "J-Brain"
+    ],
+    "code": "J_BRAIN",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "md",
+    "synonyms": [
+      "md"
+    ],
+    "code": "MD",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "업로드",
+    "synonyms": [
+      "업로드"
+    ],
+    "code": "업로드",
+    "is_active": true
+  }
+]

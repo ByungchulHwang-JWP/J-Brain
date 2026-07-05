@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+import { useNavigate } from 'react-router-dom';
 import { MessageCircle, X, Send, ChevronDown, User, Bot, Maximize2, Minimize2 } from 'lucide-react';
 
 const ChatWidget = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // 전체 화면 모드 토글
   const [messages, setMessages] = useState([]);
@@ -81,30 +83,41 @@ const ChatWidget = () => {
 
           const sourceMarker = '__SOURCES__';
           const sourceEnd = '__SOURCES_END__';
+          const actionMarker = '__ACTION_CARD__';
+          const actionEnd = '__ACTION_CARD_END__';
           
-          if (buffer.includes(sourceMarker) && buffer.includes(sourceEnd)) {
-            const markerStart = buffer.indexOf(sourceMarker);
-            const markerEnd = buffer.indexOf(sourceEnd) + sourceEnd.length;
-            const cleanAnswer = buffer.substring(0, markerStart);
-            const jsonStr = buffer.substring(markerStart + sourceMarker.length, markerEnd - sourceEnd.length);
-            
-            try {
-              const sourceData = JSON.parse(jsonStr);
-              setMessages(prev => prev.map(msg => 
-                msg.id === botMsgId 
-                  ? { ...msg, text: cleanAnswer, sources: sourceData.vector_sources || [], loading: false }
-                  : msg
-              ));
-            } catch (e) {
-              setMessages(prev => prev.map(msg => 
-                msg.id === botMsgId ? { ...msg, text: cleanAnswer, loading: false } : msg
-              ));
-            }
-          } else if (!buffer.includes(sourceMarker)) {
-            setMessages(prev => prev.map(msg => 
-              msg.id === botMsgId ? { ...msg, text: buffer } : msg
-            ));
+          let parsedText = buffer;
+          let parsedSources = null;
+          let parsedActionCard = null;
+
+          if (parsedText.includes(sourceMarker) && parsedText.includes(sourceEnd)) {
+            const markerStart = parsedText.indexOf(sourceMarker);
+            const markerEnd = parsedText.indexOf(sourceEnd) + sourceEnd.length;
+            const cleanAnswer = parsedText.substring(0, markerStart);
+            const jsonStr = parsedText.substring(markerStart + sourceMarker.length, markerEnd - sourceEnd.length);
+            try { parsedSources = JSON.parse(jsonStr).vector_sources || []; } catch (e) {}
+            parsedText = cleanAnswer + parsedText.substring(markerEnd);
           }
+
+          if (parsedText.includes(actionMarker) && parsedText.includes(actionEnd)) {
+            const markerStart = parsedText.indexOf(actionMarker);
+            const markerEnd = parsedText.indexOf(actionEnd) + actionEnd.length;
+            const cleanAnswer = parsedText.substring(0, markerStart);
+            const jsonStr = parsedText.substring(markerStart + actionMarker.length, markerEnd - actionEnd.length);
+            try { parsedActionCard = JSON.parse(jsonStr); } catch (e) {}
+            parsedText = cleanAnswer + parsedText.substring(markerEnd);
+          }
+
+          setMessages(prev => prev.map(msg => 
+            msg.id === botMsgId 
+              ? { 
+                  ...msg, 
+                  text: parsedText, 
+                  ...(parsedSources ? { sources: parsedSources } : {}),
+                  ...(parsedActionCard ? { action_card: parsedActionCard } : {})
+                }
+              : msg
+          ));
         }
       }
 
@@ -122,10 +135,16 @@ const ChatWidget = () => {
     }
   };
 
+  const isComposingRef = useRef(false);
+
   const handleKeyDown = (e) => {
+    if (isComposingRef.current) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      // setTimeout을 사용하여 composition이 완전히 끝난 후 전송되도록 보장
+      setTimeout(() => {
+        handleSend();
+      }, 0);
     }
   };
 
@@ -254,6 +273,23 @@ const ChatWidget = () => {
                       <div style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</div>
                     )}
                     
+                    {msg.sender === 'bot' && msg.action_card && msg.action_card.type === 'navigation_card' && (
+                      <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                        <button
+                          onClick={() => navigate(msg.action_card.route)}
+                          style={{
+                            padding: '10px 16px', background: '#031B4B', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, width: '100%',
+                            transition: 'background 0.2s',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                          onMouseOver={(e) => e.target.style.background = '#0a2a6b'}
+                          onMouseOut={(e) => e.target.style.background = '#031B4B'}
+                        >
+                          🚀 {msg.action_card.button_label || '해당 화면으로 이동하기'}
+                        </button>
+                      </div>
+                    )}
+
                     {msg.sender === 'bot' && msg.sources && msg.sources.length > 0 && (
                       <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #eee' }}>
                         <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>참조 문서</div>
@@ -284,6 +320,11 @@ const ChatWidget = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
+                onCompositionStart={() => isComposingRef.current = true}
+                onCompositionEnd={() => {
+                  isComposingRef.current = false;
+                  // Composition 끝난 직후 엔터키가 입력될 때를 대비해 약간의 딜레이
+                }}
                 placeholder="메시지를 입력하세요 (Shift+Enter로 줄바꿈)"
                 rows={1}
                 style={{

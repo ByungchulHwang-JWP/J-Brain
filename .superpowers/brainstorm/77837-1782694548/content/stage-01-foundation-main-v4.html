@@ -1,0 +1,209 @@
+<h2>1단계 기반 설정 메인 화면 Mock v4</h2>
+<p class="subtitle">신규 프로젝트 등록, 임시 저장, 수정 이력, 다음 단계 전환 흐름을 반영했습니다. 기반 설정은 프로젝트 기본 정보를 작성하고 지식 준비 단계로 넘기는 “프로젝트 등록 작업실”입니다.</p>
+
+<div class="mockup">
+  <div class="mockup-header">JWP Intent Factory / 1단계 기반 설정 - 프로젝트 등록</div>
+  <div class="mockup-body">
+    <div style="background:#f6f8fb;border-radius:14px;padding:18px;display:grid;grid-template-columns:1fr 360px;gap:18px;min-height:800px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:18px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start">
+          <div>
+            <div style="font-size:12px;color:#667085;font-weight:900">구축 워크플로우 단계 / 1단계</div>
+            <div style="font-size:26px;font-weight:950;color:#10213f;margin-top:6px">기반 설정</div>
+            <div style="font-size:13px;color:#667085;margin-top:8px;line-height:1.55">
+              신규 프로젝트를 등록하고, 지식 준비 단계로 넘어가기 전까지 기본 정보를 임시 저장하며 보완합니다.
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="mock-button">대시보드로</button>
+            <button class="mock-button">임시 저장</button>
+            <button class="mock-button" style="background:#0b5cff;color:white;border-color:#0b5cff">등록 완료 후 다음 단계</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:14px">
+            <div style="font-size:12px;color:#667085;font-weight:800">작성 상태</div>
+            <div style="font-size:24px;font-weight:950;color:#f97316;margin-top:10px">임시 저장</div>
+            <div style="font-size:12px;color:#667085;margin-top:10px">마지막 저장 3분 전</div>
+          </div>
+          <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:14px">
+            <div style="font-size:12px;color:#667085;font-weight:800">필수 항목</div>
+            <div style="font-size:30px;font-weight:950;color:#10213f;margin-top:6px">4/5</div>
+            <div style="font-size:12px;color:#ef4444;margin-top:10px">목표 일정 필요</div>
+          </div>
+          <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:14px">
+            <div style="font-size:12px;color:#667085;font-weight:800">프로젝트 상태</div>
+            <div style="font-size:24px;font-weight:950;color:#64748b;margin-top:10px">등록 중</div>
+            <div style="font-size:12px;color:#667085;margin-top:10px">다음 단계 전환 전</div>
+          </div>
+          <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:14px">
+            <div style="font-size:12px;color:#667085;font-weight:800">수정 이력</div>
+            <div style="font-size:30px;font-weight:950;color:#10213f;margin-top:6px">7</div>
+            <div style="font-size:12px;color:#667085;margin-top:10px">오늘 3건 변경</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:16px">
+          <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:18px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+              <div>
+                <div style="font-size:18px;font-weight:950;color:#10213f">프로젝트 정보 등록</div>
+                <div style="font-size:12px;color:#667085;margin-top:4px">프로젝트를 식별하고 작업 기준을 정하기 위한 기본 정보입니다.</div>
+              </div>
+              <span style="font-size:12px;background:#fff7ed;color:#f97316;border:1px solid #fed7aa;border-radius:999px;padding:5px 10px;font-weight:800">임시 저장본</span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">프로젝트 ID <span style="color:#ef4444">*</span></div>
+                <div style="background:#f1f5f9;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#94a3b8">자동 생성 또는 최초 등록 후 변경 불가</div>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">프로젝트명 <span style="color:#ef4444">*</span></div>
+                <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">JWP 금융 상담 챗봇</div>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">프로젝트 설명</div>
+                <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f;min-height:82px">금융 상담 업무 문서와 FAQ를 기반으로 내부망 챗봇 Runtime에 배포할 Intent Pack을 구축합니다.</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">프로젝트 상태</div>
+                  <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">등록 중</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">표준 템플릿</div>
+                  <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">일반 업무 챗봇 기본 템플릿</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">PM</div>
+                  <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">김관리</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">구축 담당자</div>
+                  <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">박운영</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">검토 담당자</div>
+                  <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">이검토</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">구축 시작일</div>
+                  <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">2026-07-01</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">목표 검증일 <span style="color:#ef4444">*</span></div>
+                  <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:13px 14px;color:#f97316">입력 필요</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px">목표 배포일</div>
+                  <div style="background:white;border:1px solid #d8e0ec;border-radius:8px;padding:13px 14px;color:#10213f">2026-07-15</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px">
+              <button class="mock-button">취소</button>
+              <button class="mock-button">임시 저장</button>
+              <button class="mock-button" style="background:#0b5cff;color:white;border-color:#0b5cff">저장</button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:18px">
+              <div style="font-size:18px;font-weight:950;color:#10213f">등록 완료 조건</div>
+              <div style="font-size:12px;color:#667085;margin-top:4px">필수 조건이 충족되면 지식 준비 단계로 전환할 수 있습니다.</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;font-size:13px">
+                <div>✓ 프로젝트명 입력</div>
+                <div>✓ 프로젝트 설명 입력</div>
+                <div>✓ 담당자 지정</div>
+                <div>✓ 표준 템플릿 선택</div>
+                <div style="color:#ef4444">! 목표 검증일 입력 필요</div>
+              </div>
+              <button class="mock-button" style="width:100%;margin-top:14px;background:#0b5cff;color:white;border-color:#0b5cff">누락 항목으로 이동</button>
+            </div>
+
+            <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:18px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div style="font-size:18px;font-weight:950;color:#10213f">수정 이력</div>
+                <button class="mock-button">전체 보기</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;font-size:13px">
+                <div style="border-bottom:1px solid #e5e7eb;padding-bottom:10px">
+                  <div style="font-weight:800;color:#10213f">목표 배포일 수정</div>
+                  <div style="color:#667085;margin-top:3px">김관리 · 3분 전 · 2026-07-12 → 2026-07-15</div>
+                </div>
+                <div style="border-bottom:1px solid #e5e7eb;padding-bottom:10px">
+                  <div style="font-weight:800;color:#10213f">표준 템플릿 적용</div>
+                  <div style="color:#667085;margin-top:3px">박운영 · 21분 전 · 일반 업무 챗봇 기본 템플릿</div>
+                </div>
+                <div>
+                  <div style="font-weight:800;color:#10213f">프로젝트 설명 입력</div>
+                  <div style="color:#667085;margin-top:3px">김관리 · 1시간 전</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:18px">
+              <div style="font-size:18px;font-weight:950;color:#10213f">다음 단계 전환</div>
+              <div style="font-size:13px;color:#667085;line-height:1.55;margin-top:8px">
+                등록 완료 후 “지식 준비” 단계로 이동하면 Source 등록, 문서 업로드, 벡터화 작업을 시작할 수 있습니다.
+              </div>
+              <button class="mock-button" style="width:100%;margin-top:14px;background:#0b5cff;color:white;border-color:#0b5cff">지식 준비 단계로 이동</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:950;color:#10213f">AI 작업 도우미</div>
+            <button class="mock-button">접기</button>
+          </div>
+          <div style="font-size:13px;color:#667085;line-height:1.55;margin-top:10px">
+            목표 검증일만 입력하면 프로젝트 등록을 완료할 수 있습니다. 이후 지식 준비 단계에서 Source 등록을 시작하세요.
+          </div>
+          <div style="margin-top:14px;font-weight:900">추천 작업</div>
+          <ol style="font-size:13px;line-height:1.8;padding-left:20px">
+            <li>목표 검증일 입력</li>
+            <li>임시 저장본을 정식 저장</li>
+            <li>지식 준비 단계로 이동</li>
+          </ol>
+          <button class="mock-button" style="width:100%;background:#0b5cff;color:white;border-color:#0b5cff">목표 검증일 입력</button>
+        </div>
+
+        <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:16px">
+          <div style="font-weight:950;color:#10213f">입력 부담 줄이기</div>
+          <div style="font-size:13px;color:#667085;margin-top:8px;line-height:1.55">
+            신규 프로젝트 등록 시 기존 프로젝트 정보를 복사하거나 표준 템플릿을 적용해 기본값을 자동 채울 수 있습니다.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <button class="mock-button">기존 프로젝트에서 복사</button>
+            <button class="mock-button">표준 템플릿 적용</button>
+          </div>
+        </div>
+
+        <div style="background:white;border:1px solid #dce3ef;border-radius:12px;padding:16px">
+          <div style="font-weight:950;color:#10213f">상태 정책</div>
+          <div style="font-size:13px;color:#667085;margin-top:8px;line-height:1.7">
+            등록 중: 임시 저장 가능<br>
+            등록 완료: 지식 준비 이동 가능<br>
+            구축 중: Source/Intent 작업 가능<br>
+            운영 중: Runtime 기준 조회
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>v4 설계 요약</h3>
+  <p>기반 설정은 최초에는 프로젝트 등록 화면으로 동작합니다. 필수 항목을 모두 입력하기 전까지는 임시 저장 상태를 유지하고, 모든 등록 완료 조건을 만족하면 지식 준비 단계로 이동합니다. 수정 이력은 우측 패널에서 즉시 확인할 수 있습니다.</p>
+</div>

@@ -228,17 +228,50 @@ DB 기반 관리 기능 확장으로 다음 항목을 추가 구현했다.
 | Intent-Entity 연결 API | `INT-NZ-QUERY-001` 기준 factory, period, scope 연결 확인 |
 | Pack Draft API | Intent, Example, Entity, Synonym, Action Parameter, Source Scope 포함 JSON 초안 생성 확인 |
 
+## 8.2 2026-06-27 Pack Export v0.2 추가 구현 결과
+
+DB 기반 Pack Draft를 실제 폐쇄망 반입 단위인 Service-Pack ZIP으로 생성하기 위한 1차 기능을 추가했다.
+
+| 구분 | 구현 결과 |
+|---|---|
+| Pack Export Service | DB Draft를 `IntentPackLoader.REQUIRED_FILES` 기준 표준 파일 구조로 변환 |
+| Manifest/Profile 생성 | Pack ID, Version, Project ID, 파일 목록, 폐쇄망 Runtime 모드 메타 정보 생성 |
+| NLU/Action/Knowledge 파일 생성 | Intent, Example, Entity, Synonym, Action Registry, Action Parameter, Source Scope 파일화 |
+| Template/Validation 기본 파일 생성 | 응답 템플릿, 카드 템플릿, fallback 템플릿, 검증 기준 기본 파일 생성 |
+| ZIP 생성/다운로드 | Export 디렉터리를 ZIP으로 압축하고 다운로드 API 제공 |
+| Pack Repository v0.1 | Export ID, Pack ID, Version, 상태, 검증 결과, Counts, 파일 경로 저장 |
+| Pack Builder 화면 | Export/ZIP 생성 버튼, 검증 결과, ZIP 다운로드 링크 표시 |
+| Pack Repository 화면 | 프로젝트별 Export 이력, 검증 상태, ZIP 다운로드 링크 표시 |
+
+현재 검증 결과는 다음과 같다.
+
+| 검증 항목 | 결과 |
+|---|---|
+| Backend 테스트 | `test_intent_factory_*`, `test_pack_export_service.py`, Runtime 관련 테스트 통과 |
+| Frontend 빌드 | `npm run build` 통과 |
+| Loader 호환성 | Export된 Pack 디렉터리가 `IntentPackLoader` 검증 통과 |
+| ZIP 구조 | ZIP 안에 `manifest/pack_manifest.json`, `nlu/intents.json` 등 표준 파일 포함 확인 |
+
+잔여 리스크는 다음과 같다.
+
+| 리스크 | 후속 방향 |
+|---|---|
+| Pack 승인 상태 없음 | 검수/승인/반려 Workflow와 승인자 이력 추가 |
+| 고객 내부망 Import/Rollback 미구현 | ZIP 업로드, 검증, Active 전환, Rollback 기능 구현 |
+| Runtime Active Pack 미연결 | Export된 Pack을 Runtime 후보로 등록하고 Pack Resolver와 연결 |
+| Action 상세 파일 제한 | API Mapping, SQL Template, Screen Route 관리 DB 확장 필요 |
+
 ## 9. 다음 단계
 
 이번 구현 이후 다음 단계를 순차적으로 진행한다.
 
-1. DB Pack Draft를 표준 Intent Pack 파일 구조로 Export하는 기능을 구현한다.
-2. Pack ZIP 생성, 검증, 다운로드 기능을 구현한다.
-3. Pack Repository와 Pack Version 관리 화면을 정의한다.
-4. Runtime API의 응답 Envelope를 운영 로그 및 통계 모델과 연결한다.
-5. 고객 권한 체계와 Action 실행 권한 검증 방식을 구체화한다.
-6. `QUERY` Action을 실제 고객 DB 또는 내부 API와 연결하기 위한 보안 설계를 작성한다.
-7. LDAP/SSO 연동 범위와 사용자 권한 매핑 정책을 정의한다.
-8. 외부망과 내부망 사이에서 교환 가능한 Pack 산출물, 승인된 비식별 Pack 개선 요청, 비식별 피드백 데이터의 반입 및 반출 절차를 문서화한다.
+1. Pack Import/Rollback 운영 화면과 API를 구현한다.
+2. Export된 Pack ZIP을 고객 내부망 Runtime 후보로 등록하는 Pack Store 구조를 구현한다.
+3. Active Pack 전환과 직전 버전 Rollback 정책을 구현한다.
+4. Pack 승인 Workflow와 감사 로그를 추가한다.
+5. API Mapping, SQL Template, Screen Route 관리 DB와 화면을 확장한다.
+6. Runtime API의 응답 Envelope를 운영 로그 및 통계 모델과 연결한다.
+7. 고객 권한 체계와 Action 실행 권한 검증 방식을 구체화한다.
+8. `QUERY` Action을 실제 고객 DB 또는 내부 API와 연결하기 위한 보안 설계를 작성한다.
 9. 미응답 로그를 Intent 개선 요청과 Pack 재빌드 흐름으로 연결한다.
 10. 운영 모니터링, 감사 로그, 품질 검증 지표를 대시보드 요구사항으로 확장한다.

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import re
 from typing import Any
@@ -6,8 +8,14 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.intent_factory import (
+    ActionPayload,
+    ActionUpdatePayload,
     EntityPayload,
     EntityUpdatePayload,
+    FaqCandidatePayload,
+    FaqCandidateUpdatePayload,
+    FaqPayload,
+    FaqUpdatePayload,
     IntentEntityLinksPayload,
     IntentPayload,
     IntentUpdatePayload,
@@ -83,6 +91,60 @@ def _scope_to_db(scope: dict[str, Any] | None) -> dict[str, Any] | None:
 
 def _json_dumps(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False)
+
+
+def _action_to_pack_records(action: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    action_id = action["action_id"]
+    action_type = action["action_type"].upper()
+    registry = {
+        "action_id": action_id,
+        "action_name": action["action_name"],
+        "action_type": action_type,
+        "description": action.get("description"),
+        "execution_mode": action.get("execution_mode", "local"),
+        "enabled": action.get("status") == "active",
+    }
+    records = {
+        "action_registry": [registry],
+        "screen_routes": [],
+        "api_mappings": [],
+        "sql_templates": [],
+    }
+    allowed_roles = _json_array(action.get("allowed_roles"))
+    if action_type == "NAVIGATE" and action.get("route_value"):
+        records["screen_routes"].append(
+            {
+                "route_id": f"RTE-{action_id}",
+                "action_id": action_id,
+                "menu_name": action.get("menu_name") or action["action_name"],
+                "route_type": "frontend",
+                "route_value": action["route_value"],
+                "required_role": allowed_roles[0] if allowed_roles else None,
+                "status": action.get("status", "active"),
+            }
+        )
+    if action_type in {"API", "QUERY"} and action.get("api_endpoint"):
+        records["api_mappings"].append(
+            {
+                "mapping_id": f"API-{action_id}",
+                "action_id": action_id,
+                "method": action.get("api_method") or "GET",
+                "endpoint": action["api_endpoint"],
+                "allowed_roles": allowed_roles,
+                "status": action.get("status", "active"),
+            }
+        )
+    if action_type == "QUERY" and action.get("sql_template"):
+        records["sql_templates"].append(
+            {
+                "template_id": f"SQL-{action_id}",
+                "action_id": action_id,
+                "sql_template": action["sql_template"],
+                "readonly": True,
+                "status": action.get("status", "active"),
+            }
+        )
+    return records
 
 
 def _pack_entity_to_payload(entity: dict[str, Any], synonyms: list[dict[str, Any]]) -> EntityPayload:
@@ -583,13 +645,427 @@ async def save_intent_entity_links(
     return await list_intent_entity_links(db, project_id, intent_id)
 
 
+async def list_actions(db: AsyncSession, project_id: str) -> dict[str, Any]:
+    result = await db.execute(
+        text(
+            """
+            SELECT
+                a.action_id,
+                a.action_name,
+                a.action_type,
+                a.description,
+                a.execution_mode,
+                a.route_value,
+                a.menu_name,
+                a.api_method,
+                a.api_endpoint,
+                a.sql_template,
+                a.allowed_roles,
+                a.status,
+                COUNT(l.id) AS linked_intent_count
+            FROM graphrag.intent_actions a
+            LEFT JOIN graphrag.intent_action_links l
+                ON l.project_id = a.project_id
+               AND l.action_id = a.action_id
+            WHERE a.project_id = :project_id
+              AND a.status != 'archived'
+            GROUP BY
+                a.action_id,
+                a.action_name,
+                a.action_type,
+                a.description,
+                a.execution_mode,
+                a.route_value,
+                a.menu_name,
+                a.api_method,
+                a.api_endpoint,
+                a.sql_template,
+                a.allowed_roles,
+                a.status,
+                a.created_at
+            ORDER BY a.created_at DESC, a.action_id ASC
+            """
+        ),
+        {"project_id": project_id},
+    )
+    items = []
+    for row in result.fetchall():
+        item = dict(row._mapping)
+        item["allowed_roles"] = _json_array(item.get("allowed_roles"))
+        items.append(item)
+    return {"project_id": project_id, "items": items}
+
+
+async def get_action_detail(db: AsyncSession, project_id: str, action_id: str) -> dict[str, Any] | None:
+    result = await db.execute(
+        text(
+            """
+            SELECT
+                action_id,
+                action_name,
+                action_type,
+                description,
+                execution_mode,
+                route_value,
+                menu_name,
+                api_method,
+                api_endpoint,
+                sql_template,
+                allowed_roles,
+                status
+            FROM graphrag.intent_actions
+            WHERE project_id = :project_id
+              AND action_id = :action_id
+              AND status != 'archived'
+            """
+        ),
+        {"project_id": project_id, "action_id": action_id},
+    )
+    row = result.fetchone()
+    if not row:
+        return None
+    detail = dict(row._mapping)
+    detail["allowed_roles"] = _json_array(detail.get("allowed_roles"))
+
+    links = await db.execute(
+        text(
+            """
+            SELECT intent_id, action_type, is_primary
+            FROM graphrag.intent_action_links
+            WHERE project_id = :project_id
+              AND action_id = :action_id
+            ORDER BY is_primary DESC, intent_id ASC
+            """
+        ),
+        {"project_id": project_id, "action_id": action_id},
+    )
+    detail["intent_links"] = [dict(item._mapping) for item in links.fetchall()]
+    return detail
+
+
+async def save_action(
+    db: AsyncSession,
+    project_id: str,
+    payload: ActionPayload | ActionUpdatePayload,
+    action_id: str | None = None,
+) -> dict[str, Any]:
+    resolved_action_id = action_id or payload.action_id
+    await db.execute(
+        text(
+            """
+            INSERT INTO graphrag.intent_actions
+                (
+                    project_id,
+                    action_id,
+                    action_name,
+                    action_type,
+                    description,
+                    execution_mode,
+                    route_value,
+                    menu_name,
+                    api_method,
+                    api_endpoint,
+                    sql_template,
+                    allowed_roles,
+                    status,
+                    updated_at
+                )
+            VALUES
+                (
+                    :project_id,
+                    :action_id,
+                    :action_name,
+                    :action_type,
+                    :description,
+                    :execution_mode,
+                    :route_value,
+                    :menu_name,
+                    :api_method,
+                    :api_endpoint,
+                    :sql_template,
+                    CAST(:allowed_roles AS jsonb),
+                    :status,
+                    NOW()
+                )
+            ON CONFLICT (project_id, action_id) DO UPDATE SET
+                action_name = EXCLUDED.action_name,
+                action_type = EXCLUDED.action_type,
+                description = EXCLUDED.description,
+                execution_mode = EXCLUDED.execution_mode,
+                route_value = EXCLUDED.route_value,
+                menu_name = EXCLUDED.menu_name,
+                api_method = EXCLUDED.api_method,
+                api_endpoint = EXCLUDED.api_endpoint,
+                sql_template = EXCLUDED.sql_template,
+                allowed_roles = EXCLUDED.allowed_roles,
+                status = EXCLUDED.status,
+                updated_at = NOW()
+            """
+        ),
+        {
+            "project_id": project_id,
+            "action_id": resolved_action_id,
+            "action_name": payload.action_name,
+            "action_type": payload.action_type.upper(),
+            "description": payload.description,
+            "execution_mode": payload.execution_mode,
+            "route_value": payload.route_value,
+            "menu_name": payload.menu_name,
+            "api_method": payload.api_method,
+            "api_endpoint": payload.api_endpoint,
+            "sql_template": payload.sql_template,
+            "allowed_roles": _json_dumps(payload.allowed_roles),
+            "status": payload.status,
+        },
+    )
+    await db.commit()
+    detail = await get_action_detail(db, project_id, resolved_action_id)
+    return detail or {"action_id": resolved_action_id}
+
+
+async def archive_action(db: AsyncSession, project_id: str, action_id: str) -> dict[str, str]:
+    await db.execute(
+        text(
+            """
+            UPDATE graphrag.intent_actions
+            SET status = 'archived', updated_at = NOW()
+            WHERE project_id = :project_id
+              AND action_id = :action_id
+            """
+        ),
+        {"project_id": project_id, "action_id": action_id},
+    )
+    await db.commit()
+    return {"project_id": project_id, "action_id": action_id, "status": "archived"}
+
+
+async def get_actions_by_id(db: AsyncSession, project_id: str) -> dict[str, dict[str, Any]]:
+    actions = await list_actions(db, project_id)
+    return {item["action_id"]: item for item in actions["items"]}
+
+
+async def list_faqs(db: AsyncSession, project_id: str) -> dict[str, Any]:
+    result = await db.execute(
+        text(
+            """
+            SELECT faq_id, question, answer, category, tags, source_id, action_id,
+                   approved_for_pack, status, created_at, updated_at
+            FROM graphrag.intent_faqs
+            WHERE project_id = :project_id
+              AND status != 'archived'
+            ORDER BY updated_at DESC, faq_id ASC
+            """
+        ),
+        {"project_id": project_id},
+    )
+    return {"project_id": project_id, "items": [_faq_row_to_dict(row._mapping) for row in result.fetchall()]}
+
+
+async def get_faq_detail(db: AsyncSession, project_id: str, faq_id: str) -> dict[str, Any] | None:
+    result = await db.execute(
+        text(
+            """
+            SELECT faq_id, question, answer, category, tags, source_id, action_id,
+                   approved_for_pack, status, created_at, updated_at
+            FROM graphrag.intent_faqs
+            WHERE project_id = :project_id
+              AND faq_id = :faq_id
+              AND status != 'archived'
+            """
+        ),
+        {"project_id": project_id, "faq_id": faq_id},
+    )
+    row = result.fetchone()
+    return _faq_row_to_dict(row._mapping) if row else None
+
+
+async def save_faq(
+    db: AsyncSession,
+    project_id: str,
+    payload: FaqPayload | FaqUpdatePayload,
+    faq_id: str | None = None,
+) -> dict[str, Any]:
+    resolved_faq_id = faq_id or payload.faq_id
+    await db.execute(
+        text(
+            """
+            INSERT INTO graphrag.intent_faqs
+                (project_id, faq_id, question, answer, category, tags, source_id,
+                 action_id, approved_for_pack, status, updated_at)
+            VALUES
+                (:project_id, :faq_id, :question, :answer, :category, CAST(:tags AS jsonb), :source_id,
+                 :action_id, :approved_for_pack, :status, NOW())
+            ON CONFLICT (project_id, faq_id) DO UPDATE SET
+                question = EXCLUDED.question,
+                answer = EXCLUDED.answer,
+                category = EXCLUDED.category,
+                tags = EXCLUDED.tags,
+                source_id = EXCLUDED.source_id,
+                action_id = EXCLUDED.action_id,
+                approved_for_pack = EXCLUDED.approved_for_pack,
+                status = EXCLUDED.status,
+                updated_at = NOW()
+            """
+        ),
+        {
+            "project_id": project_id,
+            "faq_id": resolved_faq_id,
+            "question": payload.question,
+            "answer": payload.answer,
+            "category": payload.category,
+            "tags": _json_dumps(payload.tags),
+            "source_id": payload.source_id,
+            "action_id": payload.action_id,
+            "approved_for_pack": payload.approved_for_pack,
+            "status": payload.status,
+        },
+    )
+    await db.commit()
+    detail = await get_faq_detail(db, project_id, resolved_faq_id)
+    return detail or {"faq_id": resolved_faq_id}
+
+
+async def archive_faq(db: AsyncSession, project_id: str, faq_id: str) -> dict[str, str]:
+    await db.execute(
+        text(
+            """
+            UPDATE graphrag.intent_faqs
+            SET status = 'archived', updated_at = NOW()
+            WHERE project_id = :project_id
+              AND faq_id = :faq_id
+            """
+        ),
+        {"project_id": project_id, "faq_id": faq_id},
+    )
+    await db.commit()
+    return {"project_id": project_id, "faq_id": faq_id, "status": "archived"}
+
+
+def _faq_row_to_dict(row: Any) -> dict[str, Any]:
+    item = dict(row)
+    item["tags"] = _json_array(item.get("tags"))
+    return item
+
+
+async def list_faq_candidates(db: AsyncSession, project_id: str) -> dict[str, Any]:
+    result = await db.execute(
+        text(
+            """
+            SELECT candidate_id, question, suggested_answer, source_log_id,
+                   tags, status, created_at, updated_at
+            FROM graphrag.faq_candidates
+            WHERE project_id = :project_id
+              AND status != 'archived'
+            ORDER BY updated_at DESC, candidate_id ASC
+            """
+        ),
+        {"project_id": project_id},
+    )
+    return {
+        "project_id": project_id,
+        "items": [_faq_candidate_row_to_dict(row._mapping) for row in result.fetchall()],
+    }
+
+
+async def save_faq_candidate(
+    db: AsyncSession,
+    project_id: str,
+    payload: FaqCandidatePayload | FaqCandidateUpdatePayload,
+    candidate_id: str | None = None,
+) -> dict[str, Any]:
+    resolved_candidate_id = candidate_id or payload.candidate_id
+    await db.execute(
+        text(
+            """
+            INSERT INTO graphrag.faq_candidates
+                (project_id, candidate_id, question, suggested_answer, source_log_id,
+                 tags, status, updated_at)
+            VALUES
+                (:project_id, :candidate_id, :question, :suggested_answer, :source_log_id,
+                 CAST(:tags AS jsonb), :status, NOW())
+            ON CONFLICT (project_id, candidate_id) DO UPDATE SET
+                question = EXCLUDED.question,
+                suggested_answer = EXCLUDED.suggested_answer,
+                source_log_id = EXCLUDED.source_log_id,
+                tags = EXCLUDED.tags,
+                status = EXCLUDED.status,
+                updated_at = NOW()
+            """
+        ),
+        {
+            "project_id": project_id,
+            "candidate_id": resolved_candidate_id,
+            "question": payload.question,
+            "suggested_answer": payload.suggested_answer,
+            "source_log_id": payload.source_log_id,
+            "tags": _json_dumps(payload.tags),
+            "status": payload.status,
+        },
+    )
+    await db.commit()
+    candidates = await list_faq_candidates(db, project_id)
+    for item in candidates["items"]:
+        if item["candidate_id"] == resolved_candidate_id:
+            return item
+    return {"project_id": project_id, "candidate_id": resolved_candidate_id}
+
+
+async def archive_faq_candidate(
+    db: AsyncSession,
+    project_id: str,
+    candidate_id: str,
+) -> dict[str, str]:
+    await db.execute(
+        text(
+            """
+            UPDATE graphrag.faq_candidates
+            SET status = 'archived', updated_at = NOW()
+            WHERE project_id = :project_id
+              AND candidate_id = :candidate_id
+            """
+        ),
+        {"project_id": project_id, "candidate_id": candidate_id},
+    )
+    await db.commit()
+    return {"project_id": project_id, "candidate_id": candidate_id, "status": "archived"}
+
+
+def _faq_candidate_row_to_dict(row: Any) -> dict[str, Any]:
+    item = dict(row)
+    item["tags"] = _json_array(item.get("tags"))
+    return item
+
+
+async def list_pack_faqs(db: AsyncSession, project_id: str) -> list[dict[str, Any]]:
+    faqs = await list_faqs(db, project_id)
+    return [
+        {
+            "faq_id": item["faq_id"],
+            "question": item["question"],
+            "answer": item["answer"],
+            "category": item.get("category"),
+            "tags": item.get("tags", []),
+            "source_id": item.get("source_id"),
+            "action_id": item.get("action_id") or "SEARCH_DOC",
+            "status": item.get("status"),
+        }
+        for item in faqs["items"]
+        if item.get("status") == "active" and item.get("approved_for_pack")
+    ]
+
+
 async def build_pack_draft(db: AsyncSession, project_id: str) -> dict[str, Any]:
     intents = (await list_intents(db, project_id))["items"]
     entities = (await list_entities(db, project_id))["items"]
+    actions_by_id = await get_actions_by_id(db, project_id)
+    pack_faqs = await list_pack_faqs(db, project_id)
     intent_records: list[dict[str, Any]] = []
     intent_examples: list[dict[str, Any]] = []
     action_registry: dict[str, dict[str, Any]] = {}
     action_parameters: list[dict[str, Any]] = []
+    screen_routes: list[dict[str, Any]] = []
+    api_mappings: list[dict[str, Any]] = []
+    sql_templates: list[dict[str, Any]] = []
     source_scopes: list[dict[str, Any]] = []
 
     for item in intents:
@@ -607,15 +1083,32 @@ async def build_pack_draft(db: AsyncSession, project_id: str) -> dict[str, Any]:
                 "status": detail.get("status", "active"),
             }
         )
-        for example in detail.get("examples", []):
-            intent_examples.append({"intent_id": detail["intent_id"], "example": example})
+        for index, example in enumerate(detail.get("examples", []), start=1):
+            intent_examples.append(
+                {
+                    "example_id": f"EX-{detail['intent_id']}-{index:02d}",
+                    "intent_id": detail["intent_id"],
+                    "text": example,
+                    "example": example,
+                    "source": "intent_factory_db",
+                    "is_validation": False,
+                }
+            )
         if detail.get("action_id"):
-            action_registry[detail["action_id"]] = {
-                "action_id": detail["action_id"],
-                "action_name": detail["action_id"],
-                "action_type": detail["category"].upper(),
-                "enabled": detail.get("status") == "active",
-            }
+            action_detail = actions_by_id.get(detail["action_id"])
+            if action_detail:
+                action_records = _action_to_pack_records(action_detail)
+                action_registry[detail["action_id"]] = action_records["action_registry"][0]
+                screen_routes.extend(action_records["screen_routes"])
+                api_mappings.extend(action_records["api_mappings"])
+                sql_templates.extend(action_records["sql_templates"])
+            else:
+                action_registry[detail["action_id"]] = {
+                    "action_id": detail["action_id"],
+                    "action_name": detail["action_id"],
+                    "action_type": detail["category"].upper(),
+                    "enabled": detail.get("status") == "active",
+                }
         for link in detail.get("entity_links", []):
             action_parameters.append(
                 {
@@ -657,9 +1150,13 @@ async def build_pack_draft(db: AsyncSession, project_id: str) -> dict[str, Any]:
         "action": {
             "action_registry": list(action_registry.values()),
             "action_parameters": action_parameters,
+            "screen_routes": screen_routes,
+            "api_mappings": api_mappings,
+            "sql_templates": sql_templates,
         },
         "knowledge": {
             "source_scopes": source_scopes,
+            "faqs": pack_faqs,
         },
         "counts": {
             "intents": len(intent_records),
@@ -668,7 +1165,11 @@ async def build_pack_draft(db: AsyncSession, project_id: str) -> dict[str, Any]:
             "entity_synonyms": len(synonyms),
             "actions": len(action_registry),
             "action_parameters": len(action_parameters),
+            "screen_routes": len(screen_routes),
+            "api_mappings": len(api_mappings),
+            "sql_templates": len(sql_templates),
             "source_scopes": len(source_scopes),
+            "faqs": len(pack_faqs),
         },
     }
 
@@ -692,6 +1193,13 @@ def _parameters_by_action(pack: Any) -> dict[str, list[dict[str, Any]]]:
     return parameters_by_action
 
 
+def _first_by_action(items: list[dict[str, Any]], action_id: str) -> dict[str, Any] | None:
+    for item in items:
+        if item.get("action_id") == action_id:
+            return item
+    return None
+
+
 async def import_pack_to_db(
     db: AsyncSession,
     project_id: str,
@@ -701,8 +1209,39 @@ async def import_pack_to_db(
     imported = 0
     skipped = 0
     imported_entities = 0
+    imported_actions = 0
     examples_by_intent = _examples_by_intent(pack)
     parameters_by_action = _parameters_by_action(pack)
+
+    routes = pack.action.get("screen_routes", [])
+    api_mappings = pack.action.get("api_mappings", [])
+    sql_templates = pack.action.get("sql_templates", [])
+    for action in pack.action.get("action_registry", []):
+        action_id = action.get("action_id")
+        if not action_id:
+            continue
+        route = _first_by_action(routes, action_id) or {}
+        api_mapping = _first_by_action(api_mappings, action_id) or {}
+        sql_template = _first_by_action(sql_templates, action_id) or {}
+        await save_action(
+            db,
+            project_id,
+            ActionPayload(
+                action_id=action_id,
+                action_name=action.get("action_name") or action_id,
+                action_type=action.get("action_type", "GUIDE"),
+                description=action.get("description"),
+                execution_mode=action.get("execution_mode", "local"),
+                route_value=route.get("route_value"),
+                menu_name=route.get("menu_name"),
+                api_method=api_mapping.get("method"),
+                api_endpoint=api_mapping.get("endpoint"),
+                sql_template=sql_template.get("sql_template"),
+                allowed_roles=api_mapping.get("allowed_roles") or ([route.get("required_role")] if route.get("required_role") else []),
+                status=action.get("status") or ("active" if action.get("enabled", True) else "disabled"),
+            ),
+        )
+        imported_actions += 1
 
     for entity in pack.nlu.get("entities", []):
         payload = _pack_entity_to_payload(entity, pack.nlu.get("entity_synonyms", []))
@@ -755,5 +1294,6 @@ async def import_pack_to_db(
         "pack_id": pack.manifest.get("pack_id") or pack.profile.get("pack_id"),
         "imported": imported,
         "imported_entities": imported_entities,
+        "imported_actions": imported_actions,
         "skipped": skipped,
     }

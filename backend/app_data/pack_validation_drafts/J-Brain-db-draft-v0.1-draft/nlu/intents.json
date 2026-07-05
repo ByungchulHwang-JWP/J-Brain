@@ -1,0 +1,11 @@
+[
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
+    "intent_name": "J-Brain 문서/기능 질의",
+    "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  }
+]

@@ -42,6 +42,35 @@ class ProjectPackResolverTest(unittest.TestCase):
         self.assertEqual(version_only["pack_id"], "netzero-intent-pack")
         self.assertEqual(version_only["pack_version"], "0.1.0")
 
+    def test_active_record_is_used_when_no_request_override(self):
+        resolver = ProjectPackResolver()
+
+        config = resolver.resolve_from_active_record(
+            "project-123",
+            {
+                "project_id": "project-123",
+                "pack_id": "active-pack",
+                "pack_version": "1.2.3",
+            },
+        )
+
+        self.assertEqual(config["pack_id"], "active-pack")
+        self.assertEqual(config["pack_version"], "1.2.3")
+        self.assertEqual(config["source"], "active_runtime_pack")
+
+    def test_request_override_wins_over_active_record(self):
+        resolver = ProjectPackResolver()
+
+        config = resolver.resolve_from_active_record(
+            "project-123",
+            {"pack_id": "active-pack", "pack_version": "1.2.3"},
+            requested_pack_id="manual-pack",
+            requested_pack_version="9.9.9",
+        )
+
+        self.assertEqual(config["pack_id"], "manual-pack")
+        self.assertEqual(config["pack_version"], "9.9.9")
+
 
 if __name__ == "__main__":
     unittest.main()

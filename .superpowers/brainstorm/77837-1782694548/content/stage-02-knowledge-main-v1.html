@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2단계 지식 준비 메인 화면 v1</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #d9e2ef;
+      --text: #142033;
+      --muted: #667085;
+      --navy: #08265a;
+      --blue: #0b5cff;
+      --green: #168a55;
+      --amber: #b7791f;
+      --red: #d92d20;
+      --cyan: #087ea4;
+      --violet: #6941c6;
+      --soft-blue: #eaf2ff;
+      --soft-green: #e9f8f0;
+      --soft-amber: #fff6df;
+      --soft-cyan: #e6f7fb;
+      --soft-violet: #f1edff;
+      --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .page {
+      max-width: 1760px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+    .shell {
+      display: grid;
+      grid-template-columns: 268px 1fr;
+      gap: 24px;
+      min-height: calc(100vh - 64px);
+    }
+    .side {
+      background: #0f172a;
+      color: white;
+      border-radius: 18px;
+      padding: 22px 18px;
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      font-size: 20px;
+      font-weight: 950;
+      margin-bottom: 28px;
+    }
+    .menu-title {
+      color: #98a2b3;
+      font-size: 12px;
+      font-weight: 900;
+      margin: 22px 0 10px;
+    }
+    .menu-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 760;
+      margin-bottom: 4px;
+    }
+    .menu-item.done {
+      color: #bbf7d0;
+    }
+    .menu-item.active {
+      background: #1d4ed8;
+      color: white;
+    }
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 22px;
+      box-shadow: var(--shadow);
+    }
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    h1 {
+      font-size: 30px;
+      line-height: 1.18;
+      margin: 0;
+      letter-spacing: 0;
+    }
+    .stage-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--soft-green);
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+    .workflow-step {
+      min-height: 82px;
+      border: 1px solid #e5eaf2;
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfcff;
+    }
+    .workflow-step.done {
+      border-color: #b7e4c7;
+      background: #f0fdf4;
+    }
+    .workflow-step.current {
+      border-color: #8cb7ff;
+      background: #eff6ff;
+    }
+    .workflow-step.next {
+      border-color: #ccb8ff;
+      background: #f5f2ff;
+    }
+    .step-no {
+      font-size: 12px;
+      font-weight: 950;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .step-name {
+      font-size: 14px;
+      font-weight: 950;
+      color: #111827;
+    }
+    .step-state {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 850;
+      color: var(--muted);
+    }
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 400px;
+      gap: 18px;
+      align-items: start;
+    }
+    .card, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px;
+      border-bottom: 1px solid #e8edf5;
+    }
+    .card-title {
+      font-size: 19px;
+      font-weight: 950;
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .pill.blue { background: var(--soft-blue); color: var(--navy); }
+    .pill.green { background: var(--soft-green); color: var(--green); }
+    .pill.amber { background: var(--soft-amber); color: var(--amber); }
+    .pill.cyan { background: var(--soft-cyan); color: var(--cyan); }
+    .pill.violet { background: var(--soft-violet); color: var(--violet); }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 18px 24px 0;
+    }
+    .kpi {
+      border: 1px solid #e4e9f2;
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 14px;
+      min-height: 86px;
+    }
+    .kpi-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 950;
+      color: var(--navy);
+    }
+    .kpi-sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .body {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+    .upload-zone {
+      border: 1px dashed #9db7dd;
+      background: linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
+      border-radius: 16px;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+    }
+    .upload-title {
+      font-size: 17px;
+      font-weight: 950;
+      margin-bottom: 6px;
+    }
+    .upload-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    button {
+      border: 1px solid #cfd8e6;
+      background: white;
+      color: #10213f;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: default;
+      white-space: nowrap;
+    }
+    button.primary {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: white;
+    }
+    button.success {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+    button.disabled {
+      color: #98a2b3;
+      background: #f2f4f7;
+    }
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+    }
+    .subcard {
+      border: 1px solid #e4e9f2;
+      border-radius: 16px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    .subhead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid #edf1f7;
+    }
+    .subhead-title {
+      font-size: 16px;
+      font-weight: 950;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      color: #667085;
+      background: #f8fafc;
+      font-size: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e8edf5;
+    }
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #eef2f7;
+      vertical-align: middle;
+      color: #344054;
+      font-weight: 720;
+    }
+    .source-name {
+      font-weight: 950;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+    .source-meta {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .quality-list {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .quality {
+      display: grid;
+      grid-template-columns: 24px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e7edf6;
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 950;
+    }
+    .dot.done { background: #d1fadf; color: var(--green); }
+    .dot.todo { background: #fff1c2; color: var(--amber); }
+    .dot.info { background: #dbeafe; color: var(--blue); }
+    .progress {
+      width: 100%;
+      height: 8px;
+      background: #edf2f7;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress > span {
+      display: block;
+      height: 100%;
+      border-radius: 99px;
+      background: var(--green);
+    }
+    .panel-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 950;
+    }
+    .project-box {
+      border: 1px solid #e4e9f2;
+      border-radius: 14px;
+      padding: 14px;
+      background: #f8fafc;
+      display: grid;
+      gap: 10px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 13px;
+      color: #344054;
+      line-height: 1.45;
+    }
+    .info-row strong {
+      color: #111827;
+    }
+    .next-panel {
+      border-color: #ccb8ff;
+      background: linear-gradient(180deg, #f7f4ff 0%, #ffffff 100%);
+    }
+    .next-preview {
+      border: 1px solid #ded4ff;
+      border-radius: 14px;
+      background: white;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .preview-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #344054;
+    }
+    .recommend {
+      border: 1px solid #d5e4ff;
+      background: #f8fbff;
+      border-radius: 14px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #344054;
+    }
+    .action-bar {
+      position: sticky;
+      bottom: 16px;
+      z-index: 2;
+      background: rgba(255, 255, 255, .96);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .bar-note {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .note {
+      background: #111827;
+      color: white;
+      border-radius: 18px;
+      padding: 22px;
+      line-height: 1.7;
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .side { display: none; }
+      .content, .section-grid { grid-template-columns: 1fr; }
+      .workflow { grid-template-columns: repeat(3, 1fr); }
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .page { padding: 16px; }
+      .topbar, .card-head, .upload-zone, .action-bar { align-items: flex-start; flex-direction: column; }
+      .workflow, .kpis { grid-template-columns: 1fr; }
+      .buttons { width: 100%; justify-content: stretch; }
+      button { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <aside class="side">
+        <div class="brand">JWINPARTNERS</div>
+        <div class="menu-title">구축 워크플로우</div>
+        <div class="menu-item done">1. 기반 설정</div>
+        <div class="menu-item active">2. 지식 준비</div>
+        <div class="menu-item">3. 의도 설계</div>
+        <div class="menu-item">4. 질문 커버리지</div>
+        <div class="menu-item">5. 용어 사전</div>
+        <div class="menu-item">6. 답변 근거</div>
+        <div class="menu-item">7. 실행 연결</div>
+        <div class="menu-title">Pack 제작/배포</div>
+        <div class="menu-item">Pack 검증</div>
+        <div class="menu-item">Runtime 시뮬레이션</div>
+        <div class="menu-item">배포/활성화</div>
+      </aside>
+
+      <main class="main">
+        <section class="topbar">
+          <div>
+            <div class="breadcrumb">Intent Factory &gt; 구축 워크플로우 &gt; 지식 준비</div>
+            <h1>Source 수집 및 벡터화 준비</h1>
+          </div>
+          <div class="stage-chip">현재 단계 2/12 · 다음 단계: 의도 설계</div>
+        </section>
+
+        <section class="workflow">
+          <div class="workflow-step done">
+            <div class="step-no">01</div>
+            <div class="step-name">기반 설정</div>
+            <div class="step-state">완료</div>
+          </div>
+          <div class="workflow-step current">
+            <div class="step-no">02</div>
+            <div class="step-name">지식 준비</div>
+            <div class="step-state">진행 중 · 75%</div>
+          </div>
+          <div class="workflow-step next">
+            <div class="step-no">03</div>
+            <div class="step-name">의도 설계</div>
+            <div class="step-state">대기 · 후보 생성</div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-no">04</div>
+            <div class="step-name">질문 커버리지</div>
+            <div class="step-state">대기</div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-no">05</div>
+            <div class="step-name">용어 사전</div>
+            <div class="step-state">대기</div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-no">06</div>
+            <div class="step-name">답변 근거</div>
+            <div class="step-state">대기</div>
+          </div>
+        </section>
+
+        <section class="content">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">지식 자료 관리</div>
+                <div class="card-desc">고객에게 받은 문서, 매뉴얼, FAQ 원천 자료를 등록하고 검색 가능한 형태로 정제합니다. 이 단계의 결과는 다음 의도 설계 단계에서 Intent 후보와 질문 패턴 생성의 근거가 됩니다.</div>
+              </div>
+              <span class="pill blue">J-Brain · 일반 지식형</span>
+            </div>
+
+            <div class="kpis">
+              <div class="kpi">
+                <div class="kpi-label">등록 Source</div>
+                <div class="kpi-value">8건</div>
+                <div class="kpi-sub">문서 6 · FAQ 원천 2</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">벡터화 완료</div>
+                <div class="kpi-value">6건</div>
+                <div class="kpi-sub">2건 대기 중</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">검색 준비율</div>
+                <div class="kpi-value">75%</div>
+                <div class="progress"><span style="width:75%"></span></div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">의도 후보</div>
+                <div class="kpi-value">14개</div>
+                <div class="kpi-sub">다음 단계에서 검토</div>
+              </div>
+            </div>
+
+            <div class="body">
+              <div class="upload-zone">
+                <div>
+                  <div class="upload-title">Source 문서 추가</div>
+                  <div class="upload-desc">PDF, DOCX, TXT, HTML, FAQ 원천 파일을 등록합니다. 등록된 자료는 문서 정제, 청크 분리, 벡터화 작업을 거쳐 Runtime 검색 후보가 됩니다.</div>
+                </div>
+                <div class="buttons">
+                  <button>FAQ 원천 등록</button>
+                  <button class="primary">문서 업로드</button>
+                </div>
+              </div>
+
+              <div class="section-grid">
+                <div class="subcard">
+                  <div class="subhead">
+                    <div class="subhead-title">Source 목록</div>
+                    <span class="pill green">6건 검색 가능</span>
+                  </div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Source</th>
+                        <th>유형</th>
+                        <th>상태</th>
+                        <th>최근 작업</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <div class="source-name">J-Brain_Manual.txt</div>
+                          <div class="source-meta">42 chunks · 128 KB</div>
+                        </td>
+                        <td>매뉴얼</td>
+                        <td><span class="pill green">벡터화 완료</span></td>
+                        <td>10분 전</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="source-name">Runtime_QA_Guide.pdf</div>
+                          <div class="source-meta">96 chunks · 1.8 MB</div>
+                        </td>
+                        <td>가이드</td>
+                        <td><span class="pill green">검색 가능</span></td>
+                        <td>24분 전</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="source-name">Pack_Export_FAQ.xlsx</div>
+                          <div class="source-meta">32 rows · FAQ 후보</div>
+                        </td>
+                        <td>FAQ 원천</td>
+                        <td><span class="pill amber">정제 필요</span></td>
+                        <td>1시간 전</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="source-name">Action_Route_Map.csv</div>
+                          <div class="source-meta">18 rows · 화면/API 후보</div>
+                        </td>
+                        <td>참조표</td>
+                        <td><span class="pill cyan">분석 대기</span></td>
+                        <td>2시간 전</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="subcard">
+                  <div class="subhead">
+                    <div class="subhead-title">지식 준비 체크</div>
+                    <span class="pill amber">1개 필요</span>
+                  </div>
+                  <div class="quality-list">
+                    <div class="quality">
+                      <span class="dot done">✓</span>
+                      <span>대표 문서 1건 이상 등록</span>
+                      <span class="pill green">완료</span>
+                    </div>
+                    <div class="quality">
+                      <span class="dot done">✓</span>
+                      <span>검색 가능한 Source 존재</span>
+                      <span class="pill green">완료</span>
+                    </div>
+                    <div class="quality">
+                      <span class="dot done">✓</span>
+                      <span>FAQ 원천 자료 분류</span>
+                      <span class="pill green">완료</span>
+                    </div>
+                    <div class="quality">
+                      <span class="dot todo">!</span>
+                      <span>검색 테스트 3건 통과</span>
+                      <span class="pill amber">필요</span>
+                    </div>
+                    <div class="quality">
+                      <span class="dot info">i</span>
+                      <span>의도 후보 자동 추출 가능</span>
+                      <span class="pill violet">준비</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="panel-stack">
+            <div class="panel">
+              <h3>프로젝트 기준 정보</h3>
+              <div class="project-box">
+                <div class="info-row">
+                  <span>프로젝트</span>
+                  <strong>J-Brain</strong>
+                </div>
+                <div class="info-row">
+                  <span>유형</span>
+                  <strong>일반 지식형 챗봇</strong>
+                </div>
+                <div class="info-row">
+                  <span>목표 검증일</span>
+                  <strong>2026-07-10</strong>
+                </div>
+                <div class="info-row">
+                  <span>현재 상태</span>
+                  <strong>지식 준비 중</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>추천 작업</h3>
+              <div class="recommend">
+                <strong>검색 테스트를 먼저 실행하세요.</strong>
+                `J-Brain 핵심 기술은?`, `Pack Export란?`, `Runtime QA는 무엇인가?` 같은 대표 질문으로 Source 검색 품질을 확인하면 다음 의도 설계 단계에서 후보 Intent를 더 안정적으로 만들 수 있습니다.
+                <button class="primary">검색 테스트 실행</button>
+              </div>
+            </div>
+
+            <div class="panel next-panel">
+              <h3>다음 단계 연결</h3>
+              <div class="next-preview">
+                <div class="preview-row">
+                  <span class="dot info">3</span>
+                  <div>
+                    <strong>의도 설계</strong><br />
+                    등록된 Source와 FAQ 원천 자료에서 사용자 질문 의도 후보를 만들고 검토합니다.
+                  </div>
+                </div>
+                <div class="preview-row">
+                  <span class="dot todo">→</span>
+                  <div>
+                    <strong>자동 전달 정보</strong><br />
+                    Source 목록, 문서 유형, 청크 수, 검색 테스트 결과, FAQ 후보가 다음 단계로 전달됩니다.
+                  </div>
+                </div>
+                <button class="success disabled">검색 테스트 완료 후 의도 설계로 이동</button>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="action-bar">
+          <div class="bar-note">
+            현재 지식 준비율은 75%입니다. 검색 테스트 3건을 통과하면 `의도 설계` 단계로 이동할 수 있습니다.
+          </div>
+          <div class="buttons">
+            <button>임시 저장</button>
+            <button>벡터화 재실행</button>
+            <button class="primary">검색 테스트</button>
+            <button class="success disabled">다음 단계로 이동</button>
+          </div>
+        </section>
+
+        <section class="note">
+          <strong>2단계 지식 준비 설계 요약</strong><br />
+          이 화면은 Source 등록 화면을 넘어, 문서 수집 · 정제 · 벡터화 · 검색 테스트를 하나의 준비 흐름으로 묶습니다. 다음 단계인 `의도 설계`는 Source 목록과 검색 테스트 결과를 입력값으로 사용하므로, 우측 패널과 하단 액션에서 다음 단계 전환 조건을 계속 보여줍니다.
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

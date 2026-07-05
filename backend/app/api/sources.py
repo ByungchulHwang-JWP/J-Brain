@@ -5,6 +5,7 @@ from typing import Any
 import os
 import uuid
 import logging
+from uuid import UUID
 
 from app.db.session import get_db
 from app.api.deps import get_current_user_id
@@ -14,6 +15,13 @@ logger = logging.getLogger(__name__)
 
 UPLOAD_DIR = "app_data/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+def normalize_uuid_or_system(value: Any) -> str:
+    try:
+        return str(UUID(str(value)))
+    except (TypeError, ValueError):
+        return "00000000-0000-0000-0000-000000000000"
 
 
 @router.post("/{project_id}/sources")
@@ -54,17 +62,18 @@ async def upload_source(
     res = await db.execute(
         text("""
             INSERT INTO graphrag.graphrag_sources
-                (file_name, category, description, status, file_size_bytes, uploaded_by)
+                (id, file_name, category, description, status, file_size_bytes, uploaded_by)
             VALUES
-                (:fname, :category, :description, 'pending', :fsize, :u_id)
+                (:id, :fname, :category, :description, 'pending', :fsize, :u_id)
             RETURNING id
         """),
         {
+            "id": str(uuid.uuid4()),
             "fname": file.filename,
             "category": project_id,
             "description": f"업로드 파일: {file.filename}",
             "fsize": file_size,
-            "u_id": user_id
+            "u_id": normalize_uuid_or_system(user_id)
         }
     )
     await db.commit()

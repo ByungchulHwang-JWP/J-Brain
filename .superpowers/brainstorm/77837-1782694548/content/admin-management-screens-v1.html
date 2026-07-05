@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>관리성 화면 Mock v1</title>
+  <style>
+    :root{--bg:#f4f7fb;--panel:#fff;--line:#d9e2ef;--text:#142033;--muted:#667085;--navy:#08265a;--blue:#0b5cff;--green:#168a55;--amber:#b7791f;--red:#d92d20;--violet:#6941c6;--soft-blue:#eaf2ff;--soft-green:#e9f8f0;--soft-amber:#fff6df;--soft-red:#fff1f0;--soft-violet:#f1edff;--shadow:0 16px 40px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{max-width:1760px;margin:0 auto;padding:32px}.shell{display:grid;grid-template-columns:268px 1fr;gap:24px;min-height:calc(100vh - 64px)}.side{background:#0f172a;color:#fff;border-radius:18px;padding:22px 18px;box-shadow:var(--shadow);position:sticky;top:32px;height:calc(100vh - 64px);overflow:auto}.brand{font-size:20px;font-weight:950;margin-bottom:28px}.menu-title{color:#98a2b3;font-size:12px;font-weight:900;margin:22px 0 10px}.menu-item{padding:11px 14px;border-radius:12px;color:#cbd5e1;font-size:14px;font-weight:760;margin-bottom:4px}.menu-item.active{background:#1d4ed8;color:#fff}.menu-item.done{color:#bbf7d0}.main{display:flex;flex-direction:column;gap:18px}.topbar,.card,.panel,.action-bar{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 22px}.breadcrumb{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}h1{font-size:30px;line-height:1.18;margin:0}.chip{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 12px;border-radius:999px;background:var(--soft-blue);color:var(--navy);font-size:13px;font-weight:950}.quick-nav{display:flex;gap:8px;flex-wrap:wrap}.quick-nav a{text-decoration:none;border:1px solid #d8e1ee;background:#fff;color:#10213f;border-radius:999px;padding:9px 13px;font-size:13px;font-weight:900}.section{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:18px;align-items:start}.card-head{display:flex;justify-content:space-between;gap:16px;padding:22px 24px;border-bottom:1px solid #e8edf5}.card-title{font-size:21px;font-weight:950;margin-bottom:6px}.card-desc{color:var(--muted);font-size:14px;line-height:1.55}.pill{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}.pill.blue{background:var(--soft-blue);color:var(--navy)}.pill.green{background:var(--soft-green);color:var(--green)}.pill.amber{background:var(--soft-amber);color:var(--amber)}.pill.red{background:var(--soft-red);color:var(--red)}.pill.violet{background:var(--soft-violet);color:var(--violet)}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:18px 24px 0}.kpi{border:1px solid #e4e9f2;border-radius:14px;background:#f8fafc;padding:14px;min-height:84px}.kpi-label{color:var(--muted);font-size:12px;font-weight:850;margin-bottom:8px}.kpi-value{font-size:24px;font-weight:950;color:var(--navy)}.kpi-sub{color:var(--muted);font-size:12px}.body{padding:24px;display:grid;gap:18px}.split{display:grid;grid-template-columns:1fr 1fr;gap:18px}.subcard{border:1px solid #e4e9f2;border-radius:16px;background:#fff;overflow:hidden}.subhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid #edf1f7}.subhead-title{font-size:16px;font-weight:950}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#667085;background:#f8fafc;font-size:12px;padding:12px 14px;border-bottom:1px solid #e8edf5}td{padding:13px 14px;border-bottom:1px solid #eef2f7;vertical-align:top;color:#344054;font-weight:720;line-height:1.45}.name{color:#111827;font-weight:950;margin-bottom:4px}.meta{color:var(--muted);font-size:12px;font-weight:700}.detail-box,.test-box,.report-box{border:1px solid #e4e9f2;border-radius:14px;background:#f8fafc;padding:14px;display:grid;gap:10px}.detail-row{display:grid;grid-template-columns:1fr auto;gap:10px;font-size:13px;color:#344054;font-weight:760}.panel{padding:18px}.panel h3{margin:0 0 12px;font-size:16px;font-weight:950}.check-list{display:grid;gap:10px}.check{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e7edf6;font-size:13px;font-weight:850}.dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:950}.dot.done{background:#d1fadf;color:var(--green)}.dot.todo{background:#fff1c2;color:var(--amber)}.dot.bad{background:#fee4e2;color:var(--red)}.dot.info{background:#dbeafe;color:var(--blue)}input,select,textarea{width:100%;border:1px solid #d6deeb;border-radius:12px;padding:12px 13px;font-size:14px;outline:none;background:#fff}textarea{min-height:96px;resize:vertical;line-height:1.5}.field{display:grid;gap:8px}label{font-size:13px;color:#344054;font-weight:900}button{border:1px solid #cfd8e6;background:#fff;color:#10213f;min-height:42px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:900;white-space:nowrap}button.primary{background:var(--navy);border-color:var(--navy);color:#fff}button.success{background:var(--green);border-color:var(--green);color:#fff}button.danger{border-color:#f1b8b5;color:var(--red)}.buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.action-bar{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px}.bar-note{font-size:13px;color:var(--muted);line-height:1.45}.note{background:#111827;color:#fff;border-radius:18px;padding:22px;line-height:1.7;box-shadow:var(--shadow)}
+    @media(max-width:1180px){.shell{grid-template-columns:1fr}.side{display:none}.section,.split{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.page{padding:16px}.topbar,.card-head,.action-bar{align-items:flex-start;flex-direction:column}.kpis{grid-template-columns:1fr}.buttons{width:100%;justify-content:stretch}button{flex:1}}
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">JWINPARTNERS</div>
+      <div class="menu-title">대시보드</div><div class="menu-item">구축 워크플로우</div>
+      <div class="menu-title">Pack 제작/배포</div><div class="menu-item active">Pack Repository</div><div class="menu-item active">승인/반려 이력</div><div class="menu-item">배포/활성화</div>
+      <div class="menu-title">Runtime 테스트</div><div class="menu-item active">Action 실행 테스트</div>
+      <div class="menu-title">운영 및 분석</div><div class="menu-item active">운영 리포트</div><div class="menu-item">사용 로그 조회</div>
+      <div class="menu-title">시스템 관리</div><div class="menu-item active">감사 로그</div>
+    </aside>
+
+    <main class="main">
+      <section class="topbar">
+        <div>
+          <div class="breadcrumb">JWP Intent Factory &gt; 관리성 화면 Mock</div>
+          <h1>관리성 화면 모음</h1>
+        </div>
+        <div class="chip">Pack/Runtime 운영 관리</div>
+      </section>
+      <nav class="quick-nav">
+        <a href="#pack-repository">Pack Repository</a>
+        <a href="#approval-history">승인/반려 이력</a>
+        <a href="#action-test">Action 실행 테스트</a>
+        <a href="#ops-report">운영 리포트</a>
+        <a href="#audit-log">감사 로그</a>
+      </nav>
+
+      <section id="pack-repository" class="section">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Pack Repository</div><div class="card-desc">Build/Import/Active/Archived 상태의 Pack 버전 이력을 관리합니다. 다운로드, 검증 리포트, 승인 요청, Rollback 후보 지정이 가능합니다.</div></div><span class="pill green">Active v0.2.0</span></div>
+          <div class="kpis"><div class="kpi"><div class="kpi-label">총 Pack</div><div class="kpi-value">12개</div><div class="kpi-sub">전체 이력</div></div><div class="kpi"><div class="kpi-label">Active</div><div class="kpi-value">1개</div><div class="kpi-sub">v0.2.0</div></div><div class="kpi"><div class="kpi-label">승인 대기</div><div class="kpi-value">2개</div><div class="kpi-sub">검토 필요</div></div><div class="kpi"><div class="kpi-label">Rollback</div><div class="kpi-value">3개</div><div class="kpi-sub">보관</div></div></div>
+          <div class="body"><div class="subcard"><div class="subhead"><div class="subhead-title">Pack 버전 목록</div><span class="pill blue">J-Brain</span></div><table><thead><tr><th>Pack</th><th>상태</th><th>검증</th><th>승인</th><th>작업</th></tr></thead><tbody><tr><td><div class="name">J-Brain-Service-Pack-v0.3.0.zip</div><div class="meta">Draft 개선 후보 기반</div></td><td><span class="pill amber">Draft</span></td><td>대기</td><td>-</td><td>Build</td></tr><tr><td><div class="name">J-Brain-Service-Pack-v0.2.0.zip</div><div class="meta">현재 운영 버전</div></td><td><span class="pill green">Active</span></td><td>Pass</td><td>Approved</td><td>Download</td></tr><tr><td><div class="name">J-Brain-Service-Pack-v0.1.0.zip</div><div class="meta">직전 정상 버전</div></td><td><span class="pill blue">Rollback</span></td><td>Pass</td><td>Approved</td><td>Rollback</td></tr></tbody></table></div></div>
+        </div>
+        <aside class="panel"><h3>선택 Pack 상세</h3><div class="check-list"><div class="check"><span class="dot done">✓</span><span>Manifest Valid</span><span class="pill green">OK</span></div><div class="check"><span class="dot done">✓</span><span>Intent 18개</span><span class="pill blue">NLU</span></div><div class="check"><span class="dot done">✓</span><span>FAQ 18개</span><span class="pill blue">Knowledge</span></div><div class="check"><span class="dot info">i</span><span>ZIP 다운로드 가능</span><span class="pill blue">파일</span></div></div></aside>
+      </section>
+
+      <section id="approval-history" class="section">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">승인/반려 이력</div><div class="card-desc">Pack 활성화 전 승인 요청, 승인, 반려, 재요청 이력을 추적합니다. 누가 어떤 사유로 승인/반려했는지 감사 가능해야 합니다.</div></div><span class="pill amber">승인 대기 2건</span></div>
+          <div class="body"><div class="subcard"><div class="subhead"><div class="subhead-title">승인 요청 타임라인</div><span class="pill violet">Workflow v0.1</span></div><table><thead><tr><th>요청</th><th>요청자</th><th>상태</th><th>사유/코멘트</th><th>일시</th></tr></thead><tbody><tr><td><div class="name">v0.3.0 활성화 승인</div><div class="meta">개선 후보 12건 반영</div></td><td>PM</td><td><span class="pill amber">대기</span></td><td>검증 리포트 확인 필요</td><td>오늘 10:42</td></tr><tr><td><div class="name">v0.2.0 활성화 승인</div><div class="meta">초기 운영 배포</div></td><td>PM</td><td><span class="pill green">승인</span></td><td>Runtime 시뮬레이션 통과</td><td>어제</td></tr><tr><td><div class="name">v0.1.1 활성화 승인</div><div class="meta">FAQ 긴급 수정</div></td><td>운영자</td><td><span class="pill red">반려</span></td><td>필수 검증 질문 Fail 존재</td><td>3일 전</td></tr></tbody></table></div></div>
+        </div>
+        <aside class="panel"><h3>승인 정책</h3><div class="check-list"><div class="check"><span class="dot done">✓</span><span>검증 Pass Pack만 요청</span><span class="pill green">적용</span></div><div class="check"><span class="dot info">i</span><span>반려 시 사유 필수</span><span class="pill blue">필수</span></div><div class="check"><span class="dot info">i</span><span>Active 전환은 승인 후 가능</span><span class="pill blue">정책</span></div></div></aside>
+      </section>
+
+      <section id="action-test" class="section">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Action 실행 테스트</div><div class="card-desc">NAVIGATE, API_CALL, QUERY_EXECUTE, SEARCH_DOC Action을 Runtime과 분리해 단독 테스트합니다. 운영 DB 변경 없이 읽기/조회성 동작 중심으로 검증합니다.</div></div><span class="pill blue">로컬 Runtime</span></div>
+          <div class="body"><div class="split"><div class="test-box"><div class="field"><label>Action 선택</label><select><option>action.search.pack_export_knowledge</option><option>action.navigate.pack_validation</option><option>action.api.active_pack_status</option><option>action.query.usage_log_summary</option></select></div><div class="field"><label>테스트 파라미터</label><textarea>{"project_id":"J-Brain","category":"Pack 운영","user_role":"System Admin"}</textarea></div><div class="buttons"><button>파라미터 검증</button><button class="primary">Action 실행</button></div></div><div class="test-box"><div class="detail-row"><span>실행 상태</span><span class="pill green">Success</span></div><div class="detail-row"><span>응답시간</span><span>0.12s</span></div><div class="detail-row"><span>결과 유형</span><span>FAQ + Source</span></div><div class="detail-row"><span>감사 로그</span><span>저장 완료</span></div><textarea>검색 결과 3건 반환. Top-1 FAQ score 0.91. Source 보조 근거 2건 연결.</textarea></div></div></div>
+        </div>
+        <aside class="panel"><h3>테스트 기준</h3><div class="check-list"><div class="check"><span class="dot done">✓</span><span>권한 조건 확인</span><span class="pill green">OK</span></div><div class="check"><span class="dot done">✓</span><span>화이트리스트 Action</span><span class="pill green">OK</span></div><div class="check"><span class="dot info">i</span><span>QUERY는 읽기 전용</span><span class="pill blue">정책</span></div></div></aside>
+      </section>
+
+      <section id="ops-report" class="section">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">운영 리포트</div><div class="card-desc">일/주/월 단위 운영 현황, 미응답, 개선 후보, Pack 버전별 품질 추이를 리포트로 생성합니다.</div></div><span class="pill green">이번 주</span></div>
+          <div class="kpis"><div class="kpi"><div class="kpi-label">질문 수</div><div class="kpi-value">8,421</div><div class="kpi-sub">주간</div></div><div class="kpi"><div class="kpi-label">성공률</div><div class="kpi-value">94.2%</div><div class="kpi-sub">목표 95%</div></div><div class="kpi"><div class="kpi-label">미응답</div><div class="kpi-value">218</div><div class="kpi-sub">개선 대상</div></div><div class="kpi"><div class="kpi-label">리포트</div><div class="kpi-value">PDF</div><div class="kpi-sub">생성 가능</div></div></div>
+          <div class="body"><div class="split"><div class="report-box"><div class="name">리포트 구성</div><div class="detail-row"><span>1. 운영 요약</span><span>포함</span></div><div class="detail-row"><span>2. Intent별 사용량</span><span>포함</span></div><div class="detail-row"><span>3. 미응답/Low Confidence</span><span>포함</span></div><div class="detail-row"><span>4. 개선 후보</span><span>포함</span></div></div><div class="report-box"><div class="field"><label>기간</label><select><option>이번 주</option><option>이번 달</option><option>사용자 지정</option></select></div><div class="field"><label>출력 형식</label><select><option>PDF</option><option>Excel</option><option>HTML</option></select></div><div class="buttons"><button>미리보기</button><button class="primary">리포트 생성</button></div></div></div></div>
+        </div>
+        <aside class="panel"><h3>공유 대상</h3><div class="check-list"><div class="check"><span class="dot info">i</span><span>PM/팀장 보고용</span><span class="pill blue">PDF</span></div><div class="check"><span class="dot info">i</span><span>운영자 분석용</span><span class="pill blue">Excel</span></div><div class="check"><span class="dot done">✓</span><span>고객 데이터 외부 전송 없음</span><span class="pill green">원칙</span></div></div></aside>
+      </section>
+
+      <section id="audit-log" class="section">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">감사 로그</div><div class="card-desc">Pack Import, 승인/반려, Active 전환, Rollback, Action 실행, 설정 변경 등 주요 운영 이벤트를 추적합니다.</div></div><span class="pill blue">변경 추적</span></div>
+          <div class="body"><div class="subcard"><div class="subhead"><div class="subhead-title">감사 이벤트</div><span class="pill amber">최근 100건</span></div><table><thead><tr><th>이벤트</th><th>사용자</th><th>대상</th><th>결과</th><th>시간</th></tr></thead><tbody><tr><td><div class="name">PACK_ACTIVATE</div><div class="meta">v0.2.0 Active 전환</div></td><td>admin</td><td>J-Brain</td><td><span class="pill green">Success</span></td><td>오늘 11:02</td></tr><tr><td><div class="name">APPROVAL_REQUEST</div><div class="meta">v0.3.0 승인 요청</div></td><td>pm</td><td>Pack Repository</td><td><span class="pill amber">Pending</span></td><td>오늘 10:42</td></tr><tr><td><div class="name">ACTION_TEST</div><div class="meta">active_pack_status 실행</div></td><td>operator</td><td>Action</td><td><span class="pill green">Success</span></td><td>오늘 10:21</td></tr></tbody></table></div></div>
+        </div>
+        <aside class="panel"><h3>필터</h3><div class="check-list"><div class="check"><span class="dot info">i</span><span>이벤트 유형</span><span class="pill blue">전체</span></div><div class="check"><span class="dot info">i</span><span>사용자/역할</span><span class="pill blue">전체</span></div><div class="check"><span class="dot info">i</span><span>기간</span><span class="pill blue">최근 7일</span></div></div><div class="buttons" style="margin-top:14px"><button>CSV Export</button><button class="primary">검색</button></div></aside>
+      </section>
+
+      <section class="note"><strong>관리성 화면 설계 요약</strong><br>이 5개 화면은 12단계 구축 워크플로우를 보조하는 운영 관리 화면입니다. Pack Repository와 승인/반려 이력은 배포 통제를, Action 실행 테스트는 Runtime 동작 검증을, 운영 리포트와 감사 로그는 상용 운영의 추적성과 보고 체계를 담당합니다.</section>
+    </main>
+  </div>
+</div>
+</body>
+</html>

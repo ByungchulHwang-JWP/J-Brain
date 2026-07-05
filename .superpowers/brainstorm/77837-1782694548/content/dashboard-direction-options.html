@@ -1,0 +1,81 @@
+<h2>JWP Intent Factory 대시보드 고도화 방향</h2>
+<p class="subtitle">숙련 운영자만 쓸 수 있는 관리 화면에서, 절차를 몰라도 따라갈 수 있는 구축 Command Center로 전환하는 방향을 비교합니다.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Workflow Command Center 중심</h3>
+      <p>홈 대시보드가 12단계 구축 절차를 보여주고, 각 단계의 완료 조건, 부족 항목, 다음 작업 버튼을 안내합니다.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>장점</h4>
+          <ul>
+            <li>운영자가 메뉴 구조를 몰라도 다음 작업을 알 수 있습니다.</li>
+            <li>현재 구현된 메뉴와 API를 재활용하기 쉽습니다.</li>
+            <li>상용 운영에 필요한 표준 작업 절차를 제품에 녹일 수 있습니다.</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>주의점</h4>
+          <ul>
+            <li>단계별 완료 조건과 품질 점수 계산 기준을 먼저 정해야 합니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Guided Wizard 중심</h3>
+      <p>신규 프로젝트를 만들 때 마법사처럼 프로젝트 설정, Source, Intent, FAQ, Action, Pack 검증을 순서대로 입력합니다.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>장점</h4>
+          <ul>
+            <li>초보 운영자에게 가장 친절합니다.</li>
+            <li>필수 입력 누락을 줄일 수 있습니다.</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>주의점</h4>
+          <ul>
+            <li>숙련 운영자에게는 답답할 수 있습니다.</li>
+            <li>대량 작업과 반복 개선 루프에는 별도 화면이 필요합니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>AI Copilot / 대량 생성 중심</h3>
+      <p>Source와 기존 문서를 기반으로 Intent, 질문패턴, Entity, FAQ 후보를 자동 생성하고 운영자는 검수/승인에 집중합니다.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>장점</h4>
+          <ul>
+            <li>입력 부담을 가장 크게 줄입니다.</li>
+            <li>외부망 Intent Factory의 차별점이 강해집니다.</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>주의점</h4>
+          <ul>
+            <li>LLM 지원 도구, 후보 검수, 승인 이력 설계가 필요합니다.</li>
+            <li>초기 범위가 커질 수 있습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>추천 방향</h3>
+  <p><strong>A를 중심으로 시작하고, B와 C를 단계별로 흡수</strong>하는 방식을 추천합니다. 즉, 홈 대시보드는 Workflow Command Center가 되고, 각 단계 안에서는 Wizard와 AI 후보 생성 기능을 점진적으로 제공합니다.</p>
+</div>

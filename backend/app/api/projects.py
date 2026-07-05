@@ -4,6 +4,7 @@ from sqlalchemy import text
 from typing import Any, List
 from pydantic import BaseModel
 from datetime import datetime
+from uuid import UUID, uuid4
 
 from app.db.session import get_db
 from app.api.deps import get_current_user_id
@@ -29,6 +30,13 @@ class ProjectResponse(BaseModel):
     status: str
     created_at: str
 
+
+def normalize_uuid_or_system(value: Any) -> str:
+    try:
+        return str(UUID(str(value)))
+    except (TypeError, ValueError):
+        return "00000000-0000-0000-0000-000000000000"
+
 @router.get("", response_model=List[ProjectResponse])
 async def list_projects(
     user_id: str = Depends(get_current_user_id),
@@ -43,8 +51,9 @@ async def list_projects(
             SELECT DISTINCT 
                 category AS id,
                 category AS name,
+                COALESCE(MAX(description) FILTER (WHERE status = 'placeholder'), MAX(description), '') AS description,
                 MIN(created_at) AS created_at,
-                COUNT(*) AS doc_count
+                COUNT(*) FILTER (WHERE COALESCE(status, '') != 'placeholder') AS doc_count
             FROM graphrag.graphrag_sources
             GROUP BY category
             ORDER BY MIN(created_at) DESC
@@ -57,20 +66,10 @@ async def list_projects(
         projects.append({
             "id": r.id or "default",
             "name": r.name or "기본 프로젝트",
-            "description": f"문서 {r.doc_count}건",
+            "description": r.description or f"문서 {r.doc_count}건",
             "status": "active",
             "created_at": r.created_at.strftime("%Y-%m-%d") if r.created_at else "-"
         })
-
-    # 데이터가 없으면 기본 안내 항목 반환
-    if not projects:
-        projects = [{
-            "id": "NETZERO",
-            "name": "탄소중립플랫폼",
-            "description": "지식 문서를 업로드하면 프로젝트가 생성됩니다.",
-            "status": "active",
-            "created_at": datetime.now().strftime("%Y-%m-%d")
-        }]
 
     return projects
 
@@ -158,16 +157,17 @@ async def create_project(
     result = await db.execute(
         text("""
             INSERT INTO graphrag.graphrag_sources 
-                (file_name, category, description, status, uploaded_by)
+                (id, file_name, category, description, status, uploaded_by)
             VALUES 
-                (:file_name, :category, :description, 'placeholder', :user_id)
+                (:id, :file_name, :category, :description, 'placeholder', :user_id)
             RETURNING id, created_at
         """),
         {
+            "id": str(uuid4()),
             "file_name": f"[{proj_in.name}] 프로젝트 생성",
             "category": proj_in.name,
             "description": proj_in.description,
-            "user_id": user_id
+            "user_id": normalize_uuid_or_system(user_id)
         }
     )
     await db.commit()

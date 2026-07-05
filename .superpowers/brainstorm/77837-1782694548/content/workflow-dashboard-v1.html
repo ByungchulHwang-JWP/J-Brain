@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>구축 워크플로우 대시보드 Mock v1</title>
+  <style>
+    :root{--bg:#f4f7fb;--panel:#fff;--line:#d9e2ef;--text:#142033;--muted:#667085;--navy:#08265a;--blue:#0b5cff;--green:#168a55;--amber:#b7791f;--red:#d92d20;--violet:#6941c6;--soft-blue:#eaf2ff;--soft-green:#e9f8f0;--soft-amber:#fff6df;--soft-red:#fff1f0;--soft-violet:#f1edff;--shadow:0 16px 40px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{max-width:1760px;margin:0 auto;padding:32px}.shell{display:grid;grid-template-columns:268px 1fr;gap:24px;min-height:calc(100vh - 64px)}.side{background:#0f172a;color:#fff;border-radius:18px;padding:22px 18px;box-shadow:var(--shadow);position:sticky;top:32px;height:calc(100vh - 64px)}.brand{font-size:20px;font-weight:950;margin-bottom:28px}.menu-title{color:#98a2b3;font-size:12px;font-weight:900;margin:22px 0 10px}.menu-item{padding:11px 14px;border-radius:12px;color:#cbd5e1;font-size:14px;font-weight:760;margin-bottom:4px}.menu-item.active{background:#1d4ed8;color:#fff}.menu-item.done{color:#bbf7d0}.main{display:flex;flex-direction:column;gap:18px}.topbar,.card,.panel,.action-bar{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 22px}.breadcrumb{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}h1{font-size:30px;line-height:1.18;margin:0}.project-select{display:flex;align-items:center;gap:10px}.select-box{border:1px solid #d6deeb;border-radius:12px;background:#fff;padding:11px 14px;min-width:260px;font-size:14px;font-weight:850;color:#10213f}.chip{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 12px;border-radius:999px;background:var(--soft-blue);color:var(--navy);font-size:13px;font-weight:950}.hero{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:18px}.hero-main{background:linear-gradient(135deg,#08265a 0%,#0b5cff 58%,#4b7dff 100%);color:#fff;border-radius:18px;padding:26px;box-shadow:var(--shadow);display:grid;gap:18px}.hero-title{font-size:28px;font-weight:950;line-height:1.25}.hero-desc{font-size:14px;line-height:1.7;color:#dbeafe;max-width:820px}.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.hero-stat{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.11);border-radius:14px;padding:14px}.hero-label{font-size:12px;color:#bfdbfe;font-weight:850;margin-bottom:8px}.hero-value{font-size:24px;font-weight:950}.next-card{padding:22px;display:grid;gap:14px}.next-title{font-size:18px;font-weight:950}.next-desc{font-size:13px;color:var(--muted);line-height:1.6}.pill{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}.pill.blue{background:var(--soft-blue);color:var(--navy)}.pill.green{background:var(--soft-green);color:var(--green)}.pill.amber{background:var(--soft-amber);color:var(--amber)}.pill.red{background:var(--soft-red);color:var(--red)}.pill.violet{background:var(--soft-violet);color:var(--violet)}button{border:1px solid #cfd8e6;background:#fff;color:#10213f;min-height:42px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:900;white-space:nowrap}button.primary{background:var(--navy);border-color:var(--navy);color:#fff}button.success{background:var(--green);border-color:var(--green);color:#fff}.grid{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:18px;align-items:start}.card-head{display:flex;justify-content:space-between;gap:16px;padding:22px 24px;border-bottom:1px solid #e8edf5}.card-title{font-size:20px;font-weight:950;margin-bottom:6px}.card-desc{color:var(--muted);font-size:14px;line-height:1.55}.body{padding:24px;display:grid;gap:18px}.stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stage{border:1px solid #e4e9f2;border-radius:16px;background:#fff;padding:16px;min-height:150px;display:grid;gap:10px;position:relative}.stage.done{background:#f0fdf4;border-color:#b7e4c7}.stage.current{background:#eff6ff;border-color:#8cb7ff;box-shadow:inset 0 0 0 2px rgba(11,92,255,.12)}.stage.blocked{background:#fffaf0;border-color:#f2c673}.stage.locked{background:#f8fafc;color:#98a2b3}.stage-no{font-size:12px;color:var(--muted);font-weight:950}.stage-name{font-size:16px;font-weight:950;color:#111827}.stage-desc{font-size:13px;color:#475467;line-height:1.5}.stage-footer{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:auto}.progress{height:8px;background:#edf2f7;border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;background:var(--green);border-radius:99px}.panel-stack{display:grid;gap:14px}.panel{padding:18px}.panel h3{margin:0 0 12px;font-size:16px;font-weight:950}.check-list{display:grid;gap:10px}.check{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e7edf6;font-size:13px;font-weight:850}.dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:950}.dot.done{background:#d1fadf;color:var(--green)}.dot.todo{background:#fff1c2;color:var(--amber)}.dot.bad{background:#fee4e2;color:var(--red)}.dot.info{background:#dbeafe;color:var(--blue)}.subgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.subcard{border:1px solid #e4e9f2;border-radius:16px;background:#fff;overflow:hidden}.subhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid #edf1f7}.subhead-title{font-size:16px;font-weight:950}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#667085;background:#f8fafc;font-size:12px;padding:12px 14px;border-bottom:1px solid #e8edf5}td{padding:13px 14px;border-bottom:1px solid #eef2f7;vertical-align:top;color:#344054;font-weight:720;line-height:1.45}.name{color:#111827;font-weight:950;margin-bottom:4px}.meta{color:var(--muted);font-size:12px;font-weight:700}.action-bar{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;bottom:16px;z-index:2;background:rgba(255,255,255,.96);backdrop-filter:blur(14px)}.bar-note{font-size:13px;color:var(--muted);line-height:1.45}.buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.note{background:#111827;color:#fff;border-radius:18px;padding:22px;line-height:1.7;box-shadow:var(--shadow)}
+    @media(max-width:1280px){.stage-grid{grid-template-columns:repeat(3,1fr)}.hero-stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:1180px){.shell{grid-template-columns:1fr}.side{display:none}.hero,.grid,.subgrid{grid-template-columns:1fr}}@media(max-width:720px){.page{padding:16px}.topbar,.action-bar{align-items:flex-start;flex-direction:column}.project-select{width:100%;flex-direction:column;align-items:stretch}.select-box{min-width:0}.stage-grid,.hero-stats{grid-template-columns:1fr}.buttons{width:100%;justify-content:stretch}button{flex:1}}
+  </style>
+</head>
+<body>
+<div class="page"><div class="shell">
+  <aside class="side">
+    <div class="brand">JWINPARTNERS</div>
+    <div class="menu-title">대시보드</div><div class="menu-item active">구축 워크플로우</div><div class="menu-item">운영 현황</div>
+    <div class="menu-title">프로젝트 준비</div><div class="menu-item done">프로젝트 관리</div><div class="menu-item done">지식 준비</div>
+    <div class="menu-title">Intent Factory</div><div class="menu-item done">Intent 관리</div><div class="menu-item done">질문패턴 관리</div><div class="menu-item done">Entity/Synonym 관리</div><div class="menu-item done">답변 근거 관리</div><div class="menu-item active">Action 관리</div>
+    <div class="menu-title">Pack 제작/배포</div><div class="menu-item">Pack 검증</div><div class="menu-item">Pack Builder</div><div class="menu-item">배포/활성화</div>
+    <div class="menu-title">운영 및 분석</div><div class="menu-item">운영 리포트</div><div class="menu-item">감사 로그</div>
+  </aside>
+
+  <main class="main">
+    <section class="topbar">
+      <div><div class="breadcrumb">대시보드 &gt; 구축 워크플로우</div><h1>구축 워크플로우 대시보드</h1></div>
+      <div class="project-select"><span class="chip">현재 프로젝트</span><div class="select-box">J-Brain · Draft v0.2.0</div></div>
+    </section>
+
+    <section class="hero">
+      <div class="hero-main">
+        <div>
+          <div class="hero-title">J-Brain Pack 구축이 7단계에서 진행 중입니다</div>
+          <div class="hero-desc">기반 설정부터 답변 근거까지 완료되었고, 현재 Intent와 Action 실행 연결을 정리하고 있습니다. 미연결 Intent와 권한 조건을 해결하면 Pack 품질검증 단계로 이동할 수 있습니다.</div>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-label">전체 진행률</div><div class="hero-value">58%</div></div>
+          <div class="hero-stat"><div class="hero-label">완료 단계</div><div class="hero-value">6/12</div></div>
+          <div class="hero-stat"><div class="hero-label">현재 단계</div><div class="hero-value">7단계</div></div>
+          <div class="hero-stat"><div class="hero-label">남은 이슈</div><div class="hero-value">9건</div></div>
+        </div>
+      </div>
+      <div class="card next-card">
+        <span class="pill blue" style="width:max-content">AI 추천 다음 작업</span>
+        <div class="next-title">미연결 Intent 4개를 먼저 정리하세요</div>
+        <div class="next-desc">Action 연결률이 78%입니다. `Active Pack 상태 조회`, `사용 로그 조회` 등 운영성 Intent의 Action 유형과 권한 조건을 확정해야 Pack 품질검증 단계로 넘어갈 수 있습니다.</div>
+        <button class="primary">7단계 실행 연결 열기</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">12단계 구축 워크플로우</div><div class="card-desc">각 단계 카드를 클릭해 완료된 단계로 돌아가거나, 현재 단계의 상세 작업 화면으로 이동합니다.</div></div>
+          <span class="pill amber">현재: 실행 연결</span>
+        </div>
+        <div class="body">
+          <div class="stage-grid">
+            <div class="stage done"><div class="stage-no">01</div><div class="stage-name">기반 설정</div><div class="stage-desc">프로젝트 등록, 담당자, 목표 일정 설정</div><div class="stage-footer"><span class="pill green">완료</span><span>100%</span></div></div>
+            <div class="stage done"><div class="stage-no">02</div><div class="stage-name">지식 준비</div><div class="stage-desc">Source 등록, 벡터화, 검색 테스트</div><div class="stage-footer"><span class="pill green">완료</span><span>100%</span></div></div>
+            <div class="stage done"><div class="stage-no">03</div><div class="stage-name">의도 설계</div><div class="stage-desc">Intent 후보 검토 및 정식 등록</div><div class="stage-footer"><span class="pill green">완료</span><span>100%</span></div></div>
+            <div class="stage done"><div class="stage-no">04</div><div class="stage-name">질문 커버리지</div><div class="stage-desc">예상 질문과 표현 다양성 보강</div><div class="stage-footer"><span class="pill green">완료</span><span>100%</span></div></div>
+            <div class="stage done"><div class="stage-no">05</div><div class="stage-name">용어 사전</div><div class="stage-desc">Entity/Synonym 정리</div><div class="stage-footer"><span class="pill green">완료</span><span>100%</span></div></div>
+            <div class="stage done"><div class="stage-no">06</div><div class="stage-name">답변 근거</div><div class="stage-desc">FAQ 확정 및 Source 근거 연결</div><div class="stage-footer"><span class="pill green">완료</span><span>100%</span></div></div>
+            <div class="stage current"><div class="stage-no">07</div><div class="stage-name">실행 연결</div><div class="stage-desc">Intent와 Action 실행 정책 연결</div><div class="progress"><span style="width:78%"></span></div><div class="stage-footer"><span class="pill blue">진행 중</span><span>78%</span></div></div>
+            <div class="stage locked"><div class="stage-no">08</div><div class="stage-name">Pack 품질검증</div><div class="stage-desc">검증 질문 기반 Pass/Fail 확인</div><div class="stage-footer"><span class="pill amber">대기</span><span>잠금</span></div></div>
+            <div class="stage locked"><div class="stage-no">09</div><div class="stage-name">Runtime 시뮬레이션</div><div class="stage-desc">실제 챗봇 흐름 검증</div><div class="stage-footer"><span class="pill amber">대기</span><span>잠금</span></div></div>
+            <div class="stage locked"><div class="stage-no">10</div><div class="stage-name">Pack Build</div><div class="stage-desc">표준 Pack 파일 및 ZIP 생성</div><div class="stage-footer"><span class="pill amber">대기</span><span>잠금</span></div></div>
+            <div class="stage locked"><div class="stage-no">11</div><div class="stage-name">배포/활성화</div><div class="stage-desc">Import, 승인, Active 전환</div><div class="stage-footer"><span class="pill amber">대기</span><span>잠금</span></div></div>
+            <div class="stage locked"><div class="stage-no">12</div><div class="stage-name">운영 분석/개선</div><div class="stage-desc">운영 로그 기반 개선 사이클</div><div class="stage-footer"><span class="pill amber">대기</span><span>잠금</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel-stack">
+        <div class="panel"><h3>현재 단계 체크</h3><div class="check-list"><div class="check"><span class="dot done">✓</span><span>SEARCH_DOC 범위 설정</span><span class="pill green">완료</span></div><div class="check"><span class="dot todo">!</span><span>미연결 Intent 정리</span><span class="pill amber">4개</span></div><div class="check"><span class="dot todo">!</span><span>권한 조건 확인</span><span class="pill amber">5개</span></div><div class="check"><span class="dot info">i</span><span>다음 단계 조건</span><span class="pill blue">Action 100%</span></div></div></div>
+        <div class="panel"><h3>프로젝트 상태</h3><div class="check-list"><div class="check"><span class="dot info">i</span><span>기준 Pack</span><span class="pill blue">Draft v0.2</span></div><div class="check"><span class="dot info">i</span><span>목표 검증일</span><span class="pill blue">2026-07-10</span></div><div class="check"><span class="dot done">✓</span><span>외부 LLM/API 없음</span><span class="pill green">확인</span></div></div></div>
+      </aside>
+    </section>
+
+    <section class="subgrid">
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">최근 작업 이력</div><div class="card-desc">워크플로우 단계별 주요 변경을 확인합니다.</div></div><span class="pill blue">최근 5건</span></div>
+        <div class="body"><table><thead><tr><th>작업</th><th>단계</th><th>사용자</th><th>시간</th></tr></thead><tbody><tr><td><div class="name">Pack Export Intent Action 연결</div><div class="meta">SEARCH_DOC 범위 설정</div></td><td>실행 연결</td><td>PM</td><td>10분 전</td></tr><tr><td><div class="name">FAQ 근거 18건 확정</div><div class="meta">knowledge/faqs.json 반영 대상</div></td><td>답변 근거</td><td>운영자</td><td>1시간 전</td></tr><tr><td><div class="name">Pack Export Synonym 추가</div><div class="meta">서비스팩 ZIP, 배포 패키지</div></td><td>용어 사전</td><td>PM</td><td>2시간 전</td></tr></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">리스크 및 차단 요소</div><div class="card-desc">다음 단계 이동을 막는 항목을 우선순위로 표시합니다.</div></div><span class="pill red">주의 2건</span></div>
+        <div class="body"><table><thead><tr><th>리스크</th><th>영향</th><th>권장 조치</th></tr></thead><tbody><tr><td><div class="name">Action 미연결 Intent</div><div class="meta">4개 남음</div></td><td>Pack 검증 불가</td><td>Action 자동 추천 검토</td></tr><tr><td><div class="name">권한 조건 미확정</div><div class="meta">운영 조회성 Action</div></td><td>Runtime 실패 가능</td><td>Role 기준 설정</td></tr><tr><td><div class="name">검증 질문 부족 가능성</div><div class="meta">운영성 Intent 신규 추가</div></td><td>품질 검증 누락</td><td>검증 질문 자동 생성</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="action-bar"><div class="bar-note">현재 가장 중요한 작업은 7단계 실행 연결 완료입니다. 완료 후 Pack 품질검증 단계가 활성화됩니다.</div><div class="buttons"><button>진행 리포트</button><button>이슈 목록 보기</button><button class="primary">현재 단계 열기</button><button class="success">다음 작업 시작</button></div></section>
+    <section class="note"><strong>구축 워크플로우 대시보드 설계 요약</strong><br>이 화면은 1~12단계 상세 화면으로 들어가기 전의 관제판입니다. 운영자는 현재 프로젝트의 진행률, 현재 단계, 다음 추천 작업, 차단 요소, 최근 작업 이력을 한눈에 확인하고 필요한 단계로 바로 이동할 수 있습니다.</section>
+  </main>
+</div></div>
+</body>
+</html>

@@ -36,14 +36,19 @@ class SearchDocAction:
     def _build_documents(self) -> list[dict[str, Any]]:
         documents: list[dict[str, Any]] = []
         for faq in self.pack.knowledge["faqs"]:
+            faq_id = faq["faq_id"]
             documents.append(
                 {
-                    "source_id": faq["faq_id"],
+                    "source_id": faq.get("source_id") or faq_id,
                     "source_type": "faq",
+                    "faq_id": faq_id,
+                    "question": faq["question"],
+                    "answer": faq["answer"],
+                    "category": faq.get("category"),
                     "title": faq["question"],
                     "snippet": faq["answer"],
                     "section": "FAQ",
-                    "source_ref": faq.get("faq_id"),
+                    "source_ref": faq_id,
                     "tags": faq.get("tags", []),
                 }
             )
@@ -74,6 +79,13 @@ class SearchDocAction:
         query_ngrams: set[str],
         document: dict[str, Any],
     ) -> float:
+        normalized_title = self._normalize(document.get("title", ""))
+        title_exact = (normalized_query == normalized_title) if normalized_title else False
+        title_ratio = SequenceMatcher(None, normalized_query, normalized_title).ratio() if normalized_title else 0.0
+
+        if title_exact:
+            return 1.0
+
         searchable_text = self._normalize(
             " ".join(
                 [
@@ -98,6 +110,7 @@ class SearchDocAction:
             or tag_score > 0
             or substring_score > 0
             or ngram_score >= 0.08
+            or title_ratio > 0.5
         )
         if not has_lexical_evidence:
             return 0.0
@@ -110,6 +123,10 @@ class SearchDocAction:
             + tag_score * 0.20
             + source_bonus
         )
+        
+        if title_ratio >= 0.6:
+            score = max(score, title_ratio * 0.95)
+
         return min(score, 1.0) if score >= 0.05 else 0.0
 
     def _tag_score(self, normalized_query: str, tags: list[str]) -> float:

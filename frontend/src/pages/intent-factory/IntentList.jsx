@@ -96,14 +96,16 @@ const IntentList = () => {
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: 0 }}>
         <div>
           <h2 style={{ fontWeight: 700 }}>Intent 관리</h2>
-          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>프로젝트별 Intent를 DB로 관리하고 Pack Import 결과를 확인합니다.</p>
+          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
+            프로젝트별 Intent를 DB로 관리합니다. Pack Import는 기존 파일 Pack을 DB로 가져오는 기능이며, Source 기반 자동 생성은 AI Copilot 단계에서 별도로 제공합니다.
+          </p>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}>
             {projects.length === 0 && <option value={projectId}>{projectId}</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={handleImport} disabled={importing}>{importing ? 'Import 중...' : '기본 Pack Import'}</button>
+          <button className="btn-secondary" onClick={handleImport} disabled={importing}>{importing ? 'Import 중...' : '파일 Pack Import'}</button>
           <button className="btn-primary" onClick={() => navigate(`/admin/intent-factory/intents/new?project=${encodeURIComponent(projectId)}`)}>+ Intent 등록</button>
         </div>
       </div>
@@ -150,7 +152,7 @@ const IntentList = () => {
             {loading ? (
               <tr><td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>등록된 Intent가 없습니다. 기본 Pack Import를 먼저 실행해 주세요.</td></tr>
+              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>등록된 Intent가 없습니다. Intent 등록 또는 파일 Pack Import를 실행해 주세요.</td></tr>
             ) : filtered.map((item) => (
               <tr key={item.intent_id}>
                 <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{item.intent_id}</td>

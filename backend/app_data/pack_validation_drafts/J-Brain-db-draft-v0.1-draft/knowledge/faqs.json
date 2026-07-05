@@ -1,0 +1,15 @@
+[
+  {
+    "faq_id": "FAQ_J_BRAIN_OVERVIEW",
+    "question": "J-Brain의 주요 내용은 무엇인가요?",
+    "answer": "03_J-Brain_운영_매뉴얼_및_가이드.md 문서를 기준으로 주요 기능과 운영 절차를 안내합니다.",
+    "category": "자동 생성 후보",
+    "tags": [
+      "auto-discovery",
+      "J-Brain"
+    ],
+    "source_id": "86d68ced-f75e-4d13-b507-7a60c7bc6656",
+    "action_id": "SEARCH_DOC",
+    "status": "active"
+  }
+]

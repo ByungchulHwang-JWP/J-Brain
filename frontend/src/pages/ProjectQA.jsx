@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Archive, RotateCcw, ShieldCheck } from 'lucide-react';
 import ActionCard from '../components/chat/ActionCard';
 import IntentDiagnostics from '../components/chat/IntentDiagnostics';
+import { getActivePack } from '../api/intentFactory';
 
 const AUTH_EXPIRED_MESSAGE = '로그인 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
 
@@ -52,15 +54,34 @@ const FORM_INPUT = {
   transition: 'border-color 0.2s',
 };
 
+const DEFAULT_RUNTIME_QUESTIONS = [
+  'J-Brain 주요 기능 알려줘',
+  '인덱스 작업이 무엇인가요?',
+  '실행 연결은 무엇인가요?',
+  'Pack 검증은 어떻게 하나요?',
+];
+
+const getPackModeLabel = (mode) => {
+  if (mode === 'active-pack') return 'Active Pack';
+  if (mode === 'db-draft') return 'DB Draft 확인';
+  return 'Runtime Resolver';
+};
+
 const ProjectQA = () => {
   const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
+  const navigationProjectId = location.state?.projectId;
   
   const [projects, setProjects] = useState([]);
-  const [selectedProjectId, setSelectedProjectId] = useState(id || '');
+  const [selectedProjectId, setSelectedProjectId] = useState(
+    navigationProjectId || id || localStorage.getItem('jbrain-workflow-project-id') || ''
+  );
   const [recommendedQuestions, setRecommendedQuestions] = useState([]);
-  const [selectedPackMode, setSelectedPackMode] = useState('file-pack');
+  const [selectedPackMode, setSelectedPackMode] = useState('runtime-resolver');
   const [packDraftSummary, setPackDraftSummary] = useState(null);
+  const [activePack, setActivePack] = useState(null);
+  const [projectLoadError, setProjectLoadError] = useState('');
   
   const [chatHistory, setChatHistory] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -83,6 +104,7 @@ const ProjectQA = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        setProjectLoadError('');
         const res = await axios.get('/api/v1/projects', {
           headers: { Authorization: `Bearer ${getAccessToken()}` }
         });
@@ -90,20 +112,22 @@ const ProjectQA = () => {
         setSelectedProjectId(prev => prev || (res.data.length > 0 ? res.data[0].id : ''));
       } catch (err) {
         console.error('Failed to load projects', err);
+        setProjectLoadError('프로젝트 목록을 불러오지 못했습니다. 로그인 상태 또는 서버 연결을 확인해 주세요.');
         handleAuthError(err);
       }
     };
     fetchProjects();
   }, [handleAuthError]);
 
+  useEffect(() => {
+    if (navigationProjectId && navigationProjectId !== selectedProjectId) {
+      setSelectedProjectId(navigationProjectId);
+    }
+  }, [navigationProjectId, selectedProjectId]);
+
   // Fetch recommended questions and restore local Runtime QA history when project changes.
   useEffect(() => {
     if (!selectedProjectId) return;
-    
-    // Update URL if missing
-    if (!id || id !== selectedProjectId) {
-      navigate(`/admin/qa`, { replace: true });
-    }
 
     const fetchQADetails = async () => {
       try {
@@ -123,7 +147,7 @@ const ProjectQA = () => {
     };
     
     fetchQADetails();
-  }, [selectedProjectId, id, navigate, handleAuthError]);
+  }, [selectedProjectId, handleAuthError]);
 
   useEffect(() => {
     if (!selectedProjectId || persistedProjectRef.current !== selectedProjectId) return;
@@ -148,6 +172,27 @@ const ProjectQA = () => {
     });
   }, [selectedProjectId, selectedPackMode, handleAuthError]);
 
+  useEffect(() => {
+    if (!selectedProjectId) {
+      setActivePack(null);
+      return;
+    }
+
+    getActivePack(selectedProjectId)
+      .then((data) => setActivePack(data?.pack_id ? data : null))
+      .catch((err) => {
+        console.error('Failed to load active pack', err);
+        setActivePack(null);
+        handleAuthError(err);
+      });
+  }, [selectedProjectId, handleAuthError]);
+
+  useEffect(() => {
+    if (activePack?.pack_id && selectedPackMode === 'runtime-resolver') {
+      setSelectedPackMode('active-pack');
+    }
+  }, [activePack?.pack_id, selectedPackMode]);
+
   // Scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -159,7 +204,7 @@ const ProjectQA = () => {
 
     const aiMessageId = createLocalMessageId();
     const userMessage = { id: createLocalMessageId(), role: 'user', content: textToSend };
-    const newAiMessage = { id: aiMessageId, role: 'ai', content: '', isStreaming: true, sources: null, actionCard: null, diagnostics: null, matches: [], runtimeMode: null };
+    const newAiMessage = { id: aiMessageId, role: 'ai', content: '', isStreaming: true, sources: null, actionCard: null, diagnostics: null, matches: [], runtimeMode: null, qaSummary: null };
 
     setChatHistory(prev => [...prev, userMessage, newAiMessage]);
     setInputMessage('');
@@ -171,6 +216,10 @@ const ProjectQA = () => {
         throw new Error(AUTH_EXPIRED_MESSAGE);
       }
 
+      const selectedPack = selectedPackMode === 'active-pack' && activePack?.pack_id
+        ? { pack_id: activePack.pack_id, pack_version: activePack.pack_version }
+        : {};
+
       const response = await fetch(`/api/v1/projects/${selectedProjectId}/chat/runtime`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
@@ -178,8 +227,7 @@ const ProjectQA = () => {
           query: textToSend,
           conversation_id: currentConversationId,
           top_k: 3,
-          pack_id: 'netzero-intent-pack',
-          pack_version: '0.1.0'
+          ...selectedPack,
         })
       });
 
@@ -203,6 +251,7 @@ const ProjectQA = () => {
         diagnostics: data.diagnostics || null,
         matches: data.matches || [],
         runtimeMode: data.runtime_mode || null,
+        qaSummary: data.qa_summary || null,
       };
 
       setCurrentConversationId(data.conversation_id || data.session_id || currentConversationId);
@@ -219,7 +268,7 @@ const ProjectQA = () => {
       console.error(error);
       setChatHistory(prev => {
         return prev.map(message => message.id === aiMessageId
-          ? { id: aiMessageId, role: 'ai', content: `오류가 발생했습니다: ${error.message}`, isStreaming: false, sources: null, actionCard: null, diagnostics: null, matches: [], runtimeMode: null }
+          ? { id: aiMessageId, role: 'ai', content: `오류가 발생했습니다: ${error.message}`, isStreaming: false, sources: null, actionCard: null, diagnostics: null, matches: [], runtimeMode: null, qaSummary: null }
           : message
         );
       });
@@ -232,6 +281,13 @@ const ProjectQA = () => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleResetConversation = () => {
+    if (!selectedProjectId) return;
+    setChatHistory([]);
+    setCurrentConversationId(null);
+    localStorage.removeItem(getRuntimeHistoryKey(selectedProjectId));
   };
 
   const renderSources = (sources) => {
@@ -252,18 +308,98 @@ const ProjectQA = () => {
     );
   };
 
+  const renderQaSummary = (summary) => {
+    if (!summary) return null;
+
+    const topMatches = Array.isArray(summary.top_matches) ? summary.top_matches : [];
+    const confidence = summary.intent?.confidence_label || 'very_low';
+    const confidenceClass = ['high', 'medium'].includes(confidence) ? 'good' : confidence === 'low' ? 'warn' : 'bad';
+
+    return (
+      <div className="runtime-qa-summary">
+        <div className="runtime-qa-summary-head">
+          <div>
+            <span>Runtime QA 결과</span>
+            <strong>{summary.pack?.pack_id || '-'} v{summary.pack?.pack_version || '-'}</strong>
+          </div>
+          <span className={`runtime-confidence ${confidenceClass}`}>{confidence}</span>
+        </div>
+
+        <div className="runtime-qa-kpis">
+          <div><span>Top Intent</span><strong>{summary.intent?.intent_id || '-'}</strong><small>{summary.intent?.intent_name || summary.intent?.category || '-'}</small></div>
+          <div><span>Score</span><strong>{Number(summary.intent?.score || 0).toFixed(3)}</strong><small>문자열/토큰 매칭</small></div>
+          <div><span>Action</span><strong>{summary.action?.action_id || '-'}</strong><small>{summary.action?.card_type || '-'}</small></div>
+          <div><span>Evidence</span><strong>{summary.evidence?.source_count || 0}건</strong><small>FAQ {summary.evidence?.faq_count || 0} / 문서 {summary.evidence?.document_count || 0}</small></div>
+        </div>
+
+        {summary.action?.route && (
+          <div className="runtime-qa-route">
+            <span>화면 이동</span>
+            <code>{summary.action.route}</code>
+          </div>
+        )}
+
+        {topMatches.length > 0 && (
+          <div className="runtime-qa-match-list">
+            <div className="runtime-qa-section-title">Top-3 Intent 후보</div>
+            {topMatches.map((match, index) => (
+              <div className="runtime-qa-match-row" key={`${match.intent_id}-${index}`}>
+                <span className="rank">{index + 1}</span>
+                <div>
+                  <strong>{match.intent_id}</strong>
+                  <small>{match.intent_name || match.category || '-'} · {match.action_id || '-'}</small>
+                </div>
+                <b>{Number(match.score || 0).toFixed(3)}</b>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const starterQuestions = recommendedQuestions.length > 0 ? recommendedQuestions : DEFAULT_RUNTIME_QUESTIONS;
+  const lastAiMessage = [...chatHistory].reverse().find((message) => message.role === 'ai' && !message.isStreaming);
+  const lastQaSummary = lastAiMessage?.qaSummary || null;
+  const lastConfidence = lastQaSummary?.intent?.confidence_label || '-';
+  const lastEvidenceCount = lastQaSummary?.evidence
+    ? (lastQaSummary.evidence.source_count || 0) + (lastQaSummary.evidence.faq_count || 0)
+    : 0;
+
   return (
-    <div className="inner" style={{ height: 'calc(100vh - 60px)', display: 'flex', flexDirection: 'column' }}>
+    <div className="inner runtime-qa-page">
       {/* 헤더 영역 */}
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 700, margin: 0 }}>Intent Runtime 대화 테스트</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="runtime-qa-header">
+        <div>
+          <div className="runtime-qa-eyebrow">Runtime 테스트</div>
+          <h2>Intent Runtime 대화 테스트</h2>
+          <p>선택한 Pack 기준으로 Intent 매칭, Action 실행, FAQ/Source 근거를 함께 검증합니다.</p>
+        </div>
+        <div className="runtime-qa-controls">
+          <button
+            className="btn-secondary"
+            type="button"
+            onClick={() => navigate('/admin/packs/repository')}
+          >
+            <Archive size={16} />
+            Pack Repository
+          </button>
+          <button
+            className="btn-secondary"
+            type="button"
+            onClick={handleResetConversation}
+            disabled={chatHistory.length === 0}
+          >
+            <RotateCcw size={16} />
+            대화 초기화
+          </button>
           <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-sub)' }}>대상 프로젝트</span>
           <select 
             value={selectedProjectId} 
             onChange={(e) => setSelectedProjectId(e.target.value)} 
             style={{ ...FORM_INPUT, width: '200px' }}
           >
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map(p => (
               <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
             ))}
@@ -274,14 +410,53 @@ const ProjectQA = () => {
             onChange={(e) => setSelectedPackMode(e.target.value)}
             style={{ ...FORM_INPUT, width: '220px' }}
           >
-            <option value="file-pack">기본 파일 Pack v0.1.0</option>
+            <option value="runtime-resolver">Runtime Resolver 자동 선택</option>
+            <option value="active-pack" disabled={!activePack?.pack_id}>
+              {activePack?.pack_id ? `Active Pack: ${activePack.pack_id} v${activePack.pack_version}` : 'Active Pack 없음'}
+            </option>
             <option value="db-draft">DB Draft Pack 확인</option>
           </select>
         </div>
       </div>
 
+      {(!selectedProjectId || projectLoadError) && (
+        <div className="runtime-qa-project-warning">
+          {projectLoadError || '프로젝트를 선택하면 Runtime QA를 실행할 수 있습니다.'}
+        </div>
+      )}
+
+      <div className="runtime-qa-packbar">
+        <div>
+          <span>Active Pack</span>
+          <strong>
+            {activePack?.pack_id
+              ? `${activePack.pack_id} v${activePack.pack_version}`
+              : '활성화된 Runtime Pack 없음'}
+          </strong>
+          <small>
+            {activePack?.previous_pack_id
+              ? `이전 버전: ${activePack.previous_pack_id} v${activePack.previous_pack_version}`
+              : 'Pack Repository에서 Import 후 Activate할 수 있습니다.'}
+          </small>
+        </div>
+        <div>
+          <span>테스트 모드</span>
+          <strong>{getPackModeLabel(selectedPackMode)}</strong>
+          <small>
+            {selectedPackMode === 'runtime-resolver'
+              ? '요청 Pack을 지정하지 않고 서버가 Active Pack 또는 기본 Pack을 선택합니다.'
+              : 'Runtime은 검증된 파일 Pack 기준으로 실행됩니다.'}
+          </small>
+        </div>
+        <div>
+          <span>최근 진단</span>
+          <strong>{lastQaSummary?.intent?.intent_id || '대기 중'}</strong>
+          <small>Confidence {lastConfidence} · Evidence {lastEvidenceCount}건</small>
+        </div>
+      </div>
+
       {selectedPackMode === 'db-draft' && (
-        <div className="table-area" style={{ padding: '12px 18px', marginBottom: '12px', color: 'var(--color-text-sub)', fontSize: '13px' }}>
+        <div className="runtime-qa-notice">
           DB Draft Pack 선택됨:
           {' '}
           {packDraftSummary
@@ -290,32 +465,50 @@ const ProjectQA = () => {
         </div>
       )}
 
-      <div className="panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+      <div className="runtime-qa-diagnostics-grid">
+        <div className="runtime-qa-diagnostic-card">
+          <span>Pack 실행 기준</span>
+          <strong>{selectedPackMode === 'active-pack' && activePack?.pack_id ? activePack.pack_id : '서버 Resolver'}</strong>
+          <small>{selectedPackMode === 'active-pack' && activePack?.pack_version ? `v${activePack.pack_version}` : 'Active Pack 우선, 없으면 기본 파일 Pack'}</small>
+        </div>
+        <div className="runtime-qa-diagnostic-card">
+          <span>외부 LLM/API</span>
+          <strong>사용 안 함</strong>
+          <small>Intent 매칭과 Action 실행은 로컬 Pack 기준입니다.</small>
+        </div>
+        <div className="runtime-qa-diagnostic-card">
+          <span>최근 Intent</span>
+          <strong>{lastQaSummary?.intent?.intent_id || '-'}</strong>
+          <small>{lastQaSummary?.intent?.intent_name || '질문을 입력하면 Top Intent가 표시됩니다.'}</small>
+        </div>
+        <div className="runtime-qa-diagnostic-card">
+          <span>최근 Action</span>
+          <strong>{lastQaSummary?.action?.action_id || '-'}</strong>
+          <small>{lastQaSummary?.action?.card_type || 'Action Card 결과가 표시됩니다.'}</small>
+        </div>
+      </div>
+
+      <div className="panel runtime-qa-shell">
         
         {/* 채팅 내역 영역 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px', background: 'var(--color-bg-canvas)' }}>
+        <div className="runtime-qa-messages">
           {chatHistory.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--color-text-muted)' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🤖</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '8px' }}>Intent Runtime 테스트</h3>
-              <p style={{ fontSize: '14px' }}>선택한 프로젝트의 Intent Pack으로 작업 카드를 확인합니다.</p>
+            <div className="runtime-qa-empty">
+              <div className="runtime-qa-empty-icon"><ShieldCheck size={32} /></div>
+              <h3>Runtime QA를 시작하세요</h3>
+              <p>
+                질문을 입력하면 Intent 후보, Confidence, Action Card, FAQ/Source 근거가 한 번에 표시됩니다.
+                배포 전에는 Active Pack 또는 서버 Resolver 기준으로 실제 Runtime 동작을 확인합니다.
+              </p>
               
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginTop: '24px', maxWidth: '600px' }}>
-                {recommendedQuestions.map((q, idx) => (
+              <div className="runtime-qa-starter-list">
+                {starterQuestions.map((q, idx) => (
                   <div 
                     key={idx}
                     onClick={() => {
                       if (!isStreaming) handleSendMessage(q);
                     }}
-                    style={{
-                      background: 'var(--color-bg-elevated)', border: '1px solid var(--color-primary-glow)',
-                      padding: '10px 16px', borderRadius: '20px', fontSize: '13px', cursor: isStreaming ? 'not-allowed' : 'pointer',
-                      color: 'var(--color-primary)', transition: 'all 0.2s', opacity: isStreaming ? 0.55 : 1,
-                    }}
-                    onMouseOver={(e) => {
-                      if (!isStreaming) e.target.style.background = 'var(--color-primary-subtle)';
-                    }}
-                    onMouseOut={(e) => e.target.style.background = 'var(--color-bg-elevated)'}
+                    className={`runtime-qa-starter ${isStreaming ? 'disabled' : ''}`}
                   >
                     {q}
                   </div>
@@ -342,6 +535,7 @@ const ProjectQA = () => {
                   </div>
                   {msg.role === 'ai' && msg.actionCard && (
                     <div style={{ width: 'min(100%, 760px)', maxWidth: '760px', marginTop: '10px' }}>
+                      {renderQaSummary(msg.qaSummary)}
                       <ActionCard card={msg.actionCard} />
                       <IntentDiagnostics diagnostics={msg.diagnostics} matches={msg.matches} />
                     </div>
@@ -355,22 +549,22 @@ const ProjectQA = () => {
         </div>
 
         {/* 입력 영역 */}
-        <div style={{ padding: '20px 24px', borderTop: '1px solid var(--color-border)', background: 'var(--color-bg-elevated)' }}>
+        <div className="runtime-qa-inputbar">
           <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
             <textarea
               rows={2}
-              placeholder="프로젝트와 관련된 질문을 입력해주세요. (Enter: 전송, Shift+Enter: 줄바꿈)"
+              placeholder={selectedProjectId ? '프로젝트와 관련된 질문을 입력해주세요. (Enter: 전송, Shift+Enter: 줄바꿈)' : '프로젝트를 선택하면 Runtime QA 질문을 입력할 수 있습니다.'}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              disabled={isStreaming}
+              disabled={isStreaming || !selectedProjectId}
               style={{ ...FORM_INPUT, resize: 'none', height: 'auto', padding: '12px 16px', lineHeight: 1.5 }}
             />
             <button 
               className="btn-primary" 
               onClick={() => handleSendMessage()} 
-              disabled={isStreaming || !inputMessage.trim()}
-              style={{ height: '48px', padding: '0 24px', whiteSpace: 'nowrap', opacity: (isStreaming || !inputMessage.trim()) ? 0.6 : 1 }}
+              disabled={isStreaming || !inputMessage.trim() || !selectedProjectId}
+              style={{ height: '48px', padding: '0 24px', whiteSpace: 'nowrap', opacity: (isStreaming || !inputMessage.trim() || !selectedProjectId) ? 0.6 : 1 }}
             >
               전송
             </button>

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
 
@@ -10,14 +12,8 @@ router = APIRouter()
 
 
 def _default_pack_root() -> Path:
-    return (
-        Path(__file__).resolve().parents[3]
-        / "01.docs"
-        / "01.산출물_JBrain"
-        / "200.프로젝트실행"
-        / "250.구현"
-        / "intent-packs"
-    )
+    from app.services.pack_store_service import PACK_STORE_ROOT
+    return PACK_STORE_ROOT
 
 
 def get_pack_loader() -> IntentPackLoader:

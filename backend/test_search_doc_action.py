@@ -27,8 +27,13 @@ class SearchDocActionTest(unittest.TestCase):
 
         self.assertGreaterEqual(len(results), 1)
         self.assertEqual(results[0]["source_type"], "faq")
-        self.assertEqual(results[0]["source_id"], "FAQ-NZ-002")
+        self.assertEqual(results[0]["faq_id"], "FAQ-NZ-002")
         self.assertIn("Scope", results[0]["title"])
+        self.assertIn("Scope", results[0]["question"])
+        self.assertIn("Scope", results[0]["answer"])
+        self.assertIn("category", results[0])
+        self.assertIsInstance(results[0]["tags"], list)
+        self.assertIn("source_id", results[0])
         self.assertGreater(results[0]["score"], 0)
 
     def test_searches_emission_factor_question_from_approved_documents(self):

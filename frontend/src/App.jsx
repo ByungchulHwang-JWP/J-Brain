@@ -16,6 +16,11 @@ import IndexJobDetail from './pages/IndexJobDetail';
 import RetrievalTest from './pages/RetrievalTest';
 import ProjectQA from './pages/ProjectQA';
 import Dashboard from './pages/Dashboard';
+import WorkflowDashboard from './pages/WorkflowDashboard';
+import WorkflowEntry from './pages/workflow/WorkflowEntry';
+import ProjectSelectionDashboard from './pages/workflow/ProjectSelectionDashboard';
+import WorkflowDashboardV2 from './pages/workflow/WorkflowDashboardV2';
+import WorkflowStagePage from './pages/workflow/WorkflowStagePage';
 import Stats from './pages/Stats';
 import PromptList from './pages/PromptList';
 import LogList from './pages/LogList';
@@ -28,12 +33,14 @@ import EntityList from './pages/intent-factory/EntityList';
 import FaqList from './pages/intent-factory/FaqList';
 import ActionList from './pages/intent-factory/ActionList';
 import LlmAssist from './pages/intent-factory/LlmAssist';
+import CandidateReview from './pages/intent-factory/CandidateReview';
 import PackBuilder from './pages/packs/PackBuilder';
 import PackValidation from './pages/packs/PackValidation';
 import PackRepository from './pages/packs/PackRepository';
 import PackVersions from './pages/packs/PackVersions';
 import PackDeployment from './pages/packs/PackDeployment';
 import ActionTest from './pages/runtime/ActionTest';
+import IntentMatchTest from './pages/runtime/IntentMatchTest';
 import WidgetPreview from './pages/runtime/WidgetPreview';
 import RealtimeMonitoring from './pages/operations/RealtimeMonitoring';
 import UnansweredAnalysis from './pages/operations/UnansweredAnalysis';
@@ -63,6 +70,14 @@ const App = () => {
         
         {/* 대시보드 */}
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="workflow" element={<WorkflowEntry />} />
+        <Route path="workflow/projects" element={<ProjectSelectionDashboard />} />
+        <Route path="workflow/projects/:projectId" element={<WorkflowDashboardV2 />} />
+        <Route path="workflow/projects/:projectId/discovery/candidates" element={<CandidateReview />} />
+        <Route path="workflow/projects/:projectId/stages/:stageNo" element={<WorkflowStagePage />} />
+        <Route path="workflow/:projectId" element={<WorkflowDashboardV2 />} />
+        <Route path="workflow/:projectId/stages/:stageNo" element={<WorkflowStagePage />} />
+        <Route path="workflow/legacy" element={<WorkflowDashboard />} />
         <Route path="stats" element={<Stats />} />
         
         {/* 지식 관리 */}
@@ -102,6 +117,7 @@ const App = () => {
         <Route path="intent-factory/faqs" element={<FaqList />} />
         <Route path="intent-factory/actions" element={<ActionList />} />
         <Route path="intent-factory/llm-assist" element={<LlmAssist />} />
+        <Route path="intent-factory/candidates/:projectId" element={<CandidateReview />} />
 
         {/* Pack 제작/배포 */}
         <Route path="packs/builder" element={<PackBuilder />} />
@@ -112,7 +128,7 @@ const App = () => {
 
         {/* Runtime 테스트 */}
         <Route path="runtime/qa" element={<ProjectQA />} />
-        <Route path="runtime/intent-match" element={<RetrievalTest />} />
+        <Route path="runtime/intent-match" element={<IntentMatchTest />} />
         <Route path="runtime/action-test" element={<ActionTest />} />
         <Route path="runtime/widget-preview" element={<WidgetPreview />} />
 

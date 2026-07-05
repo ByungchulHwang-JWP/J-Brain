@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import IntentForm from '../../components/intent-factory/IntentForm';
 import IntentEntityConnector from '../../components/intent-factory/IntentEntityConnector';
 import useProjects from '../../hooks/useProjects';
-import { createIntent, getIntent, updateIntent } from '../../api/intentFactory';
+import { createIntent, getIntent, listActions, updateIntent } from '../../api/intentFactory';
 
 const emptyForm = {
   intent_id: '',
@@ -24,6 +25,11 @@ const emptyForm = {
   },
 };
 
+const generateIntentId = (projectId) => {
+  const normalizedProjectId = String(projectId || 'PROJECT').replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'PROJECT';
+  return `INT-${normalizedProjectId}-${Date.now().toString().slice(-6)}`;
+};
+
 const IntentDetail = ({ mode = 'edit' }) => {
   const navigate = useNavigate();
   const { intentId } = useParams();
@@ -31,7 +37,9 @@ const IntentDetail = ({ mode = 'edit' }) => {
   const { projects } = useProjects();
   const defaultProjectId = searchParams.get('project') || projects[0]?.id || 'J-Brain';
   const [projectId, setProjectId] = useState(defaultProjectId);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => (mode === 'new' ? { ...emptyForm, intent_id: generateIntentId(defaultProjectId) } : emptyForm));
+  const [actionOptions, setActionOptions] = useState([]);
+  const [sourceOptions, setSourceOptions] = useState([]);
   const [loading, setLoading] = useState(mode === 'edit');
   const [saving, setSaving] = useState(false);
 
@@ -61,16 +69,34 @@ const IntentDetail = ({ mode = 'edit' }) => {
     return () => { cancelled = true; };
   }, [mode, intentId, projectId]);
 
+  useEffect(() => {
+    if (!projectId) return;
+    listActions(projectId)
+      .then((data) => setActionOptions(data.items || []))
+      .catch((err) => {
+        console.error(err);
+        setActionOptions([]);
+      });
+    const token = localStorage.getItem('ai_access_token');
+    axios.get(`/api/v1/projects/${encodeURIComponent(projectId)}/sources`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((res) => setSourceOptions(res.data || []))
+      .catch((err) => {
+        console.error(err);
+        setSourceOptions([]);
+      });
+  }, [projectId]);
+
   const handleProjectChange = (nextProjectId) => {
     setProjectId(nextProjectId);
     setSearchParams({ project: nextProjectId }, { replace: true });
+    if (mode === 'new') {
+      setForm((prev) => ({ ...prev, intent_id: generateIntentId(nextProjectId) }));
+    }
   };
 
   const handleSave = async () => {
-    if (!form.intent_id?.trim() && mode === 'new') {
-      alert('Intent ID를 입력해 주세요.');
-      return;
-    }
     if (!form.intent_name?.trim()) {
       alert('Intent 이름을 입력해 주세요.');
       return;
@@ -121,7 +147,7 @@ const IntentDetail = ({ mode = 'edit' }) => {
         <div className="table-area" style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>
       ) : (
         <div style={{ display: 'grid', gap: '18px' }}>
-          <IntentForm form={form} setForm={setForm} mode={mode} />
+          <IntentForm form={form} setForm={setForm} mode={mode} actionOptions={actionOptions} sourceOptions={sourceOptions} />
           <IntentEntityConnector
             projectId={projectId}
             intentId={intentId || form.intent_id}

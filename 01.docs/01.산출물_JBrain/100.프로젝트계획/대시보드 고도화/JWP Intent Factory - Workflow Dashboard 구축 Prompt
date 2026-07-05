@@ -1,0 +1,828 @@
+ROLE
+
+You are a Principal Product Designer,
+Senior UX Architect,
+Enterprise Dashboard Specialist,
+AI Product Designer.
+
+Your mission is to design and implement the Home Dashboard of an Enterprise AI Intent Factory Platform.
+
+This dashboard is NOT an admin page.
+
+It is the central command center where operators build, validate, simulate and deploy Intent Packs.
+
+The quality must be comparable to
+
+Microsoft Azure Portal
+
+GitHub Enterprise
+
+Databricks
+
+Snowflake
+
+Atlassian Jira
+
+OpenAI Playground
+
+Linear
+
+Vercel Dashboard
+
+---------------------------------------------
+
+PRODUCT
+
+JWP Intent Factory
+
+---------------------------------------------
+
+MISSION
+
+Create an Enterprise Workflow Dashboard.
+
+The dashboard should guide the operator naturally through the complete lifecycle of an AI project.
+
+Project
+
+↓
+
+Knowledge
+
+↓
+
+Intent
+
+↓
+
+Entity
+
+↓
+
+FAQ
+
+↓
+
+Action
+
+↓
+
+Pack
+
+↓
+
+Simulation
+
+↓
+
+Deploy
+
+Operators should never wonder
+
+"What should I do next?"
+
+The system always tells them.
+
+---------------------------------------------
+
+DESIGN CONCEPT
+
+Workflow First
+
+AI First
+
+Command Center
+
+Productivity
+
+Enterprise SaaS
+
+Minimal
+
+Professional
+
+Modern
+
+---------------------------------------------
+
+LAYOUT
+
+1920 Desktop
+
+Header
+
+72px
+
+Sidebar
+
+280px
+
+Main
+
+Fluid
+
+Right AI Copilot
+
+420px
+
+---------------------------------------------
+
+HEADER
+
+Project Selector
+
+Environment
+
+DEV
+
+STG
+
+PROD
+
+Search
+
+Notification
+
+Recent Activity
+
+User Profile
+
+Project Status
+
+Draft
+
+Testing
+
+Ready
+
+Deploy
+
+---------------------------------------------
+
+HERO SECTION
+
+Large Project Overview Card
+
+Display
+
+Project Name
+
+Customer
+
+Service
+
+Pack Version
+
+Runtime Version
+
+Progress
+
+Quality Score
+
+Next Action
+
+Estimated Completion
+
+Current Phase
+
+---------------------------------------------
+
+KPI SECTION
+
+Responsive Card Grid
+
+Intent
+
+Entity
+
+Synonym
+
+FAQ
+
+Source
+
+Action
+
+Pack
+
+Simulation
+
+Deploy
+
+Each Card displays
+
+Count
+
+Growth
+
+Progress
+
+Health
+
+Status
+
+Quick Action
+
+---------------------------------------------
+
+AI COPILOT
+
+Always visible.
+
+Pinned to the right.
+
+AI continuously analyzes the project.
+
+Example
+
+Current Pack Quality
+
+92
+
+Missing Entities
+
+3
+
+Recommended Intents
+
+6
+
+Recommended Questions
+
+18
+
+Unlinked FAQ
+
+5
+
+Unknown Questions
+
+9
+
+Possible Build
+
+YES
+
+Buttons
+
+Generate
+
+Analyze
+
+Optimize
+
+Build
+
+---------------------------------------------
+
+WORKFLOW CANVAS
+
+This is the most important section.
+
+DO NOT create a simple Stepper.
+
+Create an Enterprise Workflow Canvas.
+
+Cards connected with arrows.
+
+Project
+
+↓
+
+Knowledge
+
+↓
+
+Intent
+
+↓
+
+Entity
+
+↓
+
+FAQ
+
+↓
+
+Action
+
+↓
+
+Pack Builder
+
+↓
+
+Simulation
+
+↓
+
+Deploy
+
+Each card contains
+
+Progress
+
+Owner
+
+Status
+
+Tasks
+
+AI Recommendation
+
+Errors
+
+Warnings
+
+Last Update
+
+CTA Button
+
+---------------------------------------------
+
+PROJECT CARD
+
+Project Information
+
+Customer
+
+Service
+
+Version
+
+Manager
+
+Runtime
+
+Current Phase
+
+Buttons
+
+Open
+
+Settings
+
+---------------------------------------------
+
+KNOWLEDGE CARD
+
+Upload
+
+PDF
+
+DOCX
+
+PPT
+
+Excel
+
+FAQ
+
+DB
+
+API
+
+Status
+
+OCR
+
+Chunking
+
+Embedding
+
+Vector
+
+Indexing
+
+Progress
+
+---------------------------------------------
+
+INTENT CARD
+
+Intent Count
+
+Recommended Intent
+
+Draft
+
+Approved
+
+Rejected
+
+Unknown
+
+AI Confidence
+
+Buttons
+
+Generate Intent
+
+Review Intent
+
+---------------------------------------------
+
+ENTITY CARD
+
+Entity Count
+
+Synonym Count
+
+Attribute Count
+
+Duplicate Entity
+
+Unused Entity
+
+Entity Quality
+
+Buttons
+
+Review
+
+Merge
+
+Generate
+
+---------------------------------------------
+
+FAQ CARD
+
+FAQ Count
+
+Coverage
+
+Recommended FAQ
+
+Unlinked FAQ
+
+Search Quality
+
+Buttons
+
+Review
+
+Generate
+
+---------------------------------------------
+
+ACTION CARD
+
+Navigate
+
+API
+
+SQL
+
+Workflow
+
+Search
+
+Connected
+
+Disconnected
+
+Error Count
+
+---------------------------------------------
+
+PACK BUILDER
+
+Build Status
+
+Manifest
+
+Checksum
+
+Signature
+
+Encryption
+
+Package Size
+
+Version
+
+History
+
+Buttons
+
+Validate
+
+Build
+
+---------------------------------------------
+
+RUNTIME SIMULATION
+
+Pipeline Visualization
+
+Question
+
+↓
+
+Preprocessor
+
+↓
+
+Intent Matching
+
+↓
+
+Entity Extraction
+
+↓
+
+Action Routing
+
+↓
+
+API
+
+↓
+
+Response
+
+Display
+
+Confidence
+
+Latency
+
+Token
+
+Execution Time
+
+Response
+
+Buttons
+
+Run
+
+Replay
+
+Debug
+
+---------------------------------------------
+
+DEPLOY CENTER
+
+Current Version
+
+Deploy Target
+
+History
+
+Rollback
+
+Approval Status
+
+Environment
+
+Buttons
+
+Deploy
+
+Rollback
+
+---------------------------------------------
+
+QUALITY CENTER
+
+Pack Quality Score
+
+Intent Quality
+
+Entity Quality
+
+FAQ Quality
+
+Action Quality
+
+Simulation Quality
+
+Display
+
+Radar Chart
+
+Trend
+
+Warnings
+
+Suggestions
+
+---------------------------------------------
+
+UNKNOWN QUESTION CENTER
+
+Collected Questions
+
+AI Recommended Intent
+
+Similarity
+
+Confidence
+
+Buttons
+
+Create Intent
+
+Ignore
+
+Merge
+
+---------------------------------------------
+
+RECENT ACTIVITY
+
+Timeline
+
+Intent Created
+
+Entity Updated
+
+FAQ Modified
+
+Build
+
+Deploy
+
+Import
+
+Simulation
+
+---------------------------------------------
+
+NOTIFICATION CENTER
+
+Warnings
+
+Errors
+
+Approval Requests
+
+Build Complete
+
+Deploy Complete
+
+---------------------------------------------
+
+SEARCH
+
+Global Search
+
+Intent
+
+Entity
+
+FAQ
+
+Project
+
+Action
+
+Pack
+
+---------------------------------------------
+
+DESIGN STYLE
+
+Microsoft Fluent
+
+Azure Portal
+
+GitHub Enterprise
+
+Linear
+
+OpenAI Playground
+
+Glass Effect
+
+Minimal
+
+Rounded Card
+
+12px Radius
+
+Soft Shadow
+
+Smooth Animation
+
+Micro Interaction
+
+---------------------------------------------
+
+ANIMATION
+
+Workflow Progress
+
+Build Animation
+
+Deploy Animation
+
+Card Hover
+
+Skeleton Loading
+
+Panel Slide
+
+---------------------------------------------
+
+TECH
+
+React 19
+
+TypeScript
+
+TailwindCSS
+
+Shadcn UI
+
+React Flow
+
+Framer Motion
+
+Lucide Icons
+
+TanStack Table
+
+React Query
+
+Zustand
+
+Recharts
+
+---------------------------------------------
+
+OUTPUT
+
+Generate
+
+Full React Page
+
+Component Structure
+
+Folder Structure
+
+Responsive Layout
+
+Mock Data
+
+Animations
+
+Theme Support
+
+Dark Mode
+
+Accessibility
+
+Code Comments
+
+---------------------------------------------
+
+IMPORTANT
+
+This dashboard is NOT a management page.
+
+This is the central operating system of an AI Intent Factory.
+
+The user should feel like they are operating GitHub Copilot Enterprise or Microsoft Azure AI Studio.
+
+Every section must encourage operators toward the next workflow automatically.
+
+
+
+AI WORKFLOW ORCHESTRATOR
+
+The dashboard should behave like an intelligent project manager.
+
+After every completed task,
+AI automatically recommends the next best action.
+
+Examples:
+
+Knowledge uploaded
+→ Generate Intent
+
+Intent approved
+→ Generate Entity
+
+Entity approved
+→ Generate Synonyms
+
+FAQ linked
+→ Validate Pack
+
+Pack validated
+→ Run Runtime Simulation
+
+Simulation passed
+→ Build Pack
+
+Build completed
+→ Deploy Pack
+
+Never leave the user without a recommended next action.
+
+Always display a single prominent "Next Recommended Action" button at the top of the dashboard.

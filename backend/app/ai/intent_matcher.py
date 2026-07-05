@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 from difflib import SequenceMatcher
@@ -33,7 +35,8 @@ class IntentMatcher:
 
             best_examples = []
             for example in examples:
-                example_text = self._normalize(example["text"])
+                raw_example_text = self._example_text(example)
+                example_text = self._normalize(raw_example_text)
                 score = self._score_example(
                     normalized_question,
                     question_tokens,
@@ -45,8 +48,8 @@ class IntentMatcher:
                 )
                 best_examples.append(
                     {
-                        "example_id": example["example_id"],
-                        "text": example["text"],
+                        "example_id": example.get("example_id"),
+                        "text": raw_example_text,
                         "score": round(score, 4),
                     }
                 )
@@ -82,6 +85,9 @@ class IntentMatcher:
         for example in self.pack.nlu["intent_examples"]:
             grouped[example["intent_id"]].append(example)
         return dict(grouped)
+
+    def _example_text(self, example: dict[str, Any]) -> str:
+        return example.get("text") or example.get("example") or example.get("example_text") or ""
 
     def _score_example(
         self,

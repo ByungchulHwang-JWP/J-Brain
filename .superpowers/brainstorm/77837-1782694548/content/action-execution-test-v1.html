@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Action 실행 테스트 Mock v1</title>
+  <style>
+    :root{--bg:#f4f7fb;--panel:#fff;--line:#d9e2ef;--text:#142033;--muted:#667085;--navy:#08265a;--blue:#0b5cff;--green:#168a55;--amber:#b7791f;--red:#d92d20;--violet:#6941c6;--soft-blue:#eaf2ff;--soft-green:#e9f8f0;--soft-amber:#fff6df;--soft-red:#fff1f0;--soft-violet:#f1edff;--shadow:0 16px 40px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{max-width:1760px;margin:0 auto;padding:32px}.shell{display:grid;grid-template-columns:268px 1fr;gap:24px;min-height:calc(100vh - 64px)}.side{background:#0f172a;color:#fff;border-radius:18px;padding:22px 18px;box-shadow:var(--shadow)}.brand{font-size:20px;font-weight:950;margin-bottom:28px}.menu-title{color:#98a2b3;font-size:12px;font-weight:900;margin:22px 0 10px}.menu-item{padding:11px 14px;border-radius:12px;color:#cbd5e1;font-size:14px;font-weight:760;margin-bottom:4px}.menu-item.done{color:#bbf7d0}.menu-item.active{background:#1d4ed8;color:#fff}.menu-item.sub{padding-left:26px;font-size:13px;color:#aebaca}.main{display:flex;flex-direction:column;gap:18px}.topbar,.panel,.hero,.card,.action-bar{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding:18px 22px}.breadcrumb{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:6px}h1{font-size:30px;line-height:1.18;margin:0}.subtitle{margin:7px 0 0;color:var(--muted);font-size:14px;line-height:1.6}.stage-chip,.pill{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}.stage-chip{padding:8px 12px;background:var(--soft-blue);color:var(--navy)}.pill{height:28px;padding:0 10px}.pill.blue{background:var(--soft-blue);color:var(--navy)}.pill.green{background:var(--soft-green);color:var(--green)}.pill.amber{background:var(--soft-amber);color:var(--amber)}.pill.red{background:var(--soft-red);color:var(--red)}.pill.violet{background:var(--soft-violet);color:var(--violet)}.hero{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;padding:24px;background:linear-gradient(135deg,#08265a 0%,#165b80 54%,#167a69 100%);color:#fff}.hero h2{margin:8px 0 8px;font-size:26px}.hero p{margin:0;color:#dbeafe;font-size:14px;line-height:1.7}.hero-side{display:grid;gap:10px}.hero-metric{padding:14px;border:1px solid rgba(255,255,255,.22);border-radius:14px;background:rgba(255,255,255,.1)}.hero-metric span{display:block;color:#bfdbfe;font-size:12px;font-weight:900;margin-bottom:6px}.hero-metric strong{font-size:22px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px}.filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap}input,select,textarea{width:100%;border:1px solid #d6deeb;border-radius:12px;padding:12px 13px;font-size:14px;outline:none;background:#fff;color:#111827}select{min-width:170px}.search{min-width:280px}.content{display:grid;grid-template-columns:360px minmax(0,1fr) 380px;gap:18px;align-items:start}.card{overflow:hidden}.card-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:18px 20px;border-bottom:1px solid #e8edf5}.card-title{font-size:18px;font-weight:950}.card-desc{margin-top:5px;color:var(--muted);font-size:13px;line-height:1.5}.action-list{display:grid}.action-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:15px 18px;border:0;border-bottom:1px solid #eef2f7;background:#fff;text-align:left;cursor:pointer}.action-row.active,.action-row:hover{background:#f4f8ff}.action-row strong{display:block;color:#111827;font-size:14px;margin-bottom:5px}.action-row small{display:block;color:#667085;font-size:12px;line-height:1.45}.body{padding:20px;display:grid;gap:16px}.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi{border:1px solid #e4e9f2;border-radius:14px;background:#f8fafc;padding:13px}.kpi span{display:block;color:#667085;font-size:12px;font-weight:900;margin-bottom:7px}.kpi strong{display:block;color:var(--navy);font-size:20px;font-weight:950}.test-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.subcard{border:1px solid #e4e9f2;border-radius:16px;background:#fff;overflow:hidden}.subhead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:15px 17px;border-bottom:1px solid #edf1f7}.subhead strong{font-size:16px}.form{padding:17px;display:grid;gap:13px}.field{display:grid;gap:8px}.field label{font-size:13px;color:#344054;font-weight:900}.hint{color:#667085;font-size:12px;line-height:1.45}.param-table{display:grid;gap:8px}.param-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center}.result-box{display:grid;gap:12px;padding:17px}.result-summary{border:1px solid #b7e4c7;background:#f7fffa;border-radius:14px;padding:14px;color:#24543c;font-size:13px;line-height:1.65}.result-summary.warn{border-color:#f2c673;background:#fffaf0;color:#7a4d00}.json-box{background:#111827;color:#d1d5db;border-radius:14px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;overflow:auto;max-height:260px}.diag-list{display:grid;gap:10px}.diag{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px;border:1px solid #e7edf6;border-radius:12px;background:#f8fafc;font-size:13px}.dot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:950}.dot.done{background:#d1fadf;color:var(--green)}.dot.todo{background:#fff1c2;color:var(--amber)}.dot.fail{background:#fee4e2;color:var(--red)}.side-stack{display:grid;gap:14px}.panel{padding:18px}.panel h3{margin:0 0 12px;font-size:16px;font-weight:950}.link-card{display:grid;gap:10px}.linked-intent{padding:12px;border:1px solid #e7edf6;border-radius:12px;background:#f8fafc}.linked-intent strong{display:block;font-size:13px;margin-bottom:4px}.linked-intent small{color:#667085;line-height:1.45}.history-table{width:100%;border-collapse:collapse;font-size:13px}.history-table th,.history-table td{padding:11px 12px;border-bottom:1px solid #eef2f7;text-align:left;vertical-align:top}.history-table th{color:#667085;background:#f8fafc;font-size:12px}.action-bar{position:sticky;bottom:16px;z-index:2;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:16px}.bar-note{font-size:13px;color:var(--muted);line-height:1.45}.buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}button{border:1px solid #cfd8e6;background:#fff;color:#10213f;min-height:42px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:900;white-space:nowrap}button.primary{background:var(--navy);border-color:var(--navy);color:#fff}button.success{background:var(--green);border-color:var(--green);color:#fff}button.danger{background:#fff;border-color:#fecdca;color:var(--red)}button.disabled{color:#98a2b3;background:#f2f4f7}.note{background:#111827;color:#fff;border-radius:18px;padding:22px;line-height:1.7;box-shadow:var(--shadow)}
+    @media(max-width:1400px){.content{grid-template-columns:320px 1fr}.side-stack{grid-column:1 / -1;grid-template-columns:repeat(3,1fr)}}@media(max-width:1180px){.shell{grid-template-columns:1fr}.side{display:none}.content,.hero,.test-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.side-stack{grid-template-columns:1fr}}@media(max-width:720px){.page{padding:16px}.topbar,.toolbar,.action-bar{align-items:flex-start;flex-direction:column}.filters,.buttons{width:100%;justify-content:stretch}.kpi-grid,.param-row{grid-template-columns:1fr}button{flex:1}.search{min-width:0}}
+  </style>
+</head>
+<body>
+  <div class="page"><div class="shell">
+    <aside class="side">
+      <div class="brand">JWINPARTNERS</div>
+      <div class="menu-title">구축 워크플로우</div>
+      <div class="menu-item done">1. 기반 설정</div><div class="menu-item done">2. 지식 준비</div><div class="menu-item done">3. 의도 설계</div><div class="menu-item done">4. 질문 커버리지</div><div class="menu-item done">5. 용어 사전</div><div class="menu-item done">6. 답변 근거</div><div class="menu-item active">7. 실행 연결</div><div class="menu-item">8. Pack 품질검증</div>
+      <div class="menu-title">관리 기능</div>
+      <div class="menu-item">Intent 관리</div><div class="menu-item">Entity/Synonym 관리</div><div class="menu-item">FAQ 관리</div><div class="menu-item">Action 관리</div><div class="menu-item">Pack Builder</div><div class="menu-item">Pack Repository</div>
+      <div class="menu-title">운영/분석</div>
+      <div class="menu-item">챗봇 대화 테스트</div><div class="menu-item">Intent 매칭 테스트</div><div class="menu-item active">Action 실행 테스트</div><div class="menu-item">미응답 분석</div>
+    </aside>
+
+    <main class="main">
+      <section class="topbar">
+        <div>
+          <div class="breadcrumb">Runtime 테스트 &gt; Action 실행 테스트</div>
+          <h1>Action 실행 테스트</h1>
+          <p class="subtitle">Intent와 분리해서 Action 자체가 실행 가능한지 확인합니다. 화면 이동, 문서 검색, 정형 조회, 안내 Action을 화이트리스트 기준으로 검증합니다.</p>
+        </div>
+        <div class="stage-chip">7단계 실행 연결 검증 화면</div>
+      </section>
+
+      <section class="hero">
+        <div>
+          <span class="pill blue">Action Whitelist Runtime</span>
+          <h2>등록된 Action을 선택하고 단독 실행 테스트</h2>
+          <p>자연어 질문 전체 흐름은 Runtime QA에서 확인하고, 이 화면에서는 Action 정의 자체의 route, 검색 범위, 파라미터, 권한, 반환 카드가 정상인지 집중 검증합니다.</p>
+        </div>
+        <div class="hero-side">
+          <div class="hero-metric"><span>등록 Action</span><strong>17건</strong></div>
+          <div class="hero-metric"><span>오늘 실행 테스트</span><strong>24회</strong></div>
+        </div>
+      </section>
+
+      <section class="panel toolbar">
+        <div class="filters">
+          <select><option>J-Brain 프로젝트</option><option>탄소중립 플랫폼</option></select>
+          <select><option>Active Pack v0.1.0</option><option>Draft Pack v0.2</option></select>
+          <select><option>전체 Action 유형</option><option>NAVIGATE</option><option>SEARCH_DOC</option><option>QUERY</option><option>GUIDE</option></select>
+          <input class="search" value="Pack Export" />
+        </div>
+        <button class="primary">Action 목록 새로고침</button>
+      </section>
+
+      <section class="content">
+        <section class="card">
+          <div class="card-head">
+            <div><div class="card-title">Action 목록</div><div class="card-desc">실행할 Action을 선택합니다. 연결 Intent 수와 최근 테스트 상태를 함께 확인합니다.</div></div>
+            <span class="pill green">17건</span>
+          </div>
+          <div class="action-list">
+            <button class="action-row active"><div><strong>ACT-NZ-SEARCH-SCOPE-GUIDE</strong><small>Scope 기준 문서 검색 · SEARCH_DOC · 연결 Intent 1건</small></div><span class="pill green">Pass</span></button>
+            <button class="action-row"><div><strong>ACT-JB-GO-DASHBOARD</strong><small>운영 현황 화면 이동 · NAVIGATE · 연결 Intent 1건</small></div><span class="pill green">Pass</span></button>
+            <button class="action-row"><div><strong>ACT-NZ-QUERY-EMISSION</strong><small>탄소 배출량 조회 Mock · QUERY · 연결 Intent 1건</small></div><span class="pill amber">검토</span></button>
+            <button class="action-row"><div><strong>ACT-NZ-GUIDE-PERMISSION-ERROR</strong><small>권한 오류 안내 · GUIDE · 연결 Intent 1건</small></div><span class="pill blue">Ready</span></button>
+            <button class="action-row"><div><strong>ACT-JB-GO-PACK-VALIDATION</strong><small>Pack 검증 화면 이동 · NAVIGATE · 연결 Intent 1건</small></div><span class="pill green">Pass</span></button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div><div class="card-title">선택 Action 실행 설정</div><div class="card-desc">Action 유형에 맞춰 입력값을 설정하고 단독 실행합니다.</div></div>
+            <span class="pill blue">SEARCH_DOC</span>
+          </div>
+          <div class="body">
+            <div class="kpi-grid">
+              <div class="kpi"><span>Action 유형</span><strong>SEARCH_DOC</strong></div>
+              <div class="kpi"><span>실행 모드</span><strong>local</strong></div>
+              <div class="kpi"><span>권한</span><strong>ROLE_ADMIN</strong></div>
+              <div class="kpi"><span>연결 Intent</span><strong>1건</strong></div>
+            </div>
+
+            <div class="test-grid">
+              <div class="subcard">
+                <div class="subhead"><strong>입력 파라미터</strong><span class="pill amber">테스트값</span></div>
+                <div class="form">
+                  <div class="field"><label>테스트 질문</label><input value="Scope 1 기준 알려줘" /><div class="hint">SEARCH_DOC Action은 테스트 질문을 검색 질의로 사용합니다.</div></div>
+                  <div class="field"><label>검색 범위</label><select><option>FAQ + 승인 Source</option><option>FAQ만</option><option>Source만</option></select></div>
+                  <div class="field"><label>Top-K / Score Threshold</label><div class="param-row"><input value="5" /><input value="0.65" /><span class="pill blue">기본</span></div></div>
+                  <div class="field"><label>Action 파라미터</label><div class="param-table"><div class="param-row"><input value="project_id" /><input value="J-Brain" /><span class="pill green">필수</span></div><div class="param-row"><input value="source_status" /><input value="completed" /><span class="pill blue">기본</span></div></div></div>
+                  <button class="primary">선택 Action 실행</button>
+                </div>
+              </div>
+
+              <div class="subcard">
+                <div class="subhead"><strong>실행 결과</strong><span class="pill green">Success</span></div>
+                <div class="result-box">
+                  <div class="result-summary">
+                    <strong>실행 성공</strong><br />
+                    FAQ 1건, Source 2건이 검색되었습니다. 응답 카드 유형은 `document_card`이며 Runtime QA에서 동일 Action으로 재현 가능합니다.
+                  </div>
+                  <div class="diag-list">
+                    <div class="diag"><span class="dot done">✓</span><span>Action 정의 존재</span><span class="pill green">OK</span></div>
+                    <div class="diag"><span class="dot done">✓</span><span>검색 Scope 유효</span><span class="pill green">OK</span></div>
+                    <div class="diag"><span class="dot done">✓</span><span>반환 카드 생성</span><span class="pill green">document_card</span></div>
+                    <div class="diag"><span class="dot todo">!</span><span>운영 답변 문구 검토</span><span class="pill amber">선택</span></div>
+                  </div>
+                  <pre class="json-box">{
+  "action_id": "ACT-NZ-SEARCH-SCOPE-GUIDE",
+  "type": "document_card",
+  "status": "ready",
+  "query": "Scope 1 기준 알려줘",
+  "source_summary": {
+    "faq_count": 1,
+    "document_count": 2
+  },
+  "top_score": 0.91
+}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-stack">
+          <section class="panel">
+            <h3>연결 Intent</h3>
+            <div class="link-card">
+              <div class="linked-intent"><strong>INT-NZ-DOC-002</strong><small>Scope 1/2/3 기준 안내 · 기대 Action: ACT-NZ-SEARCH-SCOPE-GUIDE</small></div>
+              <div class="diag"><span class="dot done">✓</span><span>Intent 연결 정상</span><span class="pill green">1건</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h3>Action 유형별 확인 항목</h3>
+            <div class="diag-list">
+              <div class="diag"><span class="dot info">N</span><span>NAVIGATE: route 존재 여부</span><span class="pill blue">화면</span></div>
+              <div class="diag"><span class="dot info">S</span><span>SEARCH_DOC: FAQ/Source 범위</span><span class="pill blue">검색</span></div>
+              <div class="diag"><span class="dot info">Q</span><span>QUERY: 파라미터/템플릿</span><span class="pill blue">조회</span></div>
+              <div class="diag"><span class="dot info">G</span><span>GUIDE: 안내 문구</span><span class="pill blue">응답</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h3>최근 실행 이력</h3>
+            <table class="history-table">
+              <thead><tr><th>시간</th><th>Action</th><th>결과</th></tr></thead>
+              <tbody>
+                <tr><td>10:18</td><td>SEARCH_SCOPE</td><td><span class="pill green">Pass</span></td></tr>
+                <tr><td>10:12</td><td>QUERY_EMISSION</td><td><span class="pill amber">Review</span></td></tr>
+                <tr><td>09:58</td><td>GO_DASHBOARD</td><td><span class="pill green">Pass</span></td></tr>
+              </tbody>
+            </table>
+          </section>
+        </aside>
+      </section>
+
+      <section class="action-bar">
+        <div class="bar-note">Action 단독 실행 결과가 통과하면 7단계 실행 연결 완료 조건에 반영하고, 8단계 Pack 품질검증에서 질문 기준으로 재검증합니다.</div>
+        <div class="buttons">
+          <button>결과 초기화</button>
+          <button>Runtime QA로 보내기</button>
+          <button class="primary">실행 결과 저장</button>
+          <button class="success">Pack 검증 단계로 이동</button>
+        </div>
+      </section>
+
+      <section class="note">
+        <strong>Action 실행 테스트 화면 설계 요약</strong><br />
+        이 화면은 자연어 질문 전체 테스트가 아니라 `Action 정의 자체`를 검증하는 화면입니다. 운영자는 Action을 선택하고 유형별 필수 입력값을 넣어 단독 실행한 뒤, 반환 카드/route/검색 근거/파라미터/권한/실행 이력을 확인합니다.
+      </section>
+    </main>
+  </div></div>
+</body>
+</html>
