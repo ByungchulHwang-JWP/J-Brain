@@ -50,6 +50,38 @@ const WorkflowStepper = ({
                 <div className="topology-branch-group" aria-label="하위 작업 분기">
                   <div className="topology-trunk" />
                   <div className="topology-sub-nodes">
+                    {/* 활성화된 노드가 있을 경우, 트렁크(중앙)에서 해당 노드까지만 파란색 수평선을 덮어씌움 */}
+                    {subtasks.findIndex(c => c.subtask?.stage === activeSubtaskStage) !== -1 && (
+                      (() => {
+                        const activeIdx = subtasks.findIndex(c => c.subtask?.stage === activeSubtaskStage);
+                        const nodeWidth = 115;
+                        const gap = 16;
+                        // 해당 노드의 중앙 위치 (왼쪽에서부터 픽셀 기준)
+                        const nodeCenterPx = activeIdx * (nodeWidth + gap) + (nodeWidth / 2);
+                        // 전체 컨테이너 너비
+                        const totalWidthPx = subtasks.length * nodeWidth + (subtasks.length - 1) * gap;
+                        // 중앙 트렁크 위치
+                        const trunkCenterPx = totalWidthPx / 2;
+                        
+                        // 중앙 노드인 경우 (예: 홀수 개의 정중앙) 수평선 불필요
+                        if (Math.abs(nodeCenterPx - trunkCenterPx) < 1) return null;
+
+                        const isLeft = nodeCenterPx < trunkCenterPx;
+                        const leftPx = isLeft ? nodeCenterPx : trunkCenterPx;
+                        const widthPx = Math.abs(trunkCenterPx - nodeCenterPx);
+
+                        return (
+                          <div
+                            className="topology-active-horizontal-overlay"
+                            style={{
+                              left: `${leftPx}px`,
+                              width: `${widthPx}px`
+                            }}
+                          />
+                        );
+                      })()
+                    )}
+
                     {subtasks.map((child) => {
                       const sub = child.subtask || {};
                       const isActive = Number(child.stage) === Number(activeSubtaskStage);

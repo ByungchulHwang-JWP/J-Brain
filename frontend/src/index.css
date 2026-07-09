@@ -5385,8 +5385,9 @@ input::placeholder { color: var(--color-input-placeholder); }
 .topology-trunk {
   width: 1.5px;
   height: 16px;
-  background: var(--color-border-strong, #cbd5e1);
+  background: var(--color-success);
   flex-shrink: 0;
+  opacity: 0.85;
 }
 
 /* ── 서브 노드 컨테이너 ── */
@@ -5399,7 +5400,7 @@ input::placeholder { color: var(--color-input-placeholder); }
   margin-top: 0;
 }
 
-/* ── 수평 가지 (전체 서브 노드를 잇는 가로선) ── */
+/* ── 수평 가지 (전체 서브 노드를 잇는 가로선 기본 녹색) ── */
 .topology-sub-nodes::before {
   content: '';
   position: absolute;
@@ -5408,8 +5409,20 @@ input::placeholder { color: var(--color-input-placeholder); }
   left: 57.5px;
   right: 57.5px;
   height: 1.5px;
-  background: var(--color-border-strong, #cbd5e1);
+  background: var(--color-success);
+  opacity: 0.85;
   border-radius: 1px;
+}
+
+/* ── 활성화된 서브 노드로 향하는 파란색 수평선 오버레이 ── */
+.topology-active-horizontal-overlay {
+  position: absolute;
+  top: 0;
+  height: 1.5px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  z-index: 2;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
 }
 
 /* 분기 노드가 없을 때는 padding-bottom 제거 */
@@ -5443,8 +5456,9 @@ input::placeholder { color: var(--color-input-placeholder); }
   left: 50%;
   width: 1.5px;
   height: 16px;
-  background: var(--color-border-strong, #cbd5e1);
+  background: var(--color-success);
   transform: translateX(-50%);
+  opacity: 0.85;
   transition: background 0.3s ease, width 0.3s ease;
 }
 
@@ -5453,12 +5467,11 @@ input::placeholder { color: var(--color-input-placeholder); }
   background: var(--color-primary);
 }
 
-/* ── 서브 노드 활성화 시 전체 연결선(회로) 강조 효과 ── */
-/* 서브 노드 중 하나라도 active 상태이면 수직 줄기와 수평선을 함께 강조 */
-.topology-branch-group:has(.topology-sub-node.active) .topology-trunk,
-.topology-branch-group:has(.topology-sub-node.active) .topology-sub-nodes::before {
+/* ── 서브 노드 활성화 시 연결선(회로) 강조 효과 ── */
+/* 서브 노드 중 하나라도 active 상태이면 수직 줄기(Trunk)를 파란색으로 강조 (수평선은 오버레이가 담당) */
+.topology-branch-group:has(.topology-sub-node.active) .topology-trunk {
   background: var(--color-primary);
-  opacity: 0.9;
+  opacity: 1;
 }
 
 /* 현재 선택된 메인 Phase 노드(active-view) 외곽선 강조 (High-end 은은한 글로우) */
