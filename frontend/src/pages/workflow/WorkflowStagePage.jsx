@@ -170,6 +170,9 @@ const WorkflowStagePage = () => {
           <WorkflowStepper
             stages={phases}
             currentStage={selectedPhaseNo}
+            subtasks={subtaskItems}
+            activeSubtaskStage={visibleLegacyStageNo}
+            onSubtaskClick={(child) => setActiveLegacyStageNo(Number(child.stage))}
             onStageClick={(item) => goStage(item.stage)}
             onPrev={() => goStage(Math.max(1, selectedPhaseNo - 1))}
             onNext={() => goStage(Math.min(6, selectedPhaseNo + 1))}
@@ -180,7 +183,7 @@ const WorkflowStagePage = () => {
       </div>
 
       {subtaskItems.length > 1 && (
-        <div className="workflow-subtask-nav" role="tablist" aria-label={`${phase.name} 하위 작업`}>
+        <div className="workflow-subtask-nav topology-hidden" role="tablist" aria-label={`${phase.name} 하위 작업`}>
           <div className="workflow-subtask-nav-head">
             <span>하위 작업</span>
             <strong>{phase.name} 단계에서 처리할 작업을 순서대로 확인합니다.</strong>

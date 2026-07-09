@@ -5342,6 +5342,184 @@ input::placeholder { color: var(--color-input-placeholder); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   ◆ TOPOLOGY BRANCH - Sub-task Nodes (방안 A)
+   활성 Phase 노드 아래로 하위 작업 분기 트리를 렌더링합니다.
+═══════════════════════════════════════════════════════════════ */
+
+/* 기본 노드 wrapper: display:contents로 기존 flex 흐름 유지 */
+.topology-node-wrapper {
+  display: contents;
+}
+/* 분기가 있는 노드: column flex로 전환하여 아래에 트리 공간 확보 */
+.topology-node-wrapper.has-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* topology-mode Stepper: 분기 공간 확보를 위해 overflow visible */
+.workflow-stepper.topology-mode {
+  overflow: visible;
+  position: relative;
+}
+
+/* ── 수직 줄기 (메인 노드 → 가지) ── */
+.topology-trunk {
+  width: 2px;
+  height: 20px;
+  background: var(--color-success);
+  flex-shrink: 0;
+}
+
+/* ── 수평 가지 (서브 노드를 잇는 가로선) ── */
+.topology-spread-bar {
+  /* 하위 노드 수에 따라 너비 조정: 2개=200px, 3개=300px */
+  width: calc(var(--branch-count, 3) * 110px);
+  max-width: 360px;
+  height: 2px;
+  background: var(--color-success);
+  flex-shrink: 0;
+}
+
+/* ── 서브 노드 컨테이너 ── */
+.topology-sub-nodes {
+  display: flex;
+  justify-content: space-between;
+  width: calc(var(--branch-count, 3) * 120px);
+  max-width: 400px;
+  margin-top: 16px;
+  position: relative;
+}
+
+/* ── 서브 노드 개별 카드 ── */
+.topology-sub-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 115px;
+  padding: 10px 8px;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  font-family: inherit;
+  text-align: center;
+}
+
+/* 서브 노드 → 가지 연결 수직선 (::before) */
+.topology-sub-node::before {
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 16px;
+  background: var(--color-success);
+}
+
+/* 서브 노드 완료 상태 */
+.topology-sub-node.done {
+  border-color: var(--color-success);
+  background: var(--color-success-subtle, #ecfdf5);
+}
+
+/* 서브 노드 Active 상태 */
+.topology-sub-node.active {
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 4px 14px rgba(var(--color-primary-rgb, 16,185,129), 0.15);
+}
+
+/* 서브 노드 호버 */
+.topology-sub-node:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-color: var(--color-primary);
+}
+
+/* ── 서브 노드 내부 텍스트 ── */
+.topology-sub-level {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-sub);
+  line-height: 1.4;
+}
+.topology-sub-node.active .topology-sub-level {
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.topology-sub-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-main);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.topology-sub-status {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.topology-sub-status.done {
+  color: var(--color-success);
+}
+.topology-sub-status.active {
+  color: var(--color-primary);
+}
+
+/* ── Sticky 모드: 분기 트리 숨김 ── */
+.workflow-stage-control-strip.sticky-minimized .topology-branch-group {
+  display: none;
+}
+.workflow-stage-control-strip.sticky-minimized .topology-node-wrapper.has-branch {
+  display: contents;
+}
+
+/* ── 기존 하위 작업 카드 영역 숨김 (Topology 모드 전환) ── */
+.workflow-subtask-nav.topology-hidden {
+  display: none;
+}
+
+/* ── AG Dark 토폴로지 오버라이드 ── */
+[data-theme="dark"] .topology-trunk,
+[data-theme="dark"] .topology-spread-bar,
+[data-theme="dark"] .topology-sub-node::before {
+  background: var(--color-success);
+}
+[data-theme="dark"] .topology-sub-node {
+  background: rgba(17, 24, 39, 0.65);
+  border-color: rgba(30, 41, 59, 0.5);
+}
+[data-theme="dark"] .topology-sub-node:hover {
+  background: rgba(30, 41, 59, 0.8);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .topology-sub-node.active {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px rgba(167,139,250,0.15);
+}
+[data-theme="dark"] .topology-sub-node.done {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: var(--color-success);
+}
+
+/* ═══════════════════════════════════════════════════════════════
    ◆ AI ASSISTANT CHAT WIDGET - High-End SaaS UI
 ═══════════════════════════════════════════════════════════════ */
 
