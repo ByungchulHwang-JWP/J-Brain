@@ -42,3 +42,4 @@ deploy/
 logs/
 docs/superpowers/
 
+*.exp
