@@ -5381,31 +5381,37 @@ input::placeholder { color: var(--color-input-placeholder); }
   z-index: 10;
 }
 
-/* ── 수직 줄기 (메인 노드 → 가지) ── */
+/* ── 수직 줄기 (메인 노드 → 분기 시작점) ── */
 .topology-trunk {
   width: 2px;
-  height: 20px;
+  height: 16px;
   background: var(--color-success);
   flex-shrink: 0;
-}
-
-/* ── 수평 가지 (서브 노드를 잇는 가로선) ── */
-.topology-spread-bar {
-  width: calc(var(--branch-count, 3) * 110px);
-  max-width: 360px;
-  height: 2px;
-  background: var(--color-success);
-  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 /* ── 서브 노드 컨테이너 ── */
 .topology-sub-nodes {
   display: flex;
-  justify-content: space-between;
-  width: calc(var(--branch-count, 3) * 120px);
-  max-width: 400px;
-  margin-top: 16px;
+  justify-content: center;
+  gap: 16px; /* 서브 노드 간 간격 */
   position: relative;
+  padding-top: 16px; /* 수직 낙하선(drop line)을 위한 공간 */
+  margin-top: 0;
+}
+
+/* ── 수평 가지 (전체 서브 노드를 잇는 가로선) ── */
+.topology-sub-nodes::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  /* 양쪽 끝 노드의 정중앙(115px의 절반인 57.5px)에서 시작/끝나도록 설정 */
+  left: 57.5px;
+  right: 57.5px;
+  height: 2px;
+  background: var(--color-success);
+  opacity: 0.85;
+  border-radius: 2px;
 }
 
 /* 분기 노드가 없을 때는 padding-bottom 제거 */
@@ -5431,17 +5437,27 @@ input::placeholder { color: var(--color-input-placeholder); }
   text-align: center;
 }
 
-/* 서브 노드 → 가지 연결 수직선 (::before) */
+/* ── 수직 낙하선 (수평선 → 개별 서브 노드) ── */
 .topology-sub-node::before {
   content: '';
   position: absolute;
-  top: -16px;
+  top: -16px; /* padding-top 16px 공간 채우기 */
   left: 50%;
-  transform: translateX(-50%);
   width: 2px;
   height: 16px;
   background: var(--color-success);
+  transform: translateX(-50%);
+  opacity: 0.85;
+  transition: background 0.3s ease;
 }
+
+/* Hover 시 라인 강조 효과 */
+.topology-sub-node:hover::before {
+  background: var(--color-primary);
+  opacity: 1;
+}
+
+
 
 /* 서브 노드 완료 상태 */
 .topology-sub-node.done {

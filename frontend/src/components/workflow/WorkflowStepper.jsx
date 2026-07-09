@@ -49,10 +49,6 @@ const WorkflowStepper = ({
               {showBranch && (
                 <div className="topology-branch-group" aria-label="하위 작업 분기">
                   <div className="topology-trunk" />
-                  <div
-                    className="topology-spread-bar"
-                    style={{ '--branch-count': subtasks.length }}
-                  />
                   <div className="topology-sub-nodes">
                     {subtasks.map((child) => {
                       const sub = child.subtask || {};
