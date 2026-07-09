@@ -26,8 +26,8 @@ const WorkflowStepper = ({
       </button>
       {stages.map((stage, idx) => {
         const tone = getTone(stage);
-        const isCurrent = tone === 'current';
-        const showBranch = isCurrent && hasSubtasks;
+        const isActivePhase = Number(stage.stage) === Number(currentStage);
+        const showBranch = isActivePhase && hasSubtasks;
 
         return (
           <span
