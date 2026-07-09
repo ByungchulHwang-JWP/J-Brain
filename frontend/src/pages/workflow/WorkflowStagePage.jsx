@@ -114,11 +114,17 @@ const WorkflowStagePage = () => {
   const completedCheckCount = phaseChecks.filter((check) => ['done', 'pass', 'completed', 'success', 'active'].includes(check.status)).length;
   const pendingCheckCount = Math.max(phaseChecks.length - completedCheckCount, 0);
   const primaryAction = stage?.next_actions?.[0] || phase?.next_actions?.[0] || null;
-  const subtaskItems = (phase?.sourceStages || []).map((child, index) => {
-    const subtask = child.subtask || getPhaseSubtaskMeta(selectedPhaseNo, child.stage) || {
+  const subtaskItems = (phase?.stageNumbers || []).map((legacyStageNo, index) => {
+    const child = (phase?.sourceStages || []).find((s) => Number(s.stage) === Number(legacyStageNo)) || {
+      stage: legacyStageNo,
+      status: 'waiting',
+      can_enter: false,
+      name: getPhaseSubtaskMeta(selectedPhaseNo, legacyStageNo)?.title || `하위 작업 ${legacyStageNo}`,
+    };
+    const subtask = child.subtask || getPhaseSubtaskMeta(selectedPhaseNo, legacyStageNo) || {
       level: `${selectedPhaseNo}.${index + 1}`,
       title: child.name,
-      description: child.locked_reason || '현재 단계에서 처리할 하위 작업입니다.',
+      description: child.locked_reason || '대기 중인 작업입니다.',
     };
     return { ...child, subtask };
   });
