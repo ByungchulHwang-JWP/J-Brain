@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ChatWidget from '../ChatWidget';
@@ -29,6 +29,7 @@ const AdminLayout = () => {
   const [menus, setMenus] = useState([]);
   const [expandedGroups, setExpandedGroups] = useState({});
   const [theme, setTheme] = useState(() => localStorage.getItem('jbrain-theme') || 'light');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // 테마 적용
   useEffect(() => {
@@ -39,7 +40,13 @@ const AdminLayout = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     mainContentRef.current?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+    setMobileMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    document.body.classList.toggle('mobile-nav-open', mobileMenuOpen);
+    return () => document.body.classList.remove('mobile-nav-open');
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     const fetchMenus = async () => {
@@ -103,7 +110,10 @@ const AdminLayout = () => {
 
   const handleMenuClick = (url) => {
     const resolvedUrl = resolveMenuUrl(url);
-    if (resolvedUrl) navigate(resolvedUrl);
+    if (resolvedUrl) {
+      navigate(resolvedUrl);
+      setMobileMenuOpen(false);
+    }
   };
 
   const menuIcons = {
@@ -125,6 +135,18 @@ const AdminLayout = () => {
     <>
       <header className="header">
         <div className="header-left">
+          <button
+            className="mobile-menu-trigger"
+            type="button"
+            aria-label="사이드바 메뉴 열기"
+            aria-controls="admin-sidebar"
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
           <div className="logo-text">
             <span className="logo-symbol"></span>
             JWINPARTNERS
@@ -144,7 +166,27 @@ const AdminLayout = () => {
       </header>
 
       <div className="layout">
-        <nav className="lnb">
+        <button
+          className={`mobile-nav-backdrop ${mobileMenuOpen ? 'open' : ''}`}
+          type="button"
+          aria-label="사이드바 메뉴 닫기"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+        <nav id="admin-sidebar" className={`lnb ${mobileMenuOpen ? 'open' : ''}`}>
+          <div className="lnb-mobile-head">
+            <div className="logo-text">
+              <span className="logo-symbol"></span>
+              JWINPARTNERS
+            </div>
+            <button
+              className="mobile-menu-close"
+              type="button"
+              aria-label="사이드바 메뉴 닫기"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              ×
+            </button>
+          </div>
           {/* 스크롤 영역 */}
           <div className="lnb-scroll">
             {menus.map((group) => (
