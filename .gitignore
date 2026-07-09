@@ -36,3 +36,9 @@ Thumbs.db
 .idea/
 .vscode/
 
+
+# Ignored paths
+deploy/
+logs/
+docs/superpowers/
+
