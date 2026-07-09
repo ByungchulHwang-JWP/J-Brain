@@ -1,4 +1,5 @@
 import React from 'react';
+import { Toaster } from 'react-hot-toast';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import AdminLayout from './components/Layout/AdminLayout';
@@ -61,7 +62,9 @@ const Placeholder = ({ title }) => (
 
 const App = () => {
   return (
-    <Routes>
+    <>
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: 'var(--color-bg-surface)', color: 'var(--color-text-main)', border: '1px solid var(--color-border)', boxShadow: 'var(--color-shadow-lg)', borderRadius: '10px', fontSize: '14px' } }} />
+      <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       
@@ -145,6 +148,7 @@ const App = () => {
         <Route path="system/settings" element={<ShellPage title="시스템 설정" eyebrow="시스템 관리" description="플랫폼 공통 설정을 관리하는 화면입니다." />} />
       </Route>
     </Routes>
+    </>
   );
 };
 

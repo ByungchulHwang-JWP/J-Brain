@@ -11,9 +11,9 @@ class ValidationRunner:
         self.matcher = IntentMatcher(pack)
         self.router = ActionRouter(pack)
 
-    def run(self, top_k: int = 3) -> dict[str, Any]:
+    async def run(self, top_k: int = 3) -> dict[str, Any]:
         results = [
-            self._run_question(question, top_k)
+            await self._run_question(question, top_k)
             for question in self.pack.validation["validation_questions"]
         ]
         total = len(results)
@@ -47,7 +47,7 @@ class ValidationRunner:
             "results": results,
         }
 
-    def _run_question(
+    async def _run_question(
         self,
         validation_question: dict[str, Any],
         top_k: int,
@@ -56,7 +56,7 @@ class ValidationRunner:
         expected_intent_id = validation_question["expected_intent_id"]
         expected_action_id = validation_question["expected_action_id"]
         matches = self.matcher.match(question, top_k=top_k)
-        card = self.router.route(question, matches)
+        card = await self.router.route(question, matches)
         top_match = matches[0] if matches else {}
         actual_intent_id = top_match.get("intent_id")
         actual_action_id = top_match.get("action_id")

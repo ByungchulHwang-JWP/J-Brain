@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast';
+import { Spinner } from '../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
@@ -61,7 +63,7 @@ const IntentDetail = ({ mode = 'edit' }) => {
       })
       .catch((err) => {
         console.error(err);
-        alert('Intent 상세 정보를 불러오지 못했습니다.');
+        toast.error('Intent 상세 정보를 불러오지 못했습니다.');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -98,7 +100,7 @@ const IntentDetail = ({ mode = 'edit' }) => {
 
   const handleSave = async () => {
     if (!form.intent_name?.trim()) {
-      alert('Intent 이름을 입력해 주세요.');
+      toast.error('Intent 이름을 입력해 주세요.');
       return;
     }
 
@@ -113,11 +115,11 @@ const IntentDetail = ({ mode = 'edit' }) => {
       const saved = mode === 'new'
         ? await createIntent(projectId, payload)
         : await updateIntent(projectId, intentId, payload);
-      alert('Intent가 저장되었습니다.');
+      toast.success('Intent가 저장되었습니다.');
       navigate(`/admin/intent-factory/intents/${encodeURIComponent(saved.intent_id || form.intent_id)}?project=${encodeURIComponent(projectId)}`);
     } catch (err) {
       console.error(err);
-      alert('저장에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('저장에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     } finally {
       setSaving(false);
     }
@@ -144,7 +146,7 @@ const IntentDetail = ({ mode = 'edit' }) => {
       </div>
 
       {loading ? (
-        <div className="table-area" style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>
+        <div className="table-area" style={{ padding: '32px', textAlign: 'center' }}><Spinner size={24} color="var(--color-primary)" /><p style={{marginTop: 12, color: 'var(--color-text-muted)'}}>상세 정보를 불러오는 중입니다...</p></div>
       ) : (
         <div style={{ display: 'grid', gap: '18px' }}>
           <IntentForm form={form} setForm={setForm} mode={mode} actionOptions={actionOptions} sourceOptions={sourceOptions} />

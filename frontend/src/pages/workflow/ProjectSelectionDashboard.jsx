@@ -1,3 +1,4 @@
+import { Spinner } from '../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { listWorkflowProjects } from '../../api/workflow';
@@ -70,7 +71,7 @@ const ProjectSelectionDashboard = () => {
 
       <div className="workflow-project-grid">
         {loading ? (
-          <div className="workflow-empty-state">프로젝트 목록을 확인하고 있습니다.</div>
+          <div className="workflow-empty-state" style={{display:'flex', flexDirection:'column', alignItems:'center'}}><Spinner size={32} color="var(--color-primary)" style={{marginBottom: 16}} />프로젝트 목록을 확인하고 있습니다.</div>
         ) : filtered.length === 0 ? (
           <div className="workflow-empty-state">
             <strong>아직 생성된 프로젝트가 없습니다.</strong>

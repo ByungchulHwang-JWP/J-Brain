@@ -16,3 +16,4 @@ python-docx
 pydantic-settings
 langchain-openai
 python-multipart
+google-auth

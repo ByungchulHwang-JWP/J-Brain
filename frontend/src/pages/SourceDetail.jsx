@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast';
+import { Skeleton, Spinner } from '../components/common/Loader';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -29,10 +31,10 @@ const SourceDetail = () => {
       } catch (err) {
         console.error(err);
         if (isAuthError(err)) {
-          alert('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+          toast.error('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
           return;
         }
-        alert('문서 정보를 불러오는데 실패했습니다.');
+        toast.error('문서 정보를 불러오는데 실패했습니다.');
       } finally {
         setLoading(false);
       }
@@ -81,10 +83,10 @@ const SourceDetail = () => {
       navigate('/admin/sources');
     } catch (err) {
       if (isAuthError(err)) {
-        alert('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+        toast.error('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
         return;
       }
-      alert('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -104,7 +106,7 @@ const SourceDetail = () => {
   };
 
   if (loading) {
-    return <div className="inner" style={{ textAlign: 'center', padding: '60px', color: '#888' }}>로딩 중...</div>;
+    return <div className="inner" style={{ textAlign: 'center', padding: '60px', color: '#888' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16}}>문서 정보를 불러오는 중입니다...</p></div>;
   }
 
   return (
@@ -185,10 +187,10 @@ const SourceDetail = () => {
         {activeTab === 'chunk' && (
           <div>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px' }}>
-              Text Chunks ({tabLoading ? '로딩 중...' : `${chunks.length}개`})
+              Text Chunks ({tabLoading ? <Spinner size={14} /> : `${chunks.length}개`})
             </h3>
             {tabLoading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>로딩 중...</div>
+              <div style={{ padding: '20px' }}>{Array.from({length: 3}).map((_, i) => <div style={{marginBottom: 16}} key={i}><Skeleton height="80px" /></div>)}</div>
             ) : chunks.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#aaa' }}>청크 데이터가 없습니다.</div>
             ) : (
@@ -210,10 +212,10 @@ const SourceDetail = () => {
         {activeTab === 'entity' && (
           <div>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px' }}>
-              추출된 Entities ({tabLoading ? '로딩 중...' : `${entities.length}개`})
+              추출된 Entities ({tabLoading ? <Spinner size={14} /> : `${entities.length}개`})
             </h3>
             {tabLoading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>로딩 중...</div>
+              <div style={{ padding: '20px' }}>{Array.from({length: 3}).map((_, i) => <div style={{marginBottom: 16}} key={i}><Skeleton height="80px" /></div>)}</div>
             ) : entities.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#aaa' }}>
                 추출된 Entity가 없습니다.<br/>
@@ -246,10 +248,10 @@ const SourceDetail = () => {
         {activeTab === 'job' && (
           <div>
             <h3 style={{ margin: '0 0 16px', fontSize: '16px' }}>
-              IndexJob 이력 ({tabLoading ? '로딩 중...' : `${jobs.length}건`})
+              IndexJob 이력 ({tabLoading ? <Spinner size={14} /> : `${jobs.length}건`})
             </h3>
             {tabLoading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>로딩 중...</div>
+              <div style={{ padding: '20px' }}>{Array.from({length: 3}).map((_, i) => <div style={{marginBottom: 16}} key={i}><Skeleton height="80px" /></div>)}</div>
             ) : jobs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#aaa' }}>인덱싱 이력이 없습니다.</div>
             ) : (

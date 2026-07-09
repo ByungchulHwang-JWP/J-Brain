@@ -1,55 +1,44 @@
 /* eslint-disable react/prop-types */
-import { CheckCircle2, ChevronLeft, ChevronRight, CircleDashed, LockKeyhole } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, LockKeyhole } from 'lucide-react';
 
-const statusLabel = {
-  done: '완료',
-  in_progress: '진행 중',
-  locked: '대기',
-  waiting: '대기',
-  warning: '확인 필요',
-};
+const WorkflowStepper = ({ stages = [], currentStage, onStageClick, onPrev, onNext }) => {
+  const getTone = (stage) => {
+    if (stage.status === 'done') return 'done';
+    if (Number(stage.stage) === Number(currentStage)) return 'current';
+    return 'locked';
+  };
 
-const statusIcon = {
-  done: CheckCircle2,
-  in_progress: CircleDashed,
-  warning: CircleDashed,
-  waiting: CircleDashed,
-  locked: LockKeyhole,
-};
-
-const WorkflowStepper = ({ stages = [], currentStage, onStageClick, onPrev, onNext }) => (
-  <section className="workflow-stepper workflow-progress-rail" aria-label="구축 단계">
-    <button className="workflow-arrow" type="button" aria-label="이전 단계" onClick={onPrev}>
-      <ChevronLeft size={18} />
-    </button>
-    <div className="workflow-track">
-      {stages.map((stage) => {
-        const Icon = statusIcon[stage.status] || CircleDashed;
-        const isCurrent = Number(stage.stage) === Number(currentStage);
-
+  return (
+    <section className="workflow-stepper" aria-label="구축 단계">
+      <button className="workflow-arrow" type="button" aria-label="이전 단계" onClick={onPrev} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-sub)', padding: '4px', flexShrink: 0 }}>
+        <ChevronLeft size={18} />
+      </button>
+      {stages.map((stage, idx) => {
+        const tone = getTone(stage);
         return (
-          <button
-            key={stage.stage}
-            type="button"
-            className={`workflow-stage-card ${stage.status || 'locked'} ${isCurrent ? 'current' : ''}`}
-            onClick={() => stage.can_enter && onStageClick?.(stage)}
-            disabled={!stage.can_enter}
-            title={stage.locked_reason || stage.name}
-          >
-            <span className="workflow-stage-icon" aria-hidden="true"><Icon size={15} /></span>
-            <span className="workflow-stage-copy">
-              <span className="workflow-stage-no">{String(stage.stage).padStart(2, '0')}</span>
-              <strong>{stage.name}</strong>
-              <small>{statusLabel[stage.status] || stage.status || '대기'}</small>
-            </span>
-          </button>
+          <span key={stage.stage} style={{ display: 'contents' }}>
+            <div
+              className={`workflow-stepper-step ${tone}`}
+              onClick={() => stage.can_enter && onStageClick?.(stage)}
+              style={{ opacity: stage.can_enter ? 1 : 0.55 }}
+              title={stage.locked_reason || stage.name}
+            >
+              <span className="step-number">
+                {tone === 'done' ? <Check size={14} /> : tone === 'locked' ? <LockKeyhole size={12} /> : stage.stage}
+              </span>
+              <span className="step-label">{stage.name}</span>
+            </div>
+            {idx < stages.length - 1 && (
+              <span className={`workflow-stepper-connector ${stage.status === 'done' ? 'done' : ''}`} />
+            )}
+          </span>
         );
       })}
-    </div>
-    <button className="workflow-arrow" type="button" aria-label="다음 단계" onClick={onNext}>
-      <ChevronRight size={18} />
-    </button>
-  </section>
-);
+      <button className="workflow-arrow" type="button" aria-label="다음 단계" onClick={onNext} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-sub)', padding: '4px', flexShrink: 0 }}>
+        <ChevronRight size={18} />
+      </button>
+    </section>
+  );
+};
 
 export default WorkflowStepper;

@@ -1,3 +1,4 @@
+import { Skeleton, Spinner } from '../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle2, CircleSlash2, DatabaseZap, RotateCcw, Sparkles } from 'lucide-react';
@@ -215,7 +216,7 @@ const CandidateReview = () => {
             <p>상태를 승인으로 변경하면 해당 후보 유형이 다음 단계 진행률에 반영됩니다.</p>
           </div>
           <button className="btn-secondary" type="button" onClick={loadCandidates} disabled={loading}>
-            {loading ? '조회 중...' : '새로고침'}
+            {loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}
           </button>
         </div>
         <table>

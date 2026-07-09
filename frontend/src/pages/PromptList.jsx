@@ -1,6 +1,8 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import useProjects from '../hooks/useProjects';
+import { Spinner } from '../components/common/Loader';
 
 const FORM_INPUT = {
   padding: '8px 12px',
@@ -51,7 +53,7 @@ const PromptList = () => {
       }
     } catch (err) {
       console.error(err);
-      alert('목록을 불러오는데 실패했습니다.');
+      toast.error('목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -72,10 +74,10 @@ const PromptList = () => {
       await axios.patch(`/api/v1/prompts/${selectedId}`, {
         name: editName, domain: editDomain, content: editContent, status: editStatus
       }, { headers: { Authorization: `Bearer ${token()}` } });
-      alert('저장되었습니다.');
+      toast.success('저장되었습니다.');
       fetchPrompts();
     } catch (err) {
-      alert('저장에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('저장에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -88,13 +90,13 @@ const PromptList = () => {
       setSelectedId(null);
       fetchPrompts();
     } catch (err) {
-      alert('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
       setIsDeleteModalOpen(false);
     }
   };
 
   const handleNewRegister = async () => {
-    if (!newName.trim()) { alert('프롬프트 이름을 입력해주세요.'); return; }
+    if (!newName.trim()) { toast.error('프롬프트 이름을 입력해주세요.'); return; }
     try {
       await axios.post('/api/v1/prompts', {
         name: newName.trim(), domain: newDomain, content: newContent, status: '활성'
@@ -104,7 +106,7 @@ const PromptList = () => {
       setSelectedId(null);
       fetchPrompts();
     } catch (err) {
-      alert('등록에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('등록에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -130,7 +132,7 @@ const PromptList = () => {
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>로딩 중...</div>
+            <div style={{ textAlign: 'center', padding: '40px' }}><Spinner size={24} color="var(--color-primary)" /><p style={{marginTop: 12, color: 'var(--color-text-muted)'}}>프롬프트를 불러오는 중입니다...</p></div>
           ) : prompts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)' }}>등록된 프롬프트가 없습니다.</div>
           ) : (
@@ -211,7 +213,7 @@ const PromptList = () => {
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '200px', color: 'var(--color-text-muted)' }}>
-              {loading ? '로딩 중...' : '좌측에서 프롬프트를 선택하세요.'}
+              {loading ? <div style={{textAlign:'center'}}><Spinner size={24} color="var(--color-primary)" /><p style={{marginTop:12}}>로딩 중...</p></div> : '좌측에서 프롬프트를 선택하세요.'}
             </div>
           )}
         </div>

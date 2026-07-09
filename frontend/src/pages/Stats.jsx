@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Spinner } from '../components/common/Loader';
 
 const Stats = () => {
   const [stats, setStats] = useState(null);
@@ -23,7 +24,7 @@ const Stats = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>;
+  if (loading) return <div className="inner" style={{ padding: '60px', textAlign: 'center' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16, color: 'var(--color-text-muted)'}}>통계 데이터를 불러오는 중입니다...</p></div>;
   if (!stats) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>데이터를 불러올 수 없습니다.</div>;
 
   const maxVal = Math.max(...stats.weekly_trend);

@@ -64,6 +64,70 @@
     "is_validation": false
   },
   {
+    "example_id": "EX-INT-JBRAIN-027927-01",
+    "intent_id": "INT-JBRAIN-027927",
+    "text": "J-Brain에 등록된 프로젝트 조회해줘",
+    "example": "J-Brain에 등록된 프로젝트 조회해줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INT-JBRAIN-027927-02",
+    "intent_id": "INT-JBRAIN-027927",
+    "text": "프로젝트 목록 조회해줘",
+    "example": "프로젝트 목록 조회해줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INT-JBRAIN-027927-03",
+    "intent_id": "INT-JBRAIN-027927",
+    "text": "등록된 프로젝트 목록 조회",
+    "example": "등록된 프로젝트 목록 조회",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INT-JBRAIN-027927-04",
+    "intent_id": "INT-JBRAIN-027927",
+    "text": "프로젝트 조회해 줘",
+    "example": "프로젝트 조회해 줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INT-JBRAIN-027927-05",
+    "intent_id": "INT-JBRAIN-027927",
+    "text": "프로젝트 목록 조회",
+    "example": "프로젝트 목록 조회",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INT-JBRAIN-215290-01",
+    "intent_id": "INT-JBRAIN-215290",
+    "text": "J-Brain 사용자 목록 좀 조회해줘",
+    "example": "J-Brain 사용자 목록 좀 조회해줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INT-JBRAIN-215290-02",
+    "intent_id": "INT-JBRAIN-215290",
+    "text": "전체 계정 목록 보여줘",
+    "example": "전체 계정 목록 보여줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INT-JBRAIN-215290-03",
+    "intent_id": "INT-JBRAIN-215290",
+    "text": "등록된 사용자 조회",
+    "example": "등록된 사용자 조회",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
     "example_id": "EX-INT-JBRAIN-522757-01",
     "intent_id": "INT-JBRAIN-522757",
     "text": "시스템 오류가 발생했어요",

@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast';
+import { Skeleton } from '../components/common/Loader';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -48,7 +50,7 @@ const SourceList = () => {
   const handleUpload = async (event) => {
     event.preventDefault();
     if (!uploadFile) {
-      alert('업로드할 파일을 선택해 주세요.');
+      toast.error('업로드할 파일을 선택해 주세요.');
       return;
     }
     setUploading(true);
@@ -64,10 +66,10 @@ const SourceList = () => {
       setUploadFile(null);
       setUploadOpen(false);
       await fetchSources();
-      alert('Source가 등록되었습니다. 백그라운드에서 벡터화 작업이 시작됩니다.');
+      toast.success('Source가 등록되었습니다. 백그라운드에서 벡터화 작업이 시작됩니다.');
     } catch (err) {
       console.error('Source 등록 실패:', err);
-      alert('Source 등록 중 오류가 발생했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('Source 등록 중 오류가 발생했습니다: ' + (err.response?.data?.detail || err.message));
     } finally {
       setUploading(false);
     }
@@ -85,7 +87,7 @@ const SourceList = () => {
 
   const handleDelete = async () => {
     if (selectedIds.length === 0) {
-      alert('삭제할 항목을 선택해주세요.');
+      toast.error('삭제할 항목을 선택해주세요.');
       return;
     }
     if (!window.confirm('선택한 문서를 삭제하시겠습니까? 관련 데이터(인덱싱)도 모두 삭제됩니다.')) return;
@@ -96,7 +98,7 @@ const SourceList = () => {
           headers: { Authorization: `Bearer ${token()}` }
         });
       }
-      alert('삭제가 완료되었습니다.');
+      toast.success('삭제가 완료되었습니다.');
       setSelectedIds([]);
       // 목록 새로고침
       const res = await axios.get(`/api/v1/projects/${domainFilter}/sources`, {
@@ -105,7 +107,7 @@ const SourceList = () => {
       setSources(res.data || []);
     } catch (err) {
       console.error('삭제 실패:', err);
-      alert('삭제 중 오류가 발생했습니다.');
+      toast.error('삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -178,7 +180,7 @@ const SourceList = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+              Array.from({ length: 5 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="200px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="80px" /></td></tr>))
             ) : sources.length === 0 ? (
               <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>등록된 문서가 없습니다.</td></tr>
             ) : (

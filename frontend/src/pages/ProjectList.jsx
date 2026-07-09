@@ -1,6 +1,8 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Skeleton } from '../components/common/Loader';
 
 const FORM_INPUT = {
   width: '100%', padding: '10px 12px',
@@ -25,7 +27,7 @@ const ProjectList = () => {
       setProjects(res.data);
     } catch (error) {
       console.error(error);
-      alert('프로젝트 목록을 불러오는데 실패했습니다.');
+      toast.error('프로젝트 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -36,7 +38,7 @@ const ProjectList = () => {
   const handleCreate = () => { setNewProjectName(''); setNewProjectDesc(''); setIsModalOpen(true); };
 
   const submitCreate = async () => {
-    if (!newProjectName.trim()) { alert('프로젝트명을 입력해주세요.'); return; }
+    if (!newProjectName.trim()) { toast.error('프로젝트명을 입력해주세요.'); return; }
     try {
       const token = localStorage.getItem('ai_access_token');
       await axios.post('/api/v1/projects', {
@@ -46,7 +48,7 @@ const ProjectList = () => {
       fetchProjects();
     } catch (error) {
       console.error(error);
-      alert('생성에 실패했습니다: ' + (error.response?.data?.detail || error.message));
+      toast.error('생성에 실패했습니다: ' + (error.response?.data?.detail || error.message));
     }
   };
 
@@ -74,7 +76,7 @@ const ProjectList = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+              Array.from({ length: 5 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="200px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="80px" /></td></tr>))
             ) : projects.length === 0 ? (
               <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>생성된 프로젝트가 없습니다.</td></tr>
             ) : (

@@ -1,6 +1,8 @@
+import { OverlayLoader, Skeleton, Spinner } from '../../components/common/Loader';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, CircleSlash2, DatabaseZap, RotateCcw, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import Pagination from '../../components/common/Pagination';
 import useProjects from '../../hooks/useProjects';
 import {
   applyApprovedDiscoveryCandidates,
@@ -48,6 +50,8 @@ const LlmAssist = () => {
   
   const [activeTab, setActiveTab] = useState('ALL');
   const [expandedRowId, setExpandedRowId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
     if (projects.length > 0 && !projects.some((p) => p.id === projectId)) {
@@ -107,6 +111,17 @@ const LlmAssist = () => {
       return String(b.updated_at || '').localeCompare(String(a.updated_at || ''));
     });
   }, [items, activeTab]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, projectId]);
+
+  const totalItems = filteredAndOrderedItems.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredAndOrderedItems.slice(start, start + pageSize);
+  }, [filteredAndOrderedItems, currentPage, pageSize]);
 
   const handleRun = async (scope = 'all') => {
     setRunning(true);
@@ -183,13 +198,14 @@ const LlmAssist = () => {
 
   return (
     <div className="inner">
+      {running && <OverlayLoader title="LLM 초안 생성 중..." description="문서를 분석하여 Intent와 질문을 생성하고 있습니다." />}
       <div className="breadcrumb">
         <span>Intent Factory</span> {'>'} <span>LLM 지원 도구</span>
       </div>
 
       <div className="page-header" style={{ padding: '12px 0 20px', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h2 style={{ fontWeight: 600 }}>🤖 LLM 지원 도구</h2>
+          <h2 style={{ fontWeight: 600 }}>LLM 지원 도구</h2>
           <p style={{ margin: '8px 0 0', color: 'var(--color-text-sub)', fontSize: '14px' }}>
             외부망에서 Intent/Entity/FAQ 후보를 생성하고 전문가 검수로 확정하는 지원 도구입니다.
           </p>
@@ -282,7 +298,7 @@ const LlmAssist = () => {
             <p>상태를 승인으로 변경하면 해당 후보 유형이 다음 단계 진행률에 반영됩니다.</p>
           </div>
           <button className="btn-secondary" type="button" onClick={() => loadCandidates(projectId)} disabled={loading || !projectId}>
-            {loading ? '조회 중...' : '새로고침'}
+            {loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}
           </button>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -300,9 +316,9 @@ const LlmAssist = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--color-text-sub)' }}>후보 목록을 불러오는 중입니다.</td></tr>
-            ) : items.length === 0 ? (
+            ) : paginatedItems.length === 0 ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--color-text-sub)' }}>생성된 후보가 없습니다. 자동 후보 생성을 실행해 주세요.</td></tr>
-            ) : filteredAndOrderedItems.map((item) => {
+            ) : paginatedItems.map((item) => {
               const names = sourceNames(item.payload);
               const isExpanded = expandedRowId === item.candidate_id;
               return (
@@ -355,6 +371,16 @@ const LlmAssist = () => {
             })}
           </tbody>
         </table>
+        {!loading && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
+        )}
       </section>
     </div>
   );

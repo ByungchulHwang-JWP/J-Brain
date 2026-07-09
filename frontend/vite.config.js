@@ -1,16 +1,24 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 5174, // 충돌을 피하기 위해 5174 포트 사용
-    strictPort: true,
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8080',
-        changeOrigin: true,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const port = parseInt(env.VITE_PORT || '5174')
+  const proxyTarget = env.VITE_API_URL || 'http://127.0.0.1:8080'
+
+  return {
+    plugins: [react()],
+    server: {
+      host: '0.0.0.0',
+      allowedHosts: true,
+      port: port,
+      strictPort: true,
+      proxy: {
+        '/api': {
+          target: proxyTarget,
+          changeOrigin: true,
+        }
       }
     }
   }

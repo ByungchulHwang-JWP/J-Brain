@@ -1,6 +1,8 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Spinner } from '../components/common/Loader';
 
 const IndexJobDetail = () => {
   const { projectId, jobId } = useParams();
@@ -24,7 +26,7 @@ const IndexJobDetail = () => {
       }
     } catch (err) {
       console.error(err);
-      if (loading) alert('상세 정보를 불러오는데 실패했습니다.');
+      if (loading) toast.error('상세 정보를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -37,7 +39,7 @@ const IndexJobDetail = () => {
     };
   }, [wid, jobId]);
 
-  if (loading) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>;
+  if (loading) return <div className="inner" style={{ padding: '60px', textAlign: 'center' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16, color: 'var(--color-text-muted)'}}>데이터를 불러오는 중입니다...</p></div>;
   if (!jobDetail) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>작업을 찾을 수 없습니다.</div>;
 
   const isFailed = jobDetail.status === 'failed';

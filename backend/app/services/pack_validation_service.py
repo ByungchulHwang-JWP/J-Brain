@@ -150,7 +150,7 @@ async def run_pack_validation(
     questions = await _load_questions_for_pack(db, project_id, payload.pack_id, payload.pack_version)
     pack.validation["validation_questions"] = questions
 
-    raw_result = ValidationRunner(pack).run()
+    raw_result = await ValidationRunner(pack).run()
     results = [_apply_confidence_policy(item, questions) for item in raw_result["results"]]
     passed_count = sum(1 for item in results if item["passed"])
     total = len(results)

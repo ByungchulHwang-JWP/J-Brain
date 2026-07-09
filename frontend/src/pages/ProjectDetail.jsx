@@ -1,6 +1,8 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Spinner } from '../components/common/Loader';
 
 const FORM_INPUT = {
   width: '100%', padding: '10px 12px',
@@ -53,9 +55,9 @@ const ProjectDetail = () => {
       await axios.patch(`/api/v1/projects/${id}`, { description, status }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('ai_access_token')}` }
       });
-      alert('저장되었습니다.');
+      toast.success('저장되었습니다.');
     } catch (err) {
-      alert('저장에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('저장에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     } finally {
       setSaving(false);
     }
@@ -68,7 +70,7 @@ const ProjectDetail = () => {
       });
       navigate('/admin/projects');
     } catch (err) {
-      alert('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     } finally {
       setIsDeleteModalOpen(false);
     }
@@ -90,7 +92,7 @@ const ProjectDetail = () => {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-muted)' }}>로딩 중...</div>
+        <div style={{ textAlign: 'center', padding: '60px' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16, color: 'var(--color-text-muted)'}}>프로젝트 상세를 불러오는 중입니다...</p></div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           {/* 왼쪽: 기본 정보 */}

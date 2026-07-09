@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast';
+import { Spinner } from '../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, X } from 'lucide-react';
@@ -165,7 +167,7 @@ const PackValidation = () => {
   const handleSaveQuestion = async () => {
     const payload = buildQuestionPayload();
     if (!payload.question_id || !payload.question || !payload.expected_intent_id || !payload.expected_action_id) {
-      alert('Question ID, 질문, 기대 Intent, 기대 Action을 입력해 주세요.');
+      toast.error('Question ID, 질문, 기대 Intent, 기대 Action을 입력해 주세요.');
       return;
     }
     try {
@@ -215,7 +217,7 @@ const PackValidation = () => {
 
   const handleRunValidation = async () => {
     if (!selectedPack) {
-      alert('검증할 Pack을 선택해 주세요.');
+      toast.error('검증할 Pack을 선택해 주세요.');
       return;
     }
     setValidating(true);
@@ -261,7 +263,7 @@ const PackValidation = () => {
             {projects.length === 0 && <option value={projectId}>{projectId}</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={fetchAll} disabled={loading}>{loading ? '조회 중...' : '새로고침'}</button>
+          <button className="btn-secondary" onClick={fetchAll} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
         </div>
       </div>
 

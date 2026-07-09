@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, X, Send, ChevronDown, User, Bot, Maximize2, Minimize2 } from 'lucide-react';
+import { MessageCircle, X, ArrowUp, ChevronDown, User, Bot, Maximize2, Minimize2 } from 'lucide-react';
 
 const ChatWidget = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const ChatWidget = () => {
   const [loading, setLoading] = useState(false);
   const [domain, setDomain] = useState('');
   const [domains, setDomains] = useState([]);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const messagesEndRef = useRef(null);
 
   // 프로젝트(도메인) 목록 동적 조회
@@ -154,89 +155,93 @@ const ChatWidget = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
+          className="chat-widget-glass"
           style={{
             position: 'fixed', bottom: '24px', right: '24px',
             width: '60px', height: '60px', borderRadius: '50%',
-            background: '#031B4B', color: '#fff', border: 'none',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', zIndex: 9999, transition: 'transform 0.2s'
+            cursor: 'pointer', zIndex: 9999, transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <MessageCircle size={28} />
+          <MessageCircle size={28} strokeWidth={1.5} />
         </button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div style={{
-          position: 'fixed',
-          bottom: isExpanded ? '0' : '24px',
-          right: isExpanded ? '0' : '24px',
-          width: isExpanded ? '100vw' : '400px',
-          height: isExpanded ? '100vh' : '600px',
-          background: '#fff',
-          borderRadius: isExpanded ? '0' : '12px',
-          boxShadow: isExpanded ? 'none' : '0 8px 24px rgba(0,0,0,0.15)',
-          display: 'flex', flexDirection: 'column',
-          zIndex: 10000, overflow: 'hidden',
-          transition: 'all 0.3s ease'
-        }}>
+        <div 
+          className="chat-widget-glass"
+          style={{
+            position: 'fixed',
+            bottom: isExpanded ? '0' : '24px',
+            right: isExpanded ? '0' : '24px',
+            width: isExpanded ? '100vw' : '400px',
+            height: isExpanded ? '100vh' : '600px',
+            borderRadius: isExpanded ? '0' : '16px',
+            display: 'flex', flexDirection: 'column',
+            zIndex: 10000, overflow: 'hidden',
+            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
           
           {/* Header */}
           <div style={{
-            background: '#031B4B', color: '#fff', padding: '16px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            padding: '16px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            borderBottom: '1px solid var(--color-border)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ background: '#fff', color: '#031B4B', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Bot size={20} />
+              <div style={{ background: 'var(--color-primary-subtle)', color: 'var(--color-primary)', border: '1px solid var(--color-primary-glow)', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Bot size={20} strokeWidth={1.5} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontWeight: 600, fontSize: '15px' }}>J-Brain AI Assistant</span>
+                <span style={{ fontWeight: 600, fontSize: '15px', letterSpacing: '-0.3px' }}>J-Brain AI</span>
                 <div style={{ position: 'relative', marginTop: '2px' }}>
                   <select 
                     value={domain} 
                     onChange={(e) => setDomain(e.target.value)}
                     style={{
-                      background: 'transparent', color: '#e0ecf8', border: 'none', outline: 'none',
+                      background: 'transparent', color: 'var(--color-text-sub)', border: 'none', outline: 'none',
                       fontSize: '12px', cursor: 'pointer', appearance: 'none', paddingRight: '12px'
                     }}
                   >
-                    {domains.map(d => <option key={d.id} value={d.id} style={{ color: '#333' }}>{d.name} 프로젝트</option>)}
+                    {domains.map(d => <option key={d.id} value={d.id} style={{ color: '#333' }}>{d.name} Project</option>)}
                   </select>
-                  <ChevronDown size={12} style={{ position: 'absolute', right: 0, top: '4px', pointerEvents: 'none', color: '#e0ecf8' }} />
+                  <ChevronDown size={12} strokeWidth={1.5} style={{ position: 'absolute', right: 0, top: '3px', pointerEvents: 'none', color: 'var(--color-text-muted)' }} />
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setIsExpanded(!isExpanded)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px' }}>
-                {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button onClick={() => setIsExpanded(!isExpanded)} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-sub)', cursor: 'pointer', padding: '6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e)=>e.currentTarget.style.background='var(--color-bg-elevated)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                {isExpanded ? <Minimize2 size={18} strokeWidth={1.2} /> : <Maximize2 size={18} strokeWidth={1.2} />}
               </button>
-              <button onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px' }}>
-                <X size={20} />
+              <button onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-sub)', cursor: 'pointer', padding: '6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e)=>e.currentTarget.style.background='var(--color-bg-elevated)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                <X size={20} strokeWidth={1.2} />
               </button>
             </div>
           </div>
 
           {/* Messages Area */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '20px', background: '#F5F6FA', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {messages.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#333', marginTop: '20px', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Bot size={48} style={{ color: '#031B4B', marginBottom: '16px' }} />
-                <p style={{ fontWeight: 600, fontSize: '16px', marginBottom: '8px' }}>무엇을 도와드릴까요?</p>
-                <p style={{ fontSize: '13px', color: '#666', marginBottom: '24px', lineHeight: 1.5 }}>
-                  J-Brain 시스템 가이드에 대해 묻거나,<br/>아래 프로젝트를 선택하여 지식 문서를 검색해 보세요.
+              <div style={{ textAlign: 'center', marginTop: '40px', fontSize: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ background: 'var(--color-bg-elevated)', padding: '16px', borderRadius: '50%', marginBottom: '16px' }}>
+                  <Bot size={40} strokeWidth={1.2} color="var(--color-text-main)" />
+                </div>
+                <p style={{ fontWeight: 600, fontSize: '18px', marginBottom: '8px', color: 'var(--color-text-main)' }}>How can I help you?</p>
+                <p style={{ fontSize: '13px', color: 'var(--color-text-sub)', marginBottom: '32px', lineHeight: 1.5 }}>
+                  J-Brain 시스템 가이드에 대해 묻거나,<br/>아래 프로젝트를 선택하여 검색해 보세요.
                 </p>
                 
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '280px' }}>
                   {domains.map(d => (
-                    <button key={d.id} onClick={() => setDomain(d.id)} style={{ padding: '10px 16px', background: domain === d.id ? '#031B4B' : '#fff', color: domain === d.id ? '#fff' : '#031B4B', border: '1px solid #031B4B', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'all 0.2s', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>{d.name} 프로젝트 질의</span>
+                    <button key={d.id} onClick={() => setDomain(d.id)} style={{ padding: '12px 16px', background: domain === d.id ? 'var(--color-primary-subtle)' : 'transparent', color: 'var(--color-text-main)', border: '1px solid', borderColor: domain === d.id ? 'var(--color-primary)' : 'var(--color-border)', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'all 0.2s', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{d.name} Project Query</span>
                       <span>{domain === d.id ? '✓' : '→'}</span>
                     </button>
                   ))}
+                </div>
               </div>
             ) : (
               messages.map((msg) => (
@@ -245,25 +250,25 @@ const ChatWidget = () => {
                   flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
                 }}>
                   <div style={{
-                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-                    background: msg.sender === 'user' ? '#ddd' : '#3069B3', color: '#fff',
+                    width: '32px', height: '32px', borderRadius: '10px', flexShrink: 0,
+                    background: msg.sender === 'user' ? 'rgba(255,255,255,0.1)' : 'rgba(0,123,255,0.2)', color: '#fff',
+                    border: '1px solid rgba(255,255,255,0.05)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
-                    {msg.sender === 'user' ? <User size={18} color="#555" /> : <Bot size={18} />}
+                    {msg.sender === 'user' ? <User size={16} strokeWidth={1.5} /> : <Bot size={18} strokeWidth={1.5} />}
                   </div>
-                  <div style={{
-                    maxWidth: '75%',
-                    background: msg.sender === 'user' ? '#031B4B' : '#fff',
-                    color: msg.sender === 'user' ? '#fff' : '#333',
-                    padding: '12px 16px', borderRadius: '12px',
-                    borderTopRightRadius: msg.sender === 'user' ? '2px' : '12px',
-                    borderTopLeftRadius: msg.sender === 'bot' ? '2px' : '12px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-                    fontSize: '14px', lineHeight: 1.5
+                  <div className={msg.sender === 'user' ? 'chat-msg-user' : 'chat-msg-bot'} style={{
+                    maxWidth: '85%',
+                    padding: '12px 16px', borderRadius: '16px',
+                    borderTopRightRadius: msg.sender === 'user' ? '4px' : '16px',
+                    borderTopLeftRadius: msg.sender === 'bot' ? '4px' : '16px',
+                    fontSize: '13px', lineHeight: 1.6
                   }}>
                     {msg.sender === 'bot' && msg.loading && !msg.text ? (
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center', height: '20px' }}>
-                        <span className="dot-flashing"></span>
+                      <div className="chat-skeleton-table" style={{ width: '120px' }}>
+                        <div className="chat-skeleton-row"></div>
+                        <div className="chat-skeleton-row"></div>
+                        <div className="chat-skeleton-row"></div>
                       </div>
                     ) : msg.sender === 'bot' ? (
                       <div className="markdown-body" style={{ color: 'inherit' }}>
@@ -278,25 +283,49 @@ const ChatWidget = () => {
                         <button
                           onClick={() => navigate(msg.action_card.route)}
                           style={{
-                            padding: '10px 16px', background: '#031B4B', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, width: '100%',
-                            transition: 'background 0.2s',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            padding: '10px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, width: '100%',
+                            transition: 'all 0.2s',
+                            boxShadow: '0 2px 8px rgba(0,123,255,0.3)'
                           }}
-                          onMouseOver={(e) => e.target.style.background = '#0a2a6b'}
-                          onMouseOut={(e) => e.target.style.background = '#031B4B'}
+                          onMouseOver={(e) => { e.target.style.background = '#0056b3'; e.target.style.transform = 'translateY(-1px)'; }}
+                          onMouseOut={(e) => { e.target.style.background = '#007bff'; e.target.style.transform = 'none'; }}
                         >
-                          🚀 {msg.action_card.button_label || '해당 화면으로 이동하기'}
+                          {msg.action_card.button_label || '해당 화면으로 이동하기'} ➔
                         </button>
                       </div>
                     )}
 
+                    {msg.sender === 'bot' && msg.action_card && msg.action_card.type === 'query_card' && Array.isArray(msg.action_card.real_data) && msg.action_card.real_data.length > 0 && (
+                      <div style={{ marginTop: '12px', overflowX: 'auto' }}>
+                        <table className="chat-data-table">
+                          <thead>
+                            <tr>
+                              {Object.keys(msg.action_card.real_data[0]).map(key => (
+                                <th key={key}>{key}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {msg.action_card.real_data.map((row, idx) => (
+                              <tr key={idx}>
+                                {Object.values(row).map((val, ci) => (
+                                  <td key={ci}>{val ?? '-'}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
                     {msg.sender === 'bot' && msg.sources && msg.sources.length > 0 && (
-                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #eee' }}>
-                        <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>참조 문서</div>
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontWeight: 500 }}>SOURCES</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           {msg.sources.map((src, i) => (
-                            <div key={i} style={{ fontSize: '12px', background: '#f8f9fa', padding: '6px 10px', borderRadius: '4px', color: '#555', border: '1px solid #eee' }}>
-                              📄 {src.file_name} <span style={{ color: '#999', fontSize: '11px' }}>(Chunk #{src.chunk_index})</span>
+                            <div key={i} style={{ fontSize: '12px', background: 'rgba(255,255,255,0.05)', padding: '6px 10px', borderRadius: '6px', color: 'rgba(255,255,255,0.8)' }}>
+                              <span style={{ opacity: 0.5, marginRight: '6px' }}>📄</span>
+                              {src.file_name} <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>(#{src.chunk_index})</span>
                             </div>
                           ))}
                         </div>
@@ -310,75 +339,65 @@ const ChatWidget = () => {
           </div>
 
           {/* Input Area */}
-          <div style={{ padding: '16px', background: '#fff', borderTop: '1px solid #eee' }}>
-            <div style={{
-              display: 'flex', alignItems: 'flex-end', gap: '12px',
-              background: '#F5F6FA', borderRadius: '12px', padding: '8px 12px',
-              border: '1px solid #ddd'
+          <div style={{ padding: '16px', borderTop: '1px solid var(--color-border)' }}>
+            <div className={`chat-input-wrapper ${isInputFocused ? 'focused' : ''}`} style={{
+              display: 'flex', alignItems: 'flex-end', gap: '8px',
+              borderRadius: '16px', padding: '10px 12px'
             }}>
-              <textarea
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onCompositionStart={() => isComposingRef.current = true}
-                onCompositionEnd={() => {
-                  isComposingRef.current = false;
-                  // Composition 끝난 직후 엔터키가 입력될 때를 대비해 약간의 딜레이
-                }}
-                placeholder="메시지를 입력하세요 (Shift+Enter로 줄바꿈)"
-                rows={1}
-                style={{
-                  flex: 1, border: 'none', background: 'transparent', resize: 'none',
-                  outline: 'none', fontSize: '14px', maxHeight: '120px', minHeight: '24px',
-                  padding: '4px 0', fontFamily: 'inherit'
-                }}
-                onInput={(e) => {
-                  e.target.style.height = 'auto';
-                  e.target.style.height = (e.target.scrollHeight) + 'px';
-                }}
-              />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <textarea
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onFocus={() => setIsInputFocused(true)}
+                  onBlur={() => setIsInputFocused(false)}
+                  onKeyDown={handleKeyDown}
+                  onCompositionStart={() => isComposingRef.current = true}
+                  onCompositionEnd={() => { isComposingRef.current = false; }}
+                  placeholder="Ask anything..."
+                  rows={1}
+                  style={{
+                    width: '100%', border: 'none', background: 'transparent', resize: 'none',
+                    outline: 'none', fontSize: '14px', maxHeight: '120px', minHeight: '24px',
+                    padding: '2px 0', fontFamily: 'inherit', color: 'var(--color-text-main)'
+                  }}
+                  onInput={(e) => {
+                    e.target.style.height = 'auto';
+                    e.target.style.height = (e.target.scrollHeight) + 'px';
+                  }}
+                />
+                {!inputValue.trim() && !isInputFocused && (
+                  <div className="chat-keycap-hint">
+                    <kbd>Shift</kbd> + <kbd>Enter</kbd> to newline
+                  </div>
+                )}
+              </div>
               <button 
                 onClick={handleSend}
                 disabled={!inputValue.trim() || loading}
                 style={{
-                  background: inputValue.trim() && !loading ? '#031B4B' : '#ccc',
-                  color: '#fff', border: 'none', borderRadius: '50%',
+                  background: inputValue.trim() && !loading ? '#007bff' : 'var(--color-bg-elevated)',
+                  color: inputValue.trim() && !loading ? '#fff' : 'var(--color-text-muted)',
+                  border: 'none', borderRadius: '50%',
                   width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: inputValue.trim() && !loading ? 'pointer' : 'not-allowed',
-                  transition: 'background 0.2s', flexShrink: 0, marginBottom: '2px'
+                  transition: 'all 0.2s', flexShrink: 0, marginBottom: '2px',
+                  boxShadow: inputValue.trim() && !loading ? '0 0 8px rgba(0,123,255,0.4)' : 'none'
                 }}
               >
-                <Send size={16} style={{ marginLeft: '2px' }} />
+                <ArrowUp size={18} strokeWidth={2.5} />
               </button>
             </div>
           </div>
         </div>
       )}
       <style dangerouslySetInnerHTML={{__html: `
-        .dot-flashing {
-          position: relative;
-          width: 6px; height: 6px; border-radius: 5px;
-          background-color: #3069B3; color: #3069B3;
-          animation: dot-flashing 1s infinite linear alternate;
-          animation-delay: 0.5s;
-        }
-        .dot-flashing::before, .dot-flashing::after {
-          content: ''; display: inline-block; position: absolute; top: 0;
-          width: 6px; height: 6px; border-radius: 5px;
-          background-color: #3069B3; color: #3069B3;
-          animation: dot-flashing 1s infinite alternate;
-        }
-        .dot-flashing::before { left: -10px; animation-delay: 0s; }
-        .dot-flashing::after { left: 10px; animation-delay: 1s; }
-        @keyframes dot-flashing {
-          0% { background-color: #3069B3; }
-          50%, 100% { background-color: rgba(48, 105, 179, 0.2); }
-        }
         .markdown-body p { margin-bottom: 8px; }
         .markdown-body p:last-child { margin-bottom: 0; }
-        .markdown-body strong { font-weight: 600; color: #1a1a1a; }
+        .markdown-body strong { font-weight: 600; }
         .markdown-body ul { padding-left: 20px; margin-bottom: 8px; }
         .markdown-body li { margin-bottom: 4px; }
+        /* Light mode text color adjustment for markdown if needed */
+        [data-theme="light"] .markdown-body strong { color: #1a1a1a; }
       `}} />
     </>
   );

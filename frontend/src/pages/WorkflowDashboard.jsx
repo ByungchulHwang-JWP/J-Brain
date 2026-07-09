@@ -1,3 +1,4 @@
+import { Spinner } from '../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -186,7 +187,7 @@ const WorkflowDashboard = () => {
             {summary.packDraftReady ? 'Draft 생성 가능' : 'Draft 준비 필요'}
           </strong>
           <p style={{ margin: '10px 0 0', color: 'var(--color-text-sub)', fontSize: '13px' }}>
-            {loading ? '상태를 확인하고 있습니다.' : `Intent ${summary.intentCount}건, Entity ${summary.entityCount}건, Source ${summary.sourceCount}건`}
+            {loading ? <><Spinner size={14} style={{marginRight: 6}} /> 상태를 확인하고 있습니다.</> : `Intent ${summary.intentCount}건, Entity ${summary.entityCount}건, Source ${summary.sourceCount}건`}
           </p>
         </div>
       </div>

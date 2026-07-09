@@ -21,4 +21,4 @@ async def run_validation(
     except IntentPackValidationError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    return ValidationRunner(pack).run()
+    return await ValidationRunner(pack).run()

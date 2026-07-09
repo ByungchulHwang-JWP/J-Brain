@@ -1,5 +1,7 @@
+import { Spinner } from '../../components/common/Loader';
 import { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
+import Pagination from '../../components/common/Pagination';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import useProjects from '../../hooks/useProjects';
 import {
@@ -37,6 +39,33 @@ const PackRepository = () => {
   const [message, setMessage] = useState('');
   const [pendingOperation, setPendingOperation] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
+
+  const [exportsPage, setExportsPage] = useState(1);
+  const [exportsPageSize, setExportsPageSize] = useState(10);
+
+  const [runtimePage, setRuntimePage] = useState(1);
+  const [runtimePageSize, setRuntimePageSize] = useState(10);
+
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditPageSize, setAuditPageSize] = useState(10);
+
+  useEffect(() => {
+    setExportsPage(1);
+    setRuntimePage(1);
+    setAuditPage(1);
+  }, [projectId]);
+
+  const exportsTotal = exports.length;
+  const exportsPages = Math.ceil(exportsTotal / exportsPageSize);
+  const paginatedExports = exports.slice((exportsPage - 1) * exportsPageSize, exportsPage * exportsPageSize);
+
+  const runtimeTotal = runtimePacks.length;
+  const runtimePages = Math.ceil(runtimeTotal / runtimePageSize);
+  const paginatedRuntime = runtimePacks.slice((runtimePage - 1) * runtimePageSize, runtimePage * runtimePageSize);
+
+  const auditTotal = auditLogs.length;
+  const auditPages = Math.ceil(auditTotal / auditPageSize);
+  const paginatedAudit = auditLogs.slice((auditPage - 1) * auditPageSize, auditPage * auditPageSize);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -245,7 +274,7 @@ const PackRepository = () => {
             {projects.length === 0 && <option value={projectId}>{projectId}</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={fetchAll} disabled={loading || Boolean(operationKey)}>{loading ? '조회 중...' : '새로고침'}</button>
+          <button className="btn-secondary" onClick={fetchAll} disabled={loading || Boolean(operationKey)}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
         </div>
       </div>
 
@@ -284,9 +313,9 @@ const PackRepository = () => {
             </tr>
           </thead>
           <tbody>
-            {exports.length === 0 ? (
+            {paginatedExports.length === 0 ? (
               <tr><td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>Export된 Pack이 없습니다.</td></tr>
-            ) : exports.map((item) => (
+            ) : paginatedExports.map((item) => (
               <tr key={item.export_id}>
                 <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{item.export_id}</td>
                 <td>{item.pack_id} v{item.pack_version}</td>
@@ -305,6 +334,16 @@ const PackRepository = () => {
             ))}
           </tbody>
         </table>
+        {!loading && (
+          <Pagination
+            currentPage={exportsPage}
+            totalPages={exportsPages}
+            totalItems={exportsTotal}
+            pageSize={exportsPageSize}
+            onPageChange={setExportsPage}
+            onPageSizeChange={setExportsPageSize}
+          />
+        )}
       </div>
 
       <div className="table-area" style={{ marginBottom: '18px' }}>
@@ -324,9 +363,9 @@ const PackRepository = () => {
             </tr>
           </thead>
           <tbody>
-            {runtimePacks.length === 0 ? (
+            {paginatedRuntime.length === 0 ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>Import된 Runtime Pack이 없습니다.</td></tr>
-            ) : runtimePacks.map((pack) => {
+            ) : paginatedRuntime.map((pack) => {
               const isActive = activePack?.pack_id === pack.pack_id && activePack?.pack_version === pack.pack_version;
               const canApprove = pack.status === 'validated';
               const canActivate = pack.status === 'approved' && !isActive;
@@ -358,6 +397,16 @@ const PackRepository = () => {
             })}
           </tbody>
         </table>
+        {!loading && (
+          <Pagination
+            currentPage={runtimePage}
+            totalPages={runtimePages}
+            totalItems={runtimeTotal}
+            pageSize={runtimePageSize}
+            onPageChange={setRuntimePage}
+            onPageSizeChange={setRuntimePageSize}
+          />
+        )}
       </div>
 
       <div className="table-area">
@@ -375,9 +424,9 @@ const PackRepository = () => {
             </tr>
           </thead>
           <tbody>
-            {auditLogs.length === 0 ? (
+            {paginatedAudit.length === 0 ? (
               <tr><td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>감사 로그가 없습니다.</td></tr>
-            ) : auditLogs.map((log, index) => (
+            ) : paginatedAudit.map((log, index) => (
               <tr key={`${log.operation}-${log.created_at}-${index}`}>
                 <td>{log.operation}</td>
                 <td>{log.pack_id ? `${log.pack_id} v${log.pack_version}` : '-'}</td>
@@ -388,6 +437,16 @@ const PackRepository = () => {
             ))}
           </tbody>
         </table>
+        {!loading && (
+          <Pagination
+            currentPage={auditPage}
+            totalPages={auditPages}
+            totalItems={auditTotal}
+            pageSize={auditPageSize}
+            onPageChange={setAuditPage}
+            onPageSizeChange={setAuditPageSize}
+          />
+        )}
       </div>
 
       <ConfirmModal

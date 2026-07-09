@@ -1,3 +1,6 @@
+import toast from 'react-hot-toast';
+import { Skeleton, Spinner } from '../../components/common/Loader';
+import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
 import useProjects from '../../hooks/useProjects';
 import {
@@ -54,6 +57,8 @@ const FaqList = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
     if (projects.length > 0 && !projects.some((project) => project.id === projectId)) {
@@ -93,6 +98,17 @@ const FaqList = () => {
       ...(item.tags || []),
     ].filter(Boolean).some((value) => String(value).toLowerCase().includes(normalized)));
   }, [items, keyword]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword, projectId]);
+
+  const totalItems = filteredItems.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredItems.slice(start, start + pageSize);
+  }, [filteredItems, currentPage, pageSize]);
 
   const stats = useMemo(() => {
     const activeCount = items.filter((item) => item.status === 'active').length;
@@ -150,7 +166,7 @@ const FaqList = () => {
   const handleSave = async () => {
     const payload = buildPayload();
     if (!payload.question || !payload.answer) {
-      alert('질문, 답변을 입력해 주세요.');
+      toast.error('질문, 답변을 입력해 주세요.');
       return;
     }
     setSaving(true);
@@ -205,7 +221,7 @@ const FaqList = () => {
             {projects.length === 0 && <option value={projectId}>{projectId}</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={() => loadFaqs(projectId)} disabled={loading}>{loading ? '조회 중...' : '새로고침'}</button>
+          <button className="btn-secondary" onClick={() => loadFaqs(projectId)} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
           <button className="btn-primary" onClick={handleNew}>FAQ 등록</button>
         </div>
       </div>
@@ -250,13 +266,13 @@ const FaqList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredItems.length === 0 ? (
+              {paginatedItems.length === 0 ? (
                 <tr>
                   <td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>
                     등록된 FAQ가 없습니다.
                   </td>
                 </tr>
-              ) : filteredItems.map((item) => (
+              ) : paginatedItems.map((item) => (
                 <tr
                   key={item.faq_id}
                   onClick={() => handleSelect(item.faq_id)}
@@ -271,6 +287,16 @@ const FaqList = () => {
               ))}
             </tbody>
           </table>
+          {!loading && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
+          )}
         </div>
 
         <div className="table-area" style={{ padding: '18px' }}>

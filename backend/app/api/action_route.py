@@ -20,8 +20,15 @@ class ActionRouteRequest(BaseModel):
     top_k: int = Field(default=3, ge=1, le=10)
 
 
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import get_db
+
 @router.post("")
-async def route_action(req: ActionRouteRequest) -> dict[str, Any]:
+async def route_action(
+    req: ActionRouteRequest,
+    db: AsyncSession = Depends(get_db)
+) -> dict[str, Any]:
     loader = get_pack_loader()
     try:
         pack = loader.load_pack(req.pack_id, req.pack_version)
@@ -30,7 +37,7 @@ async def route_action(req: ActionRouteRequest) -> dict[str, Any]:
 
     matches = IntentMatcher(pack).match(req.question, top_k=req.top_k)
     logger = UnansweredLogger(default_unanswered_log_path())
-    card = ActionRouter(pack, unanswered_logger=logger).route(req.question, matches)
+    card = await ActionRouter(pack, unanswered_logger=logger, db=db).route(req.question, matches)
     return {
         "pack_id": req.pack_id,
         "pack_version": req.pack_version,

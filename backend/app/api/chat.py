@@ -75,7 +75,7 @@ async def chat_with_bot(
                     pack = get_pack_loader().load_pack(pack_id, pack_version)
                     matches = IntentMatcher(pack).match(req.query, top_k=3)
                     logger.info(f"[CHAT] Intent matches: {[(m['intent_id'], m['score'], m['confidence_label']) for m in matches[:3]]}")
-                    router_card = ActionRouter(pack).route(req.query, matches)
+                    router_card = await ActionRouter(pack, db=db).route(req.query, matches)
                     logger.info(f"[CHAT] router_card type={router_card.get('type')}, route={router_card.get('route')}")
                     if router_card.get("type") != "fallback_card":
                         action_card = router_card

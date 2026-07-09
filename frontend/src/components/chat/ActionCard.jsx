@@ -178,6 +178,7 @@ const ActionCard = ({ card }) => {
   if (card.type === 'query_card') {
     const result = card.mock_result && typeof card.mock_result === 'object' ? card.mock_result : {};
     const rows = Array.isArray(result.rows) ? result.rows : [];
+    const realData = Array.isArray(card.real_data) ? card.real_data : [];
 
     return (
       <div style={baseCardStyle}>
@@ -205,6 +206,28 @@ const ActionCard = ({ card }) => {
                 <div style={{ color: 'var(--color-text-main)', fontSize: '15px', fontWeight: 700 }}>{value || '-'}</div>
               </div>
             ))}
+          </div>
+        )}
+        {realData.length > 0 && (
+          <div style={{ overflowX: 'auto', background: 'var(--color-bg-elevated)', borderRadius: '6px', border: '1px solid var(--color-border)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-main)' }}>
+                  {Object.keys(realData[0]).map(key => (
+                    <th key={key} style={{ padding: '8px 12px', fontWeight: 700 }}>{key}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {realData.map((row, idx) => (
+                  <tr key={idx} style={{ borderBottom: idx !== realData.length - 1 ? '1px solid var(--color-border)' : 'none', color: 'var(--color-text-sub)' }}>
+                    {Object.values(row).map((val, i) => (
+                      <td key={i} style={{ padding: '8px 12px' }}>{String(val)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
         {rows.length > 0 && (

@@ -1,5 +1,7 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Spinner } from '../components/common/Loader';
 
 const PermissionMap = () => {
   const [roles, setRoles] = useState([]);
@@ -21,7 +23,7 @@ const PermissionMap = () => {
       setMenus(res.data.menus);
     } catch (err) {
       console.error(err);
-      alert('권한 정보를 불러오는데 실패했습니다.');
+      toast.error('권한 정보를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -65,17 +67,17 @@ const PermissionMap = () => {
       await axios.patch('/api/v1/permissions', { permissions: payload }, {
         headers: { Authorization: `Bearer ${token()}` }
       });
-      alert('권한 매핑 정보가 저장되었습니다.');
+      toast.success('권한 매핑 정보가 저장되었습니다.');
       fetchPermissions();
     } catch (err) {
       console.error(err);
-      alert('저장에 실패했습니다.');
+      toast.error('저장에 실패했습니다.');
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>로딩 중...</div>;
+  if (loading) return <div className="inner" style={{ padding: '60px', textAlign: 'center' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16, color: 'var(--color-text-muted)'}}>권한 맵을 불러오는 중입니다...</p></div>;
 
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>

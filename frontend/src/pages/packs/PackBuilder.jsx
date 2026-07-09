@@ -1,3 +1,4 @@
+import { OverlayLoader } from '../../components/common/Loader';
 import { useEffect, useState } from 'react';
 import useProjects from '../../hooks/useProjects';
 import { createPackExport, getPackDraft, getPackExportDownloadUrl, listPackExports } from '../../api/intentFactory';
@@ -44,10 +45,11 @@ const PackBuilder = () => {
     setExporting(true);
     setMessage('');
     try {
-      const exports = await listPackExports(projectId);
+      const exportsRes = await listPackExports(projectId);
+      const exportItems = exportsRes?.items || (Array.isArray(exportsRes) ? exportsRes : []);
       let nextVersion = '0.1.0';
-      if (exports && exports.length > 0) {
-        const versions = exports.map(e => e.pack_version);
+      if (exportItems.length > 0) {
+        const versions = exportItems.map(e => e.pack_version);
         const maxMinor = Math.max(...versions.map(v => {
           const parts = v.split('.');
           return parseInt(parts[1] || '0', 10);
@@ -74,6 +76,7 @@ const PackBuilder = () => {
 
   return (
     <div className="inner">
+      {exporting && <OverlayLoader title="Pack 빌드 중..." description="인텐트 및 액션을 패키징하고 있습니다." />}
       <div className="breadcrumb">
         <span>Pack 제작/배포</span> {'>'} <span>Pack Builder</span>
       </div>

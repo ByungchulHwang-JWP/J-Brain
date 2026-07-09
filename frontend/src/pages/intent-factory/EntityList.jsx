@@ -1,3 +1,6 @@
+import toast from 'react-hot-toast';
+import { Skeleton } from '../../components/common/Loader';
+import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
 import useProjects from '../../hooks/useProjects';
 import { archiveEntity, createEntity, getEntity, listEntities, updateEntity } from '../../api/intentFactory';
@@ -12,6 +15,8 @@ const EntityList = ({ mode = 'entities' }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   const emptyForm = {
     entity_type: '',
@@ -66,6 +71,17 @@ const EntityList = ({ mode = 'entities' }) => {
     ].filter(Boolean).some((value) => String(value).toLowerCase().includes(query)));
   }, [entities, keyword]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword, projectId]);
+
+  const totalItems = filtered.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage, pageSize]);
+
   const updateForm = (patch) => setForm((current) => ({ ...current, ...patch }));
 
   const startCreate = () => {
@@ -112,11 +128,11 @@ const EntityList = ({ mode = 'entities' }) => {
 
   const save = async () => {
     if (!form.entity_type?.trim()) {
-      alert('Entity Type을 입력해 주세요.');
+      toast.error('Entity Type을 입력해 주세요.');
       return;
     }
     if (!form.display_name?.trim()) {
-      alert('표시명을 입력해 주세요.');
+      toast.error('표시명을 입력해 주세요.');
       return;
     }
     setSaving(true);
@@ -151,7 +167,7 @@ const EntityList = ({ mode = 'entities' }) => {
       await fetchEntities();
     } catch (err) {
       console.error(err);
-      alert('보관 처리에 실패했습니다.');
+      toast.error('보관 처리에 실패했습니다.');
     }
   };
 
@@ -194,10 +210,10 @@ const EntityList = ({ mode = 'entities' }) => {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
-              ) : filtered.length === 0 ? (
+                Array.from({ length: Math.min(pageSize, 5) }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="80px" /></td></tr>))
+              ) : paginatedItems.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>등록된 Entity가 없습니다.</td></tr>
-              ) : filtered.map((entity) => (
+              ) : paginatedItems.map((entity) => (
                 <tr key={entity.entity_type}>
                   <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{entity.entity_type}</td>
                   <td style={{ fontWeight: 600 }}>{entity.display_name}</td>
@@ -214,6 +230,16 @@ const EntityList = ({ mode = 'entities' }) => {
               ))}
             </tbody>
           </table>
+          {!loading && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
+          )}
         </div>
 
         <div className="table-area" style={{ padding: '22px' }}>

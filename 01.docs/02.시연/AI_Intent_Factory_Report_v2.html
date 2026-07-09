@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Intent Factory MVP 구축 완료 보고</title>
+    <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body, html {
+            width: 100%; height: 100%; overflow: hidden;
+            background-color: #050505; color: #ffffff;
+            font-family: 'Pretendard', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .presentation-container {
+            position: relative; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at 50% 50%, #111111 0%, #000000 100%);
+        }
+        
+        .slide {
+            display: none; position: relative;
+            width: 100vw; height: 56.25vw; /* 16:9 Aspect Ratio */
+            max-height: 100vh; max-width: 177.78vh;
+            background: transparent;
+            padding: 4rem 5rem; overflow: hidden;
+        }
+        .slide.active {
+            display: flex; flex-direction: column;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header & Brand */
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; }
+        .logo { font-size: 1rem; font-weight: 800; letter-spacing: 2px; color: #ffffff; line-height: 1; border-left: 3px solid #38bdf8; padding-left: 12px; }
+        .slide-title { font-size: 2.6rem; font-weight: 700; color: #ffffff; letter-spacing: -1px; margin-bottom: 0.5rem; }
+        .slide-subtitle { font-size: 1.1rem; color: #94a3b8; font-weight: 400; letter-spacing: -0.5px; }
+        
+        .page-number { position: absolute; bottom: 2rem; right: 3rem; font-size: 1rem; font-weight: 600; color: #475569; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+        .nav-hint { position: absolute; bottom: 2rem; left: 3rem; font-size: 0.8rem; color: #334155; letter-spacing: 1px; }
+
+        /* Typography */
+        .text-gradient { background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .accent-blue { color: #38bdf8; }
+        .accent-emerald { color: #10b981; }
+
+        /* Layouts */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; flex: 1; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; flex: 1; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; flex: 1; }
+        .flex-col { display: flex; flex-direction: column; }
+        .flex-row { display: flex; gap: 2rem; }
+
+        /* Premium Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .card-title { font-size: 1.4rem; font-weight: 700; color: #ffffff; margin-bottom: 1.2rem; letter-spacing: -0.5px; }
+        .card-desc { font-size: 1rem; color: #94a3b8; line-height: 1.7; font-weight: 300; }
+
+        /* Specific Elements */
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 1rem; background: rgba(255,255,255,0.1); color: #fff; }
+        .badge.blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge.green { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .kpi-value { font-size: 4.5rem; font-weight: 300; color: #ffffff; line-height: 1; margin: 1rem 0; letter-spacing: -2px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { padding: 1.5rem; font-size: 1.1rem; font-weight: 600; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+        td { padding: 1.5rem; font-size: 1.05rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); line-height: 1.6; }
+
+        .timeline { position: relative; padding-left: 3rem; margin-top: 1rem; }
+        .timeline::before { content: ''; position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: rgba(255,255,255,0.1); }
+        .timeline-item { position: relative; margin-bottom: 3rem; }
+        .timeline-item::before { content: ''; position: absolute; left: -3.35rem; top: 0.4rem; width: 14px; height: 14px; background: #050505; border: 2px solid #38bdf8; border-radius: 50%; box-shadow: 0 0 10px rgba(56,189,248,0.5); }
+        
+        /* Architecture Diagram */
+        .arch-container { display: flex; gap: 3rem; height: 100%; align-items: stretch; }
+        .arch-zone { flex: 1; border: 1px dashed rgba(255,255,255,0.2); border-radius: 20px; padding: 2.5rem; position: relative; display: flex; flex-direction: column; gap: 1rem; }
+        .arch-zone::before { content: attr(data-title); position: absolute; top: -1rem; left: 50%; transform: translateX(-50%); background: #050505; padding: 0 1rem; font-weight: 700; color: #94a3b8; letter-spacing: 1px; }
+        .arch-block { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; text-align: center; font-weight: 500; }
+        .arch-block.highlight { background: rgba(56, 189, 248, 0.1); border-color: #38bdf8; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container" id="presentation">
+    
+    <!-- 1. Hero Cover -->
+    <div class="slide active" style="justify-content: center; align-items: center; text-align: center;">
+        <div style="font-size: 1.2rem; color: #38bdf8; font-weight: 600; letter-spacing: 6px; margin-bottom: 2rem; text-transform: uppercase;">J-Brain Enterprise Platform</div>
+        <h1 style="font-size: 5.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 2rem; letter-spacing: -2px;" class="text-gradient">AI Intent Factory<br>MVP 구축 완료 보고</h1>
+        <p style="font-size: 1.6rem; color: #94a3b8; font-weight: 300; margin-bottom: 5rem;">생성형 LLM 기반 차세대 전사 공통 챗봇 플랫폼 실증</p>
+        <div style="font-size: 1rem; color: #475569; letter-spacing: 2px;">2026. 07. 05 &nbsp;|&nbsp; JWINPARTNERS 개발팀</div>
+        <div class="page-number">01</div>
+    </div>
+
+    <!-- 2. CEO Summary -->
+    <div class="slide">
+        <div class="header" style="margin-bottom: 2rem;">
+            <div>
+                <h2 class="slide-title">Executive Summary</h2>
+                <p class="slide-subtitle">요약</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <p style="font-size: 1.2rem; color: #94a3b8; font-weight: 400; margin-bottom: 0.5rem; letter-spacing: -0.5px;">생성형 AI의 한계를 극복하는 새로운 접근으로</p>
+            <p style="font-size: 1.8rem; font-weight: 700; color: #ffffff; letter-spacing: -1px;">J-Brain 공통 챗봇 플랫폼의 MVP 구축을 완료하였습니다.</p>
+        </div>
+
+        <div class="grid-3" style="align-items: stretch; flex: 1;">
+            <!-- Problem -->
+            <div class="glass-card" style="padding: 2rem 1.5rem; display: flex; flex-direction: column;">
+                <div class="card-title" style="text-align: center; margin-bottom: 1.5rem; color: #fff;">Problem</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: space-between;">
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; flex-shrink: 0;">🚫</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">외부 LLM 연동 제한</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">내부망/폐쇄망에서 외부 API 사용 어려움</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; flex-shrink: 0;">🔒</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">보안 검토 부담</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">고객 데이터 외부 반출 시 보안 리스크 큼</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; flex-shrink: 0;">💰</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">GPU/LLM 운영 부담</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">막대한 인프라 및 전용 모델 관리 비용</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; flex-shrink: 0;">⚠️</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">생성형 환각 리스크</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">업무 수치, 정책, 절차 안내 시 오답 위험</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; flex-shrink: 0;">🔄</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">프로젝트별 재개발</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">서비스마다 별도 챗봇 개발로 인한 비효율</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Solution -->
+            <div class="glass-card" style="padding: 2rem 1.5rem; display: flex; flex-direction: column;">
+                <div class="card-title" style="text-align: center; margin-bottom: 1.5rem; color: #fff;">Solution</div>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; flex: 1; width: 100%;">
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 12px; text-align: center; width: 100%;">
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #fff;">AI Intent Factory <span style="font-size: 0.9rem; font-weight: normal; color: #94a3b8;">(외부망)</span></div>
+                        <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem; text-align: left; padding-left: 0.5rem; border-left: 2px solid #38bdf8;">
+                            • 문서/FAQ 파싱 및 Intent 매핑<br>
+                            • 프로젝트별 Pack 컴파일 및 검증
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 1.5rem; color: #38bdf8;">⬇</div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 1rem; border-radius: 12px; width: 100%; justify-content: center;">
+                        <span style="font-size: 1.5rem;">📦</span>
+                        <div style="text-align: left;">
+                            <div style="font-size: 1.1rem; font-weight: 700; color: #38bdf8;">Intent Pack</div>
+                            <div style="font-size: 0.8rem; color: #cbd5e1;">업무 지식 및 템플릿 압축 파일</div>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 1.5rem; color: #38bdf8;">⬇</div>
+
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1.2rem; border-radius: 12px; text-align: center; width: 100%;">
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #fff;">Runtime Center <span style="font-size: 0.9rem; font-weight: normal; color: #94a3b8;">(내부망)</span></div>
+                        <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem; text-align: left; padding-left: 0.5rem; border-left: 2px solid #10b981;">
+                            • Pack Import 및 무중단 배포<br>
+                            • 경량 NLU 및 Action(API) 실행
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result -->
+            <div class="glass-card" style="padding: 2rem 1.5rem; display: flex; flex-direction: column;">
+                <div class="card-title" style="text-align: center; margin-bottom: 1.5rem; color: #fff;">Result</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: space-between;">
+                    <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                        <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #000; font-weight: bold; flex-shrink: 0; margin-top: 2px;">✓</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">완벽한 내부망 대응</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">고객 데이터 외부 유출 원천 차단</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                        <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #000; font-weight: bold; flex-shrink: 0; margin-top: 2px;">✓</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">인프라 비용 혁신</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">GPU 서버 없이 CPU 기반 경량 실행</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                        <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #000; font-weight: bold; flex-shrink: 0; margin-top: 2px;">✓</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">환각(Hallucination) 방지</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">승인된 Intent, Action, 문서 검색만 실행</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                        <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #000; font-weight: bold; flex-shrink: 0; margin-top: 2px;">✓</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">높은 재사용성</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">Pack 교체만으로 다양한 서비스 즉시 확장</div>
+                        </div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 0.8rem;">
+                        <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #000; font-weight: bold; flex-shrink: 0; margin-top: 2px;">✓</div>
+                        <div>
+                            <div style="font-size: 1.05rem; color: #cbd5e1; font-weight: 600;">운영 통제력 확보</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem;">미응답 로그를 활용한 지속적 품질 자가 개선</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-number">02</div>
+    </div>
+
+    <!-- 3. 추진 배경 및 문제점 -->
+    <div class="slide">
+        <div class="header" style="margin-bottom: 2rem;">
+            <div>
+                <h2 class="slide-title">추진 배경 및 문제점</h2>
+                <p class="slide-subtitle">고객망 제약을 극복하고 자사 전 프로젝트에 확산 가능한 공통 챗봇 프레임워크의 필요성</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div style="display: flex; gap: 3rem; align-items: stretch; height: calc(100% - 6rem);">
+            <!-- As-Is (고객 환경 문제) -->
+            <div class="glass-card" style="flex: 1; border-top: 4px solid #ef4444; background: rgba(239, 68, 68, 0.03); padding: 2.5rem 2rem; display: flex; flex-direction: column;">
+                <div class="card-title" style="color: #ef4444; font-size: 1.6rem; text-align: center; margin-bottom: 2rem;">As-Is (고객 환경 문제)</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: space-between;">
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(239,68,68,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">🚫</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">외부 LLM 연동 제한</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">내부망/폐쇄망에서 외부 API 사용 어려움</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(239,68,68,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">🔒</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">보안 검토 부담</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">고객 데이터 외부 반출 시 보안 리스크 큼</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(239,68,68,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">💻</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">GPU/LLM 운영 부담</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">인프라, 모델 관리, 비용 부담이 큼</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(239,68,68,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">⚠️</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">환각(Hallucination) 리스크</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">업무 수치, 정책, 절차에서 오답 위험</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(239,68,68,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">🔄</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">프로젝트별 재개발</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">서비스마다 별도 챗봇 개발로 비효율</p></div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #334155;">➔</div>
+            
+            <!-- To-Be (우리가 풀 문제) -->
+            <div class="glass-card" style="flex: 1.2; border-top: 4px solid #38bdf8; background: rgba(56, 189, 248, 0.03); padding: 2.5rem 2rem; display: flex; flex-direction: column;">
+                <div class="card-title" style="color: #38bdf8; font-size: 1.6rem; text-align: center; margin-bottom: 1.5rem;">To-Be (J-Brain 접근 방식)</div>
+                <div style="text-align: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <p style="font-size: 1.1rem; color: #e2e8f0; font-weight: 500; letter-spacing: -0.5px;">"무거운 생성형 LLM 운영"이 아닌<br><span style="color: #38bdf8; font-weight: 700;">"고객망 제약을 지키며 자연어 기반 업무 UX 제공"</span>이 핵심입니다.</p>
+                </div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: space-between;">
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(56,189,248,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">⚡</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">경량 엔진 기반 접근</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">생성형 LLM 챗봇이 아닌 Lightweight NLU + Action 기반 적용</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(56,189,248,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">📦</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">Intent Pack 독립 분리</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">서비스별 질문, 화면, 문서, API, SQL Template을 Pack으로 분리</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(56,189,248,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">🛡️</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">고객 데이터 보호 유지</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">데이터는 고객망 밖으로 원천적으로 반출하지 않는 구조 설계</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(56,189,248,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">🧩</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">표준화된 공통 생태계</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">자사 공통 엔진과 Pack 표준, 검증 도구, 배포 패키지 인프라 확립</p></div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.4rem; background: rgba(56,189,248,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">🚀</div>
+                        <div><h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem;">범용적 전사 확장성</h4><p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">탄소중립플랫폼 1차 파일럿을 거쳐 모든 자사 프로젝트로 확장 전개</p></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-number">03</div>
+    </div>
+
+    <!-- 4. 구축 목표 및 전략 -->
+    <div class="slide">
+        <div class="header" style="margin-bottom: 2rem;">
+            <div>
+                <h2 class="slide-title">구축 목표 및 전략</h2>
+                <p class="slide-subtitle">"엔진은 하나, 지식은 무한 확장" 자사 프로젝트 전반에 재사용 가능한 공통 프레임워크 구축</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+
+        <div style="display: flex; gap: 3rem; align-items: stretch; height: calc(100% - 6rem);">
+            <!-- Left: Goals -->
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2rem;">
+                <div class="glass-card" style="flex: 1; justify-content: center; background: rgba(56,189,248,0.05); border-top: 4px solid #38bdf8; padding: 2.5rem;">
+                    <div style="font-size: 0.9rem; color: #38bdf8; letter-spacing: 2px; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">Final Goal</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 1rem;">폐쇄망 대응형 공통 챗봇 프레임워크 전사 확산</div>
+                    <p style="font-size: 1rem; color: #94a3b8; line-height: 1.6;">모든 자사 내부망 프로젝트(탄소, HR 등)에 코딩 없이 즉시 챗봇을 재사용하여 배포할 수 있는 단일 인프라 환경 구축.</p>
+                </div>
+                <div class="glass-card" style="flex: 1; justify-content: center; background: rgba(16,185,129,0.05); border-top: 4px solid #10b981; padding: 2.5rem;">
+                    <div style="font-size: 0.9rem; color: #10b981; letter-spacing: 2px; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">C-Lite MVP Goal</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 1rem;">탄소중립플랫폼 파일럿 시연 검증</div>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.8rem;">
+                        <li style="display: flex; align-items: center; gap: 0.8rem;"><span style="color: #10b981; font-weight: bold;">✓</span><span style="color: #cbd5e1;">A. 화면/기능 이동 (메뉴 딥링크 가이드)</span></li>
+                        <li style="display: flex; align-items: center; gap: 0.8rem;"><span style="color: #10b981; font-weight: bold;">✓</span><span style="color: #cbd5e1;">B. 문서/FAQ 검색 (RAG 근거 기반 안내)</span></li>
+                        <li style="display: flex; align-items: center; gap: 0.8rem;"><span style="color: #10b981; font-weight: bold;">✓</span><span style="color: #cbd5e1;">C. 업무 및 진행 조회 (API 실시간 연동)</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right: Strategy Table / Concept -->
+            <div class="glass-card" style="flex: 1.5; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                <div style="padding: 2rem 2.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #fff; text-align: center;">공통화 팩토리 전략 (Decoupling Strategy)</div>
+                </div>
+                <div style="padding: 2rem 2.5rem; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                    <table style="width: 100%; border-collapse: collapse; margin: 0; font-size: 0.95rem;">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%; padding: 1rem; border-bottom: 1px solid #334155; color: #94a3b8; font-weight: 600; text-align: left;">Core Layer</th>
+                                <th style="width: 40%; padding: 1rem; border-bottom: 1px solid #334155; color: #38bdf8; font-weight: 700; text-align: left;">공통 엔진 (엔진/프레임워크)</th>
+                                <th style="width: 40%; padding: 1rem; border-bottom: 1px solid #334155; color: #10b981; font-weight: 700; text-align: left;">도메인 Pack (서비스별 지식)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #cbd5e1; font-weight: 500;">질문 전처리</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #e2e8f0;">Query Preprocessor</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #94a3b8;">불용어 / 유의어 보강 사전</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #cbd5e1; font-weight: 500;">의도 매칭</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #e2e8f0;">NLU Matcher Engine</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #94a3b8;">Intent 목록 및 예시 질문셋</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #cbd5e1; font-weight: 500;">Entity 추출</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #e2e8f0;">Extractor Framework</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #94a3b8;">Entity Dictionary, Synonym</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #cbd5e1; font-weight: 500;">Action 실행</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #e2e8f0;">Action Runtime</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: 1px dashed rgba(255,255,255,0.05); color: #94a3b8;">Action Registry (API/SQL)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1.2rem 1rem; border-bottom: none; color: #cbd5e1; font-weight: 500;">문서 검색</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: none; color: #e2e8f0;">Search Runtime</td>
+                                <td style="padding: 1.2rem 1rem; border-bottom: none; color: #94a3b8;">FAQ, 매뉴얼, 자료실 인덱스</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">04</div>
+    </div>
+
+    <!-- 5. 전체 시스템 아키텍처 -->
+    <div class="slide">
+        <div class="header" style="margin-bottom: 2rem;">
+            <div>
+                <h2 class="slide-title">전체 시스템 아키텍처</h2>
+                <p class="slide-subtitle">엔터프라이즈 망분리 규정을 완벽하게 준수하는 Two-Track 아키텍처 및 런타임 흐름</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div style="display: flex; gap: 1.5rem; align-items: stretch; height: calc(100% - 6rem);">
+            <!-- Left: J-Brain 외부망 -->
+            <div class="glass-card" style="flex: 0.8; border-top: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.03); padding: 2.5rem 2rem; display: flex; flex-direction: column;">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <h3 style="font-size: 1.8rem; color: #f59e0b; font-weight: 700; margin-bottom: 0.5rem;">자사 외부망</h3>
+                    <p style="font-size: 1rem; color: #94a3b8;">J-Brain Intent Factory</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem; flex: 1; justify-content: center;">
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <span style="font-size: 2rem;">⚙️</span>
+                        <div><div style="color: #cbd5e1; font-size: 1.2rem; font-weight: 700;">공통 챗봇 엔진 개발</div><div style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.4rem;">Core Runtime 빌드 및 배포 준비</div></div>
+                    </div>
+                    <div style="font-size: 1.5rem; color: #f59e0b; text-align: center;">⬇</div>
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <span style="font-size: 2rem;">📝</span>
+                        <div><div style="color: #cbd5e1; font-size: 1.2rem; font-weight: 700;">Intent Pack 표준 작성</div><div style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.4rem;">데이터, UI, 액션 포맷 규격화</div></div>
+                    </div>
+                    <div style="font-size: 1.5rem; color: #f59e0b; text-align: center;">⬇</div>
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <span style="font-size: 2rem;">🛠️</span>
+                        <div><div style="color: #cbd5e1; font-size: 1.2rem; font-weight: 700;">프로젝트별 Pack 제작</div><div style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.4rem;">서비스별 맞춤 지식 인제스트 및 매핑</div></div>
+                    </div>
+                    <div style="font-size: 1.5rem; color: #f59e0b; text-align: center;">⬇</div>
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 1.2rem; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);">
+                        <span style="font-size: 2rem;">📦</span>
+                        <div><div style="color: #f59e0b; font-size: 1.2rem; font-weight: 700;">Pack 검증 / 패키지 생성</div><div style="color: #fcd34d; font-size: 0.9rem; margin-top: 0.4rem;">무결성 검사 후 최종 배포용 압축(.zip)</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Transfer -->
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.8rem; padding: 0 1rem;">
+                <div style="background: #ef4444; color: #fff; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">AIR GAP</div>
+                <div style="width: 2px; height: 60px; background: repeating-linear-gradient(to bottom, #ef4444 0, #ef4444 5px, transparent 5px, transparent 10px);"></div>
+                <div style="font-size: 2rem;">➡️</div>
+                <div style="font-size: 0.8rem; color: #94a3b8; text-align: center;">물리 이관<br>망연계</div>
+                <div style="width: 2px; height: 60px; background: repeating-linear-gradient(to bottom, #ef4444 0, #ef4444 5px, transparent 5px, transparent 10px);"></div>
+            </div>
+
+            <!-- Right: 고객 내부망 -->
+            <div class="glass-card" style="flex: 1.5; border-top: 4px solid #10b981; background: rgba(16, 185, 129, 0.03); padding: 2.5rem 2rem; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+                    <div>
+                        <h3 style="font-size: 1.8rem; color: #10b981; font-weight: 700; margin-bottom: 0.5rem;">고객 내부망 반입</h3>
+                        <p style="font-size: 1rem; color: #94a3b8;">Runtime Center & Action Execution</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.9rem; color: #cbd5e1; font-weight: 600;">📥 Pack Import / Validation</div>
+                        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.9rem; color: #cbd5e1; font-weight: 600;">🗂️ 로컬 문서 / FAQ 인덱싱</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 2.5rem; flex: 1; display: flex; flex-direction: column; justify-content: space-around;">
+                    
+                    <!-- Top row: User -> NLU Pipeline -->
+                    <div style="display: flex; align-items: stretch; gap: 2rem;">
+                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
+                            <div style="font-size: 1.1rem; color: #fff; font-weight: 700;">사용자 질문</div>
+                        </div>
+                        <div style="font-size: 2rem; color: #10b981; display: flex; align-items: center;">➔</div>
+                        <div style="flex: 1; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 0 20px rgba(16,185,129,0.05);">
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
+                                <div style="font-size: 1.1rem; color: #fff; font-weight: 700;">Intent Matcher</div>
+                                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">의도 분류</div>
+                            </div>
+                            <div style="font-size: 1.5rem; color: #94a3b8;">➔</div>
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
+                                <div style="font-size: 1.1rem; color: #fff; font-weight: 700;">Entity Extractor</div>
+                                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">핵심 개체 추출</div>
+                            </div>
+                            <div style="font-size: 1.5rem; color: #94a3b8;">➔</div>
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔀</div>
+                                <div style="font-size: 1.1rem; color: #fff; font-weight: 700;">Confidence Router</div>
+                                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">신뢰도 기반 라우팅</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Connector -->
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 1.5rem 0;">
+                        <div style="height: 2px; flex: 1; background: linear-gradient(to right, transparent, rgba(16,185,129,0.5));"></div>
+                        <div style="background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #fff; padding: 0.5rem 1.5rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem; letter-spacing: 1px;">ACTION DISPATCHER</div>
+                        <div style="height: 2px; flex: 1; background: linear-gradient(to left, transparent, rgba(16,185,129,0.5));"></div>
+                    </div>
+
+                    <!-- Bottom row: Actions -->
+                    <div style="display: flex; gap: 1.5rem;">
+                        <div style="flex: 1; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 1.8rem 1.2rem; text-align: center; transition: all 0.3s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🖥️</div>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.8rem;">NAVIGATE Action</div>
+                            <div style="font-size: 0.9rem; color: #94a3b8; line-height: 1.4;">화면 이동 딥링크<br>UI 가이드 제공</div>
+                        </div>
+                        <div style="flex: 1; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 1.8rem 1.2rem; text-align: center; transition: all 0.3s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📄</div>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #10b981; margin-bottom: 0.8rem;">SEARCH_DOC Action</div>
+                            <div style="font-size: 0.9rem; color: #94a3b8; line-height: 1.4;">근거 문서 검색<br>사내 규정 RAG</div>
+                        </div>
+                        <div style="flex: 1; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); border-radius: 12px; padding: 1.8rem 1.2rem; text-align: center; transition: all 0.3s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #a855f7; margin-bottom: 0.8rem;">QUERY Action</div>
+                            <div style="font-size: 0.9rem; color: #94a3b8; line-height: 1.4;">Mock / API / SQL<br>실시간 데이터 연동</div>
+                        </div>
+                        <div style="width: 15%; border: 1px dashed rgba(239,68,68,0.5); border-radius: 12px; padding: 1.8rem 1.2rem; text-align: center; display: flex; flex-direction: column; justify-content: center; background: rgba(239,68,68,0.05);">
+                            <div style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.7;">⚠️</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #ef4444; margin-bottom: 0.5rem;">Fallback</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4;">미응답 로깅<br>품질 개선</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="page-number">05</div>
+    </div>
+
+    <!-- 6. Workflow Dashboard -->
+    <div class="slide">
+        <div class="header">
+            <div>
+                <h2 class="slide-title">Workflow Dashboard</h2>
+                <p class="slide-subtitle">프로젝트 품질과 라이프사이클을 통제하는 High-end 관리 뷰</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2rem; height: calc(100% - 6rem);">
+            <div class="grid-4">
+                <div class="glass-card" style="text-align: center; padding: 2rem 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="card-desc" style="font-size: 1rem; font-weight: 600;">종합 진척도</div>
+                    <div class="kpi-value text-gradient" style="font-size: 4rem;">92%</div>
+                </div>
+                <div class="glass-card" style="text-align: center; padding: 2rem 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="card-desc" style="font-size: 1rem; font-weight: 600;">추출된 인텐트</div>
+                    <div class="kpi-value text-gradient" style="font-size: 4rem;">128</div>
+                </div>
+                <div class="glass-card" style="text-align: center; padding: 2rem 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="card-desc" style="font-size: 1rem; font-weight: 600;">매핑 엔티티</div>
+                    <div class="kpi-value text-gradient" style="font-size: 4rem;">45</div>
+                </div>
+                <div class="glass-card" style="text-align: center; padding: 2rem 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="card-desc" style="font-size: 1rem; font-weight: 600;">Action API</div>
+                    <div class="kpi-value text-gradient" style="font-size: 4rem;">12</div>
+                </div>
+            </div>
+            <div class="glass-card" style="flex: 1; display: flex; flex-direction: column;">
+                <div class="card-title" style="margin-bottom: 1rem;">6-Phase Workflow Lifecycle</div>
+                <div style="display: flex; gap: 10px; margin-bottom: 3rem; margin-top: 1rem;">
+                    <div style="flex: 1; height: 8px; background: #38bdf8; border-radius: 4px; box-shadow: 0 0 10px rgba(56,189,248,0.5);"></div>
+                    <div style="flex: 1; height: 8px; background: #38bdf8; border-radius: 4px; box-shadow: 0 0 10px rgba(56,189,248,0.5);"></div>
+                    <div style="flex: 1; height: 8px; background: #38bdf8; border-radius: 4px; box-shadow: 0 0 10px rgba(56,189,248,0.5);"></div>
+                    <div style="flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                    <div style="flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                    <div style="flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                </div>
+                <div class="grid-3" style="flex: 1; gap: 2rem;">
+                    <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);"><h4 style="color:#fff; font-size: 1.2rem; margin-bottom:0.8rem;">P1. Foundation</h4><p class="card-desc" style="font-size: 0.95rem;">프로젝트 환경 셋업 및 기본 정책 수립</p></div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);"><h4 style="color:#fff; font-size: 1.2rem; margin-bottom:0.8rem;">P2. Knowledge</h4><p class="card-desc" style="font-size: 0.95rem;">도메인 매뉴얼 PDF 인제스트 및 벡터화</p></div>
+                    <div style="background: rgba(56,189,248,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);"><h4 style="color:#38bdf8; font-size: 1.2rem; margin-bottom:0.8rem;">P3. Intent Design</h4><p class="card-desc" style="font-size: 0.95rem;">AI 에이전트를 통한 자동 의도 추출 및 정제</p></div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); opacity: 0.6;"><h4 style="color:#94a3b8; font-size: 1.2rem; margin-bottom:0.8rem;">P4. Action Connect</h4><p class="card-desc" style="font-size: 0.95rem;">각 의도별 화면 이동 딥링크 및 API 매핑 작업</p></div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); opacity: 0.6;"><h4 style="color:#94a3b8; font-size: 1.2rem; margin-bottom:0.8rem;">P5. Pack Build</h4><p class="card-desc" style="font-size: 0.95rem;">무결성 충돌 검사 자동 수행 및 배포 버전 생성</p></div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); opacity: 0.6;"><h4 style="color:#94a3b8; font-size: 1.2rem; margin-bottom:0.8rem;">P6. Deploy</h4><p class="card-desc" style="font-size: 0.95rem;">.zip 패키지 다운로드 및 폐쇄망 런타임 적용</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="page-number">06</div>
+    </div>
+
+    <!-- 7. Intent Factory -->
+    <div class="slide">
+        <div class="header">
+            <div>
+                <h2 class="slide-title">Intent Factory (Product Showcase)</h2>
+                <p class="slide-subtitle">코딩 없이 AI와 협업하여 챗봇 두뇌를 설계하는 No-Code 포털</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div class="grid-3" style="height: calc(100% - 6rem); align-items: stretch;">
+            <div class="glass-card" style="border-top: 4px solid #3b82f6; display: flex; flex-direction: column; padding: 3rem 2.5rem;">
+                <div style="font-size: 3.5rem; margin-bottom: 1.5rem; text-align: center;">🤖</div>
+                <div class="card-title" style="font-size: 1.6rem; color: #3b82f6; text-align: center;">AI Intent Discovery</div>
+                <div class="card-desc" style="font-size: 1.05rem; margin-top: 1rem; margin-bottom: 2rem;">방대한 사내 매뉴얼을 업로드하면, LangGraph 기반 에이전트가 문서를 분석하여 예상 질문(Intent)과 FAQ 쌍을 <strong>자동으로 도출 및 제안</strong>합니다.</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem; flex: 1; justify-content: flex-end;">
+                    <li style="display: flex; align-items: center; gap: 0.8rem;"><span style="color: #3b82f6;">▸</span><span style="color: #cbd5e1; font-size: 0.95rem;">PDF/매뉴얼 자동 파싱 및 벡터화</span></li>
+                    <li style="display: flex; align-items: center; gap: 0.8rem;"><span style="color: #3b82f6;">▸</span><span style="color: #cbd5e1; font-size: 0.95rem;">AI 기반 예상 질문 초안 자동 생성</span></li>
+                    <li style="display: flex; align-items: center; gap: 0.8rem;"><span style="color: #3b82f6;">▸</span><span style="color: #cbd5e1; font-size: 0.95rem;">관리자 검토 후 승인/수정 프로세스</span></li>
+                </ul>
+            </div>
+            <div class="glass-card" style="border-top: 4px solid #10b981; display: flex; flex-direction: column; padding: 3rem 2.5rem;">
+                <div style="font-size: 3.5rem; margin-bottom: 1.5rem; text-align: center;">🔗</div>
+                <div class="card-title" s        <div class="flex-row" style="height: calc(100% - 6rem); align-items: stretch;">
+            <div class="flex-col" style="flex: 1.5; gap: 1.5rem;">
+                <div class="glass-card" style="flex: 1; flex-direction: row; align-items: center; gap: 2rem; padding: 2rem;">
+                    <div style="font-size: 3rem; color: #38bdf8;">⚡</div>
+                    <div>
+                        <div class="card-title" style="margin-bottom: 0.5rem;">초고속 NLU 매칭 프로세스</div>
+                        <div class="card-desc">무거운 생성형 추론 모델 개입 없이, Vector Similarity Search를 활용하여 사용자의 발화를 밀리초(ms) 단위로 분석하고 정확한 인텐트를 확정합니다.</div>
+                    </div>
+                </div>
+                <div class="glass-card" style="flex: 1; flex-direction: row; align-items: center; gap: 2rem; padding: 2rem;">
+                    <div style="font-size: 3rem; color: #10b981;">🛡️</div>
+                    <div>
+                        <div class="card-title" style="margin-bottom: 0.5rem;">Zero-Hallucination 보장</div>
+                        <div class="card-desc">AI가 임의의 문장을 생성하는 것을 배제하고, 사전 검수 완료된 FAQ 및 정형화된 Action 템플릿만을 조립 출력하여 100% 정보 신뢰성을 담보합니다.</div>
+                    </div>
+                </div>
+                <div class="glass-card" style="flex: 1; flex-direction: row; align-items: center; gap: 2rem; padding: 2rem;">
+                    <div style="font-size: 3rem; color: #f59e0b;">🔄</div>
+                    <div>
+                        <div class="card-title" style="margin-bottom: 0.5rem;">Seamless Hot Deploy</div>
+                        <div class="card-desc">엔진 서버의 재시작 없이 새로운 Intent Pack Zip 파일만 업로드(Import)하면, 운영 중인 서비스의 단절 없이 즉각적으로 챗봇 지능이 갱신됩니다.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card" style="flex: 1; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(56,189,248,0.1) 100%); display: flex; flex-direction: column; justify-content: center;">
+                <div class="badge blue" style="align-self: flex-start;">Admin Tools</div>
+                <div class="card-title" style="font-size: 2.2rem; margin-top: 1.5rem;">Runtime QA Console</div>
+                <div class="card-desc" style="font-size: 1.1rem; margin-bottom: 3rem;">블랙박스형 AI를 투명하게 들여다보고 통제합니다.</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 2rem;">
+                    <li style="display: flex; gap: 1.2rem; align-items: flex-start;"><span style="color:#38bdf8; font-size: 1.5rem;">✓</span><span style="color:#e2e8f0; font-size: 1.1rem; font-weight: 500; line-height: 1.4;">챗봇 발화 인텐트 매칭 스코어 실시간 확인</span></li>
+                    <li style="display: flex; gap: 1.2rem; align-items: flex-start;"><span style="color:#38bdf8; font-size: 1.5rem;">✓</span><span style="color:#e2e8f0; font-size: 1.1rem; font-weight: 500; line-height: 1.4;">추출된 Entity 및 Slot Filling 상태 디버깅</span></li>
+                    <li style="display: flex; gap: 1.2rem; align-items: flex-start;"><span style="color:#38bdf8; font-size: 1.5rem;">✓</span><span style="color:#e2e8f0; font-size: 1.1rem; font-weight: 500; line-height: 1.4;">미답변(Unanswered) 질의 자동 분류 및 로깅</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-number">08</div>
+    </div>
+
+    <!-- 9. AI Process Flow -->
+    <div class="slide">
+        <div class="header" style="margin-bottom: 2rem;">
+            <div>
+                <h2 class="slide-title">AI Process Flow</h2>
+                <p class="slide-subtitle">인간과 AI의 유기적 협업(Human-in-the-loop)을 통한 고품질 지식 창출 파이프라인</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; height: calc(100% - 6rem); padding: 0 2rem;">
+            <!-- Step 1 -->
+            <div style="flex: 1; text-align: center;">
+                <div style="width: 120px; height: 120px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 3rem; margin: 0 auto 1.5rem;">📄</div>
+                <div style="font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 0.8rem;">1. 지식 인제스트</div>
+                <div style="font-size: 1rem; color: #94a3b8; line-height: 1.6;">매뉴얼 업로드<br>Vectorizing</div>
+            </div>
+            <div style="font-size: 2.5rem; color: #334155;">➔</div>
+            
+            <!-- Step 2 -->
+            <div style="flex: 1; text-align: center;">
+                <div style="width: 120px; height: 120px; background: rgba(56,189,248,0.1); border: 2px solid #38bdf8; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 3rem; margin: 0 auto 1.5rem; box-shadow: 0 0 20px rgba(56,189,248,0.2);">🤖</div>
+                <div style="font-size: 1.3rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.8rem;">2. AI 의도 도출</div>
+                <div style="font-size: 1rem; color: #94a3b8; line-height: 1.6;">LangGraph 기반<br>초안 자동 생성</div>
+            </div>
+            <div style="font-size: 2.5rem; color: #334155;">➔</div>
+
+            <!-- Step 3 -->
+            <div style="flex: 1; text-align: center;">
+                <div style="width: 120px; height: 120px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 3rem; margin: 0 auto 1.5rem;">👨‍💻</div>
+                <div style="font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 0.8rem;">3. 관리자 리뷰</div>
+                <div style="font-size: 1rem; color: #94a3b8; line-height: 1.6;">오류 교정 및<br>Action(API) 매핑</div>
+            </div>
+            <div style="font-size: 2.5rem; color: #334155;">➔</div>
+
+            <!-- Step 4 -->
+            <div style="flex: 1; text-align: center;">
+                <div style="width: 120px; height: 120px; background: rgba(16,185,129,0.1); border: 2px solid #10b981; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 3rem; margin: 0 auto 1.5rem; box-shadow: 0 0 20px rgba(16,185,129,0.2);">🛡️</div>
+                <div style="font-size: 1.3rem; font-weight: 700; color: #10b981; margin-bottom: 0.8rem;">4. 검증 및 빌드</div>
+                <div style="font-size: 1rem; color: #94a3b8; line-height: 1.6;">결함 자동 검사 후<br>버전 패키징</div>
+            </div>
+        </div>
+        <div class="page-number">09</div>
+    </div>"glass-card" style="flex: 1; flex-direction: row; align-items: center; gap: 2rem; padding: 2rem;">
+                    <div style="font-size: 3rem; color: #f59e0b;">🔄</div>
+                    <div>
+                        <div class="card-title" style="margin-bottom: 0.5rem;">Seamless Hot Deploy</div>
+                        <div class="card-desc">엔진 서버의 재시작 없이 새로운 Intent Pack Zip 파일만 업로드(Import)하면, 운영 중인 서비스의 단절 없이 즉각적으로 챗봇 지능이 갱신됩니다.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card" style="flex: 1; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(56,189,248,0.1) 100%); display: flex; flex-direction: column; justify-content: center;">
+                <div class="badge blue" style="align-self: flex-start;">Admin Tools</div>
+                <div class="card-title" style="font-size: 2.2rem; margin-top: 1.5rem;">Runtime QA Console</div>
+                <div class="card-desc" style="font-size: 1.1rem; margin-bottom: 3rem;">블랙박스형 AI를 투명하게 들여다보고 통제합니다.</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 2rem;">
+                    <li style="display: flex; gap: 1.2rem; align-items: flex-start;"><span style="color:#38bdf8; font-size: 1.5rem;">✓</span><span style="color:#e2e8f0; font-size: 1.1rem; font-weight: 500; line-height: 1.4;">챗봇 발화 인텐트 매칭 스코어 실시간 확인</span></li>
+                        <div class="card-title" style="margin-bottom: 0.5rem;">Hot-Deploy Support</div>
+                        <div class="card-desc">서버 재시작 없이 신규 버전 팩(Zip) Import 만으로 지능 갱신(무중단 배포).</div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                <div class="card-title" style="font-size: 2.2rem;">QA Console</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">
+                    <li style="display: flex; gap: 1.2rem; align-items: flex-start;"><span style="color:#38bdf8; font-size: 1.5rem;">✓</span><span style="color:#e2e8f0; font-size: 1.1rem;">매칭 스코어 실시간 확인</span></li>
+                    <li style="display: flex; gap: 1.2rem; align-items: flex-start;"><span style="color:#38bdf8; font-size: 1.5rem;">✓</span><span style="color:#e2e8f0; font-size: 1.1rem;">엔티티 추출 및 슬롯 상태 디버깅</span></li>
+                    <li style="display: flex; gap: 1.2rem; align-items: flex-start;"><span style="color:#38bdf8; font-size: 1.5rem;">✓</span><span style="color:#e2e8f0; font-size: 1.1rem;">미답변 질의 자동 로깅 및 분석</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-number">08</div>
+    </div>
+
+            <!-- Step 4 -->
+            <div style="flex: 1; text-align: center; position: relative;">
+                <div style="width: 100px; height: 100px; background: rgba(16,185,129,0.1); border: 2px solid #10b981; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; margin: 0 auto 1.5rem; box-shadow: 0 0 20px rgba(16,185,129,0.2);">🛡️</div>
+                <div style="font-size: 1.2rem; font-weight: 700; color: #10b981; margin-bottom: 0.5rem;">4. 검증 및 빌드</div>
+                <div style="font-size: 0.9rem; color: #94a3b8; line-height: 1.5;">결함 자동 검사 후<br>버전 패키징</div>
+            </div>
+        </div>
+        <div class="page-number">09</div>
+    </div>
+
+    <!-- 10. 핵심 기술 차별성 -->
+    <div class="slide">
+        <div class="header">
+            <div>
+                <h2 class="slide-title">핵심 기술 차별성</h2>
+                <p class="slide-subtitle">기존 통제 불가능한 생성형 LLM 구축 방식 대비 J-Brain 아키텍처의 압도적 우위</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div class="glass-card" style="padding: 0; overflow: hidden; margin-top: 1rem;">
+            <table>
+                <thead>
+                    <tr style="background: rgba(255,255,255,0.02);">
+                        <th style="width: 20%; font-size: 1.2rem; color: #fff;">비교 인덱스</th>
+                        <th style="width: 40%; font-size: 1.2rem;">기존 범용 LLM 챗봇 (On-Prem)</th>
+                        <th style="width: 40%; font-size: 1.2rem; color: #38bdf8; background: rgba(56,189,248,0.05);">J-Brain 플랫폼 (본 과제)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700; color: #e2e8f0;">엔진 통제력</td>
+                        <td>추론 과정을 알 수 없는 블랙박스 모델, 잦은 환각</td>
+                        <td style="background: rgba(56,189,248,0.02); font-weight: 600; color: #fff;">NLU 매칭 점수 추적 가능한 화이트박스, <span style="color:#10b981;">환각 0%</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700; color: #e2e8f0;">소유 비용 (TCO)</td>
+                        <td>GPU 서버 인프라 유지비 월 수천만 원 누적</td>
+                        <td style="background: rgba(56,189,248,0.02); font-weight: 600; color: #fff;">일반 CPU 환경에서 즉각 구동, <span style="color:#10b981;">인프라 비용 80%↓</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700; color: #e2e8f0;">망분리 보안성</td>
+                        <td>OpenAI 등 외부망 API 호출 불가로 도입 난항</td>
+                        <td style="background: rgba(56,189,248,0.02); font-weight: 600; color: #fff;">외부 Factory ➔ 내부 Runtime 이관. <span style="color:#10b981;">완벽한 규정 준수</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700; color: #e2e8f0;">응답 레이턴시</td>
+                        <td>긴 텍스트 생성 시간 소요 (평균 3~5초 대기)</td>
+                        <td style="background: rgba(56,189,248,0.02); font-weight: 600; color: #fff;">미리 정의된 Action 트리거 발동. <span style="color:#10b981;">0.5초 이내 즉답</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="page-number">10</div>
+    </div>
+
+    <!-- 11. 구축 성과 -->
+    <div class="slide">
+        <div class="header">
+            <div>
+                <h2 class="slide-title">MVP 구축 성과 (KPI)</h2>
+                <p class="slide-subtitle">정량적, 정성적 기획 목표 100% 초과 달성 현황</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div class="grid-4" style="margin-top: 3rem;">
+            <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                <div class="card-desc" style="font-size: 1rem; font-weight: 600;">개발 생산성 증대 (구축기간 단축)</div>
+                <div class="kpi-value text-gradient">80<span style="font-size: 2.5rem; font-weight: 400;">% ↓</span></div>
+                <div class="card-desc" style="font-size: 0.9rem;">AI 의도 추출을 통해<br>수개월 ➔ 수일로 런칭 단축</div>
+            </div>
+            <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.02);">
+                <div class="card-desc" style="font-size: 1rem; font-weight: 600; color: #10b981;">망분리 보안 규정 준수율</div>
+                <div class="kpi-value" style="color: #10b981;">100<span style="font-size: 2.5rem; font-weight: 400;">%</span></div>
+                <div class="card-desc" style="font-size: 0.9rem;">물리적 Pack Import 방식을 통해<br>사내 데이터 외부 반출 원천 차단</div>
+            </div>
+            <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.02);">
+                <div class="card-desc" style="font-size: 1rem; font-weight: 600; color: #38bdf8;">환각(Hallucination) 리스크</div>
+                <div class="kpi-value" style="color: #38bdf8;">0<span style="font-size: 2.5rem; font-weight: 400;">%</span></div>
+                <div class="card-desc" style="font-size: 0.9rem;">결정론적 Action 연동으로<br>거짓 정보 제공 위협 제로화</div>
+            </div>
+            <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                <div class="card-desc" style="font-size: 1rem; font-weight: 600;">기획 요구사항 반영률</div>
+                <div class="kpi-value text-gradient">100<span style="font-size: 2.5rem; font-weight: 400;">%</span></div>
+                <div class="card-desc" style="font-size: 0.9rem;">화면 이동, API 조회, FAQ 등<br>MVP Core 기능 완벽 작동</div>
+            </div>
+        </div>
+        <div class="page-number">11</div>
+    </div>
+
+    <!-- 12. 시연 시나리오 -->
+    <div class="slide">
+        <div class="header">
+            <div>
+                <h2 class="slide-title">탄소중립플랫폼 시연 시나리오</h2>
+                <p class="slide-subtitle">플랫폼 가동 및 업무 데이터 연동 정합성 검증을 위한 핵심 데모 워크플로우</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.5px;">STEP 01. Intent Factory 셋업 및 지식 입력</h3>
+                <p class="card-desc" style="font-size: 1.05rem;">신규 챗봇 프로젝트(Tenant) 생성 및 탄소중립 업무 매뉴얼/규정 문서(PDF) 업로드 및 파싱 실행.</p>
+            </div>
+            <div class="timeline-item">
+                <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.5px;">STEP 02. AI 도출 지식 리뷰 및 API Action 매핑</h3>
+                <p class="card-desc" style="font-size: 1.05rem;">"시세 조회" 의도 인식 시 ➔ KAU 시세 라이브 API 연동 매핑. <br>"화면 이동" 의도 인식 시 ➔ 탄소 대시보드 URL 딥링크 매핑.</p>
+            </div>
+            <div class="timeline-item">
+                <h3 style="font-size: 1.5rem; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.5px;">STEP 03. Pack 패키징 및 내부망 배포</h3>
+                <p class="card-desc" style="font-size: 1.05rem;">자동 무결성 검증 후 지식 팩(.zip)을 빌드하여 사내 폐쇄망 Runtime Server에 무중단 Import 적용.</p>
+            </div>
+            <div class="timeline-item">
+                <h3 style="font-size: 1.5rem; color: #38bdf8; margin-bottom: 0.5rem; letter-spacing: -0.5px;">STEP 04. 챗봇 테스트 (Live Demo)</h3>
+                <p class="card-desc" style="font-size: 1.05rem; color: #e2e8f0;">"오늘 배출권 시세 얼마야?", "사용자 인증 규정 알려줘" 질의를 통한 즉각적인 API 응답 및 매뉴얼 출처 확인 검증.</p>
+            </div>
+        </div>
+        <div class="page-number">12</div>
+    </div>
+
+    <!-- 13. 향후 Roadmap -->
+    <div class="slide">
+        <div class="header">
+            <div>
+                <h2 class="slide-title">향후 Roadmap</h2>
+                <p class="slide-subtitle">기반 확보에서 전사 확산 및 스케일업으로 이어지는 고도화 플랜</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div class="grid-3" style="margin-top: 4rem;">
+            <div class="glass-card" style="opacity: 0.6;">
+                <div class="badge">PHASE 1 (현재)</div>
+                <div class="card-title" style="font-size: 1.8rem;">C-Lite MVP</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                    <li style="color:#94a3b8; font-size:1.05rem;">✓ 아키텍처 분리 프레임워크 완성</li>
+                    <li style="color:#94a3b8; font-size:1.05rem;">✓ 탄소중립플랫폼 1차 파일럿 실증</li>
+                    <li style="color:#94a3b8; font-size:1.05rem;">✓ 정적 FAQ 및 R/O 기반 API 연동</li>
+                </ul>
+            </div>
+            <div class="glass-card" style="border-color: #38bdf8; background: rgba(56,189,248,0.03); transform: scale(1.05); z-index: 10;">
+                <div class="badge blue">PHASE 2 (하반기 Target)</div>
+                <div class="card-title" style="font-size: 1.8rem; color: #38bdf8;">Advanced Engine</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                    <li style="color:#e2e8f0; font-size:1.05rem;">■ 복합 Action (데이터 CUD) 제어 기능</li>
+                    <li style="color:#e2e8f0; font-size:1.05rem;">■ Text-to-SQL 동적 쿼리 엔진 R&D</li>
+                    <li style="color:#e2e8f0; font-size:1.05rem;">■ 미답변(Unanswered) 자가 학습 루프</li>
+                </ul>
+            </div>
+            <div class="glass-card">
+                <div class="badge">PHASE 3 (내년)</div>
+                <div class="card-title" style="font-size: 1.8rem;">Enterprise Scale</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                    <li style="color:#cbd5e1; font-size:1.05rem;">■ HR, 그룹웨어 등 사내 전 시스템 확산</li>
+                    <li style="color:#cbd5e1; font-size:1.05rem;">■ 사용자 맞춤형 Personalization 추천</li>
+                    <li style="color:#cbd5e1; font-size:1.05rem;">■ On-Prem 초거대 모델 하이브리드 통합</li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-number">13</div>
+    </div>
+
+    <!-- 14. 기대효과 -->
+    <div class="slide">
+        <div class="header">
+            <div>
+                <h2 class="slide-title">도입 기대 효과 (Business Value)</h2>
+                <p class="slide-subtitle">단순 챗봇 기능을 넘어 전사 업무 패러다임을 전환하는 핵심 가치</p>
+            </div>
+            <div class="logo-wrap"><div class="logo">JWINPARTNERS</div></div>
+        </div>
+        <div class="flex-row" style="margin-top: 3rem; height: 100%;">
+            <div class="glass-card" style="flex: 1; justify-content: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
+                <div class="card-title" style="font-size: 1.8rem; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1.5rem;">정량적 ROI 개선</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem;">
+                    <li>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">유지보수 비용(TCO) 방어</div>
+                        <p class="card-desc">막대한 LLM 종량제 API 비용 및 서버 유지비를 제거하여 경제적 지속 가능성 확보</p>
+                    </li>
+                    <li>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">타임 투 마켓(Time-to-Market) 극대화</div>
+                        <p class="card-desc">신규 사내 서비스에 챗봇 도입 시 소요기간을 수 개월에서 수 일 이내로 단축</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="glass-card" style="flex: 1; justify-content: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+                <div class="card-title" style="font-size: 1.8rem; color: #10b981; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1.5rem;">정성적 품질 혁신</div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem;">
+                    <li>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">사내 정보 보안 완전성</div>
+                        <p class="card-desc">망분리 완벽 대응으로 내부 기밀 유출 불안 요소를 원천 제거하고 현업 신뢰도 확보</p>
+                    </li>
+                    <li>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">AI 플랫폼 기술 내재화 자생력</div>
+                        <p class="card-desc">외부 솔루션 벤더에 종속되지 않고 자체 플랫폼 파이프라인을 운영/확장할 수 있는 역량 획득</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-number">14</div>
+    </div>
+
+    <!-- 15. Closing -->
+    <div class="slide" style="justify-content: center; align-items: center; text-align: center;">
+        <div style="font-size: 6rem; margin-bottom: 2rem; text-shadow: 0 0 40px rgba(56,189,248,0.3);">✨</div>
+        <h1 style="font-size: 5rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 2rem;" class="text-gradient">THANK YOU</h1>
+        <p style="font-size: 1.6rem; color: #94a3b8; font-weight: 300; margin-bottom: 5rem;">이어서 [탄소중립플랫폼] J-Brain 챗봇의 실제 라이브 시연을 진행하겠습니다.</p>
+        
+        <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 1.5rem 3rem; border-radius: 50px; display: inline-block;">
+            <div style="font-size: 0.9rem; color: #38bdf8; letter-spacing: 2px; margin-bottom: 0.5rem; text-transform: uppercase;">Next Session</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #fff;">Live Demo & Q&A</div>
+        </div>
+        <div class="page-number">15</div>
+    </div>
+
+    <div class="nav-hint">CLICK: Next Slide &nbsp;|&nbsp; RIGHT CLICK: Prev Slide &nbsp;|&nbsp; ARROW KEYS</div>
+</div>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    let currentSlideIndex = 0;
+
+    function showSlide(index) {
+        if (index >= 0 && index < slides.length) {
+            slides[currentSlideIndex].classList.remove('active');
+            currentSlideIndex = index;
+            slides[currentSlideIndex].classList.add('active');
+        }
+    }
+
+    const container = document.getElementById('presentation');
+
+    container.addEventListener('click', function(e) {
+        if (currentSlideIndex < slides.length - 1) showSlide(currentSlideIndex + 1);
+    });
+
+    container.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        if (currentSlideIndex > 0) showSlide(currentSlideIndex - 1);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'Space') {
+            if (currentSlideIndex < slides.length - 1) showSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            if (currentSlideIndex > 0) showSlide(currentSlideIndex - 1);
+        }
+    });
+</script>
+</body>
+</html>

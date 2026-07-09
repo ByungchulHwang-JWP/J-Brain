@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Spinner } from '../../components/common/Loader';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import WorkflowStepper from '../../components/workflow/WorkflowStepper';
 import WorkflowGatePanel from '../../components/workflow/WorkflowGatePanel';
@@ -55,6 +56,20 @@ const WorkflowStagePage = () => {
   const [error, setError] = useState('');
   const [stepperHidden, setStepperHidden] = useState(false);
   const [activeLegacyStageNo, setActiveLegacyStageNo] = useState(null);
+  const [isSticky, setIsSticky] = useState(false);
+  const stickySentinelRef = useRef(null);
+
+  // Sticky 감지: sentinel이 뷰포트 밖으로 나가면 stepper를 sticky-minimized 모드로 전환
+  useEffect(() => {
+    const sentinel = stickySentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsSticky(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-1px 0px 0px 0px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [summary]);
 
   useEffect(() => {
     if (!projectId) {
@@ -120,7 +135,7 @@ const WorkflowStagePage = () => {
   if (!summary) {
     return (
       <div className="inner workflow-page workflow-stage-shell-v2">
-        <div className="workflow-empty-state">워크플로우 상태를 확인하고 있습니다.</div>
+        <div className="workflow-empty-state" style={{display:'flex', flexDirection:'column', alignItems:'center'}}><Spinner size={32} color="var(--color-primary)" style={{marginBottom: 16}} />워크플로우 상태를 확인하고 있습니다.</div>
       </div>
     );
   }
@@ -147,7 +162,10 @@ const WorkflowStagePage = () => {
 
       {error && <div className="error-box">{error}</div>}
 
-      <div className="workflow-stage-control-strip">
+      {/* Sticky 감지용 투명 sentinel */}
+      <div ref={stickySentinelRef} aria-hidden="true" style={{ height: 0, margin: 0, padding: 0 }} />
+
+      <div className={`workflow-stage-control-strip${isSticky ? ' sticky-minimized' : ''}`}>
         {!stepperHidden && (
           <WorkflowStepper
             stages={phases}

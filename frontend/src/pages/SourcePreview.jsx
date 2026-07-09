@@ -1,7 +1,9 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import ForceGraph2D from 'react-force-graph-2d';
+import { Spinner } from '../components/common/Loader';
 
 const SourcePreview = () => {
   const { id } = useParams();
@@ -22,7 +24,7 @@ const SourcePreview = () => {
         setGraphData(res.data);
       } catch (err) {
         console.error(err);
-        alert('그래프 데이터를 불러오는데 실패했습니다.');
+        toast.error('그래프 데이터를 불러오는데 실패했습니다.');
       } finally {
         setLoading(false);
       }
@@ -67,7 +69,7 @@ const SourcePreview = () => {
         {/* 왼쪽: 그래프 시각화 영역 */}
         <div style={{ flex: 2, background: '#1e1e1e', borderRadius: '8px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {loading ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>그래프 데이터 로딩 중...</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16, color: '#888'}}>그래프 데이터 로딩 중...</p></div>
           ) : graphData.nodes.length === 0 ? (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>추출된 GraphRAG 엔티티가 없습니다.</div>
           ) : (

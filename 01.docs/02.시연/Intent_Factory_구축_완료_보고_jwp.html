@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Intent Factory MVP 구축 완료 보고</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --secondary: #3d3d3d;
+            --accent: #1976d2;
+            --success: #2e7d32;
+            --warning: #ed6c02;
+            --danger: #d32f2f;
+            --bg-color: #f0f2f5;
+            --slide-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-light: #7f8c8d;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            z-index: 100;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        button {
+            padding: 10px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 25px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover { background-color: var(--secondary); transform: translateY(-2px); }
+        button:disabled { background-color: #cbd5e1; cursor: not-allowed; transform: none; }
+        .btn-export { background-color: var(--danger); }
+        .btn-export-img { background-color: var(--success); }
+
+        #presentation-wrapper {
+            width: 1280px;
+            height: 720px;
+            transform-origin: top center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            background: var(--slide-bg);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        #presentation {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background: var(--slide-bg);
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column;
+            background: var(--slide-bg);
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .slide.active { display: flex; opacity: 1; }
+
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 20px 50px;
+            display: flex;
+            align-items: center;
+            height: 100px;
+            box-sizing: border-box;
+        }
+        .header h1 { margin: 0; font-size: 34px; font-weight: 700; }
+        .logo { font-size: 38px; font-weight: 900; margin-right: 40px; color: #38bdf8; letter-spacing: -1px; }
+
+        /* Content */
+        .content { padding: 40px 60px; flex: 1; position: relative; }
+        .content h2 {
+            color: var(--primary);
+            border-bottom: 3px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-top: 0; font-size: 32px; margin-bottom: 35px;
+            position: relative;
+        }
+        .content h2::after {
+            content: ''; position: absolute; bottom: -3px; left: 0;
+            width: 100px; height: 3px; background: var(--accent);
+        }
+
+        /* 1. Hero Cover */
+        .hero-cover {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white; justify-content: center; align-items: center; text-align: center;
+        }
+        .hero-cover h1 { font-size: 72px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); background: -webkit-linear-gradient(#fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-cover h3 { font-size: 32px; color: #38bdf8; font-weight: 400; margin-bottom: 50px; }
+
+        /* 2. CEO Summary */
+        .ceo-summary .highlight-box {
+            background: #f8fafc; border-left: 6px solid var(--accent); padding: 30px; border-radius: 8px; margin-bottom: 30px;
+        }
+        .ceo-summary p { font-size: 26px; line-height: 1.7; color: var(--text-main); }
+
+        /* 3. Consulting Infographic */
+        .infographic-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 30px; align-items: center; }
+        .info-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+
+        /* 4. Strategy Diagram */
+        .strategy-boxes { display: flex; gap: 20px; justify-content: space-between; margin-top: 40px; }
+        .strategy-box { flex: 1; text-align: center; padding: 40px 20px; border-radius: 16px; color: white; }
+        
+        /* Layouts */
+        .flex-row { display: flex; gap: 30px; }
+        .flex-col { display: flex; flex-direction: column; gap: 20px; }
+        .flex-1 { flex: 1; }
+
+        /* Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(203, 213, 225, 0.5);
+            border-radius: 16px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(148, 163, 184, 0.1);
+        }
+
+        .badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 18px; font-weight: 600; color: white; background: var(--accent); margin-bottom: 15px;}
+        
+        /* Table */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+        th { background: #f8fafc; padding: 20px; font-size: 22px; text-align: left; color: #475569; }
+        td { padding: 20px; font-size: 20px; border-top: 1px solid #e2e8f0; color: #334155; }
+        
+        .timeline { position: relative; padding-left: 40px; margin-top: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: #e2e8f0; border-radius: 2px; }
+        .timeline-item { position: relative; margin-bottom: 30px; }
+        .timeline-item::before { content: ''; position: absolute; left: -49px; top: 5px; width: 22px; height: 22px; background: var(--accent); border-radius: 50%; border: 4px solid white; box-shadow: 0 0 0 2px var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <button id="prevBtn" onclick="prevSlide()" disabled>◀ 이전</button>
+    <span style="display:flex; align-items:center; font-size:18px; font-weight:bold; color:#333;">
+        <span id="pageIndicator">1 / 15</span>
+    </span>
+    <button id="nextBtn" onclick="nextSlide()">다음 ▶</button>
+    <div style="width: 2px; background: #e2e8f0; margin: 0 10px;"></div>
+    <button class="btn-export" onclick="exportPDF()">📄 PDF 저장</button>
+    <button class="btn-export-img" onclick="exportImage()">🖼️ 이미지 저장</button>
+</div>
+
+<div id="presentation-wrapper">
+    <div id="presentation">
+        
+        <!-- 1. Hero Cover -->
+        <div class="slide active hero-cover">
+            <div style="font-size: 24px; color: #38bdf8; font-weight: 600; letter-spacing: 5px; margin-bottom: 20px;">J-BRAIN PLATFORM</div>
+            <h1>AI Intent Factory<br>MVP 구축 완료 보고</h1>
+            <h3>생성형 LLM 기반 엔터프라이즈 챗봇 팩토리 런칭</h3>
+            <div style="margin-top: 60px; color: #94a3b8; font-size: 22px;">
+                <p>2026. 07. 05</p>
+                <p>JWP 개발팀</p>
+            </div>
+        </div>
+
+        <!-- 2. CEO Summary -->
+        <div class="slide ceo-summary">
+            <div class="header"><div class="logo">J-Brain</div><h1>Executive Summary</h1></div>
+            <div class="content">
+                <h2>C-Level 요약 보고</h2>
+                <div class="highlight-box">
+                    <p>당초 계획한 <strong>"생성형 LLM의 보안/비용/환각 문제를 해결하는 경량 NLU + Action 기반 공통 챗봇 플랫폼(J-Brain)"</strong>의 1차 MVP(C-lite) 개발을 성공적으로 완수하였습니다.</p>
+                </div>
+                <div class="flex-row" style="margin-top: 40px;">
+                    <div class="glass-card flex-1">
+                        <div class="badge" style="background: #0284c7;">Achievement 1</div>
+                        <h3 style="font-size: 24px; margin-top:0;">분리형 아키텍처 검증</h3>
+                        <p style="font-size: 20px; color: #64748b;">공통 플랫폼(엔진)과 도메인별 Intent Pack의 물리적/논리적 완벽 분리 구현. 내부망 보안 요건 100% 충족.</p>
+                    </div>
+                    <div class="glass-card flex-1">
+                        <div class="badge" style="background: #059669;">Achievement 2</div>
+                        <h3 style="font-size: 24px; margin-top:0;">탄소중립 파일럿 적용</h3>
+                        <p style="font-size: 20px; color: #64748b;">KAU 시세 조회, 매뉴얼 검색, 업무 대시보드 이동 등 핵심 유즈케이스의 챗봇화 완벽 시연.</p>
+                    </div>
+                    <div class="glass-card flex-1">
+                        <div class="badge" style="background: #7c3aed;">Achievement 3</div>
+                        <h3 style="font-size: 24px; margin-top:0;">전사 확산 파이프라인</h3>
+                        <p style="font-size: 20px; color: #64748b;">코드 작성 없이 AI가 지식을 추출하고 팩을 빌드하는 "Intent Factory" 관리자 포털 UI/UX 완성.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 추진 배경 및 문제점 -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>추진 배경 및 문제점</h1></div>
+            <div class="content">
+                <h2>기업 내부망 챗봇 도입의 3대 허들 극복</h2>
+                <div class="infographic-grid" style="margin-top: 50px;">
+                    <div class="info-card" style="border-top: 5px solid #ef4444;">
+                        <h3 style="color: #ef4444; font-size: 26px; text-align: center;">As-Is (Pain Points)</h3>
+                        <ul style="font-size: 20px; line-height: 2;">
+                            <li><strong>보안 제약:</strong> 외부 LLM API(OpenAI 등) 연동 불가</li>
+                            <li><strong>비용 부담:</strong> 자체 sLLM 구축 시 막대한 GPU 인프라/인건비 소모</li>
+                            <li><strong>환각 리스크:</strong> 정교한 사내 규정을 왜곡하여 답변하는 할루시네이션 치명적</li>
+                        </ul>
+                    </div>
+                    <div style="font-size: 50px; color: #cbd5e1; text-align: center;">➔</div>
+                    <div class="info-card" style="border-top: 5px solid #10b981; background: #f0fdf4;">
+                        <h3 style="color: #10b981; font-size: 26px; text-align: center;">To-Be (J-Brain Solution)</h3>
+                        <ul style="font-size: 20px; line-height: 2;">
+                            <li><strong>하이브리드 아키텍처:</strong> 외부망(생성)과 내부망(실행) 분리</li>
+                            <li><strong>경량화 엔진:</strong> LLM 의존도를 낮추고 자체 NLU 라우팅 엔진 활용</li>
+                            <li><strong>근거 기반 답변:</strong> Intent Pack 기반 100% 통제 가능한 답변과 Action 연동</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 구축 목표 및 전략 -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>구축 목표 및 전략</h1></div>
+            <div class="content">
+                <h2>공통화 플랫폼 전략: "엔진은 하나, 지식은 무한 확장"</h2>
+                <div class="strategy-boxes">
+                    <div class="strategy-box" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
+                        <div style="font-size: 50px; margin-bottom: 20px;">⚙️</div>
+                        <h3 style="font-size: 28px;">공통 플랫폼 엔진</h3>
+                        <p style="font-size: 20px; opacity: 0.9;">NLU 매칭, Action 실행, UI 렌더링을 담당하는 뼈대. 변경 불필요.</p>
+                    </div>
+                    <div style="font-size: 50px; align-self: center; color: #94a3b8;">➕</div>
+                    <div class="strategy-box" style="background: linear-gradient(135deg, #047857 0%, #10b981 100%);">
+                        <div style="font-size: 50px; margin-bottom: 20px;">🧠</div>
+                        <h3 style="font-size: 28px;">서비스별 Intent Pack</h3>
+                        <p style="font-size: 20px; opacity: 0.9;">특정 업무(탄소, HR 등)의 지식/의도만 JSON 형태로 압축한 모듈.</p>
+                    </div>
+                    <div style="font-size: 50px; align-self: center; color: #94a3b8;">=</div>
+                    <div class="strategy-box" style="background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);">
+                        <div style="font-size: 50px; margin-bottom: 20px;">🚀</div>
+                        <h3 style="font-size: 28px;">무한 멀티 테넌시</h3>
+                        <p style="font-size: 20px; opacity: 0.9;">Pack만 교체/추가하면 새로운 사내 시스템용 챗봇 즉시 탄생.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 전체 시스템 아키텍처 -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>전체 시스템 아키텍처</h1></div>
+            <div class="content">
+                <h2>폐쇄망 환경을 고려한 이원화(Two-Track) 아키텍처</h2>
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 40px; text-align: center; margin-top: 30px;">
+                    <div style="display: flex; justify-content: space-around; align-items: stretch; gap: 40px;">
+                        <!-- External Network -->
+                        <div style="flex: 1; border: 2px dashed #94a3b8; padding: 20px; border-radius: 12px; position: relative;">
+                            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 10px; color: #64748b; font-weight: bold;">인터넷 허용망 (Factory)</div>
+                            <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #0369a1;">Admin Dashboard (React)</div>
+                            <div style="background: #bae6fd; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #0369a1;">LangGraph AI Workflow</div>
+                            <div style="background: #f1f5f9; padding: 10px; font-size: 16px;">문서 업로드 ➔ AI 의도 추출 ➔ 검증 ➔ Pack Build (Export)</div>
+                        </div>
+                        
+                        <!-- Air-gap -->
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <div style="background: #f59e0b; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 10px;">망분리 / Air Gap</div>
+                            <div style="font-size: 40px;">📦</div>
+                            <div style="font-size: 14px; font-weight: bold; color: #64748b;">.zip 파일 이관</div>
+                        </div>
+
+                        <!-- Internal Network -->
+                        <div style="flex: 1; border: 2px solid #3b82f6; padding: 20px; border-radius: 12px; position: relative; background: #f8fafc;">
+                            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #f8fafc; padding: 0 10px; color: #1d4ed8; font-weight: bold;">사내 폐쇄망 (Runtime)</div>
+                            <div style="background: #dcfce7; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #15803d;">Client UI (Chatbot Widget)</div>
+                            <div style="background: #bbf7d0; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #15803d;">FastAPI Runtime Server</div>
+                            <div style="background: #fff; padding: 10px; font-size: 16px; border: 1px solid #e2e8f0;">Import Pack ➔ NLU 매칭 ➔ 사내 API 연동 ➔ 응답</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Workflow Dashboard -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>Workflow Dashboard</h1></div>
+            <div class="content">
+                <h2>프로젝트 성공을 이끄는 6단계 관리자 뷰</h2>
+                <div class="flex-row">
+                    <div class="flex-1 glass-card">
+                        <div style="background: #1e293b; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <span style="font-size: 20px; font-weight: bold;">📈 탄소중립 챗봇 프로젝트</span>
+                                <span style="background: #10b981; padding: 3px 10px; border-radius: 12px; font-size: 14px;">Status: In Progress</span>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1; height: 8px; background: #3b82f6; border-radius: 4px;"></div>
+                                <div style="flex: 1; height: 8px; background: #3b82f6; border-radius: 4px;"></div>
+                                <div style="flex: 1; height: 8px; background: #3b82f6; border-radius: 4px;"></div>
+                                <div style="flex: 1; height: 8px; background: #475569; border-radius: 4px;"></div>
+                                <div style="flex: 1; height: 8px; background: #475569; border-radius: 4px;"></div>
+                                <div style="flex: 1; height: 8px; background: #475569; border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                        <ul style="font-size: 20px; line-height: 1.8; color: #334155;">
+                            <li><strong>Phase 1: Foundation (기반 설정)</strong> - 프로젝트 및 도메인 생성</li>
+                            <li><strong>Phase 2: Knowledge (지식 주입)</strong> - 매뉴얼/규정 PDF 업로드</li>
+                            <li><strong>Phase 3: Intent Design (의도 설계)</strong> - AI가 의도를 자동 추출</li>
+                            <li><strong>Phase 4: Action Connect (동작 연결)</strong> - API 및 화면 이동 매핑</li>
+                            <li><strong>Phase 5: Pack Build (팩 빌드)</strong> - 무결성 검증 및 버전 발행</li>
+                            <li><strong>Phase 6: Deploy (운영/배포)</strong> - Runtime 이관 및 운영 피드백</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Intent Factory -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>Intent Factory (Product Showcase)</h1></div>
+            <div class="content">
+                <h2>코딩 없이 챗봇을 설계하는 No-Code 포털</h2>
+                <div class="flex-row" style="margin-top: 30px;">
+                    <div class="flex-1 glass-card" style="border-top: 4px solid #3b82f6;">
+                        <h3>🤖 AI 의도 자동 추출 (Intent Discovery)</h3>
+                        <p style="font-size: 18px; color: #64748b; line-height: 1.6;">업로드된 탄소중립 매뉴얼을 LangGraph 기반 AI 에이전트가 분석하여, 사용자가 물어볼 만한 '질문(의도)'과 '답변(FAQ)'을 자동으로 도출합니다.</p>
+                    </div>
+                    <div class="flex-1 glass-card" style="border-top: 4px solid #10b981;">
+                        <h3>🔗 Action 기반 매핑 (Action Connect)</h3>
+                        <p style="font-size: 18px; color: #64748b; line-height: 1.6;">특정 의도("배출권 시세 조회")에 대해 단순 텍스트 답변이 아닌, 사내 API 호출(`query_card`) 또는 화면 이동(`navigation_card`) 액션을 UI에서 손쉽게 매핑합니다.</p>
+                    </div>
+                    <div class="flex-1 glass-card" style="border-top: 4px solid #8b5cf6;">
+                        <h3>📦 원클릭 Pack 빌드 (Pack Validation)</h3>
+                        <p style="font-size: 18px; color: #64748b; line-height: 1.6;">설계된 인텐트들의 충돌 여부, 필수 엔티티 누락 등을 자동 검증한 뒤, 하나의 독립적인 버전(v0.1.0) 압축 파일로 패키징합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Runtime & Deploy -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>Runtime & Deploy</h1></div>
+            <div class="content">
+                <h2>초경량 / 초고속 내부망 챗봇 엔진 런타임</h2>
+                <div class="flex-row">
+                    <div class="flex-col" style="flex: 2;">
+                        <table style="margin-top: 20px;">
+                            <tr>
+                                <th width="30%">구분</th>
+                                <th>런타임(Runtime) 환경 특장점</th>
+                            </tr>
+                            <tr>
+                                <td><strong>NLU 매칭 속도</strong></td>
+                                <td>무거운 LLM 추론 없이, Vector Similarity Search를 통한 ms(밀리초) 단위의 초고속 의도 매칭</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zero-Hallucination</strong></td>
+                                <td>생성형 답변을 배제하고, 사전 정의된 FAQ나 Action 템플릿만 출력하여 100% 신뢰성 보장</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Seamless Update</strong></td>
+                                <td>서버 재시작 없이 새로운 Intent Pack Zip 파일만 업로드(Import)하면 실시간으로 챗봇 지능 갱신</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="flex-col" style="flex: 1;">
+                        <div class="glass-card" style="background: #1e293b; color: white;">
+                            <h3 style="color: #38bdf8; margin-top:0;">Runtime QA 도구</h3>
+                            <p style="font-size: 16px; opacity: 0.8; line-height: 1.6;">블랙박스를 투명하게: 챗봇이 왜 이런 답변을 했는지 Confidence Score(신뢰도 점수)와 매칭된 Intent 내역을 실시간으로 디버깅할 수 있는 관리자 화면 제공.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. AI Workflow -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>AI Workflow (Process Flow)</h1></div>
+            <div class="content">
+                <h2>인간과 AI의 협업 기반(Human-in-the-loop) 파이프라인</h2>
+                <div style="background: white; border-radius: 12px; padding: 30px; border: 1px solid #e2e8f0; margin-top: 50px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; text-align: center;">
+                        <div style="flex:1;">
+                            <div style="font-size: 50px; margin-bottom: 15px;">📄</div>
+                            <div style="font-weight: bold; color: #334155; font-size: 20px;">1. 지식 인제스트</div>
+                            <div style="font-size: 16px; color: #64748b; margin-top: 10px;">탄소 매뉴얼 업로드<br>(Chunking & Vectorizing)</div>
+                        </div>
+                        <div style="color: #cbd5e1; font-size: 40px;">➔</div>
+                        <div style="flex:1;">
+                            <div style="font-size: 50px; margin-bottom: 15px;">🧠</div>
+                            <div style="font-weight: bold; color: #3b82f6; font-size: 20px;">2. AI 의도 도출</div>
+                            <div style="font-size: 16px; color: #64748b; margin-top: 10px;">LangGraph 에이전트<br>초안 자동 생성</div>
+                        </div>
+                        <div style="color: #cbd5e1; font-size: 40px;">➔</div>
+                        <div style="flex:1;">
+                            <div style="font-size: 50px; margin-bottom: 15px;">🧑‍💻</div>
+                            <div style="font-weight: bold; color: #ef4444; font-size: 20px;">3. 관리자 리뷰/수정</div>
+                            <div style="font-size: 16px; color: #64748b; margin-top: 10px;">오류 교정 및 <br>Action/API 연결 (수동)</div>
+                        </div>
+                        <div style="color: #cbd5e1; font-size: 40px;">➔</div>
+                        <div style="flex:1;">
+                            <div style="font-size: 50px; margin-bottom: 15px;">🛡️</div>
+                            <div style="font-weight: bold; color: #10b981; font-size: 20px;">4. 자동 검증/빌드</div>
+                            <div style="font-size: 16px; color: #64748b; margin-top: 10px;">결함 검사 후 <br>v0.1.0 Pack 생성</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. 핵심 기술 차별성 -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>핵심 기술 차별성 (Comparison)</h1></div>
+            <div class="content">
+                <h2>타사 챗봇 플랫폼 대비 독보적 우위</h2>
+                <table style="margin-top: 30px;">
+                    <tr style="background: #1e293b; color: white;">
+                        <th>비교 항목</th>
+                        <th style="color: white;">기존 구축형 LLM 챗봇</th>
+                        <th style="background: #0284c7; color: white;">J-Brain (본 과제)</th>
+                    </tr>
+                    <tr>
+                        <td><strong>인프라/비용</strong></td>
+                        <td>고성능 GPU 서버 지속 운영 필수 (월 수천만 원)</td>
+                        <td style="font-weight: bold; color: #0284c7;">일반 CPU 서버 운영 가능 (TCO 90% 이상 절감)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>보안/망분리</strong></td>
+                        <td>외부 API 사용 불가. On-Prem 구축 시 난항.</td>
+                        <td style="font-weight: bold; color: #0284c7;">Factory(외부) ➔ Runtime(내부) 분리로 완벽 대응</td>
+                    </tr>
+                    <tr>
+                        <td><strong>응답 속도/정확성</strong></td>
+                        <td>생성 대기 시간 김 (3~5초), 할루시네이션 존재</td>
+                        <td style="font-weight: bold; color: #0284c7;">0.5초 이내 즉각 응답, 100% 통제된 정답 출력</td>
+                    </tr>
+                    <tr>
+                        <td><strong>유지보수/확장성</strong></td>
+                        <td>모델 파인튜닝, 프롬프트 엔지니어링 의존</td>
+                        <td style="font-weight: bold; color: #0284c7;">UI 기반 Pack 업데이트로 현업 부서 자체 관리 가능</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 11. 구축 성과 -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>MVP 구축 성과 (KPI)</h1></div>
+            <div class="content">
+                <h2>정량적, 정성적 목표 초과 달성</h2>
+                <div class="flex-row" style="margin-top: 40px;">
+                    <div class="glass-card flex-1" style="text-align: center;">
+                        <div style="font-size: 60px; color: #3b82f6; font-weight: 900; margin-bottom: 10px;">80<span style="font-size:30px;">%</span> ↓</div>
+                        <div style="font-size: 20px; font-weight: bold; color: #334155;">챗봇 구축 시간 단축</div>
+                        <p style="font-size: 16px; color: #64748b; line-height: 1.6; margin-top: 15px;">AI 기반 의도 추출을 통해<br>기존 수개월 걸리던 기획을 수일로 단축</p>
+                    </div>
+                    <div class="glass-card flex-1" style="text-align: center;">
+                        <div style="font-size: 60px; color: #10b981; font-weight: 900; margin-bottom: 10px;">100<span style="font-size:30px;">%</span></div>
+                        <div style="font-size: 20px; font-weight: bold; color: #334155;">망분리 보안 준수율</div>
+                        <p style="font-size: 16px; color: #64748b; line-height: 1.6; margin-top: 15px;">오프라인 Pack Import 방식을 통해<br>내부망 데이터 외부 반출 원천 차단</p>
+                    </div>
+                    <div class="glass-card flex-1" style="text-align: center;">
+                        <div style="font-size: 60px; color: #8b5cf6; font-weight: 900; margin-bottom: 10px;">0<span style="font-size:30px;">%</span></div>
+                        <div style="font-size: 20px; font-weight: bold; color: #334155;">할루시네이션(환각)</div>
+                        <p style="font-size: 16px; color: #64748b; line-height: 1.6; margin-top: 15px;">승인된 답변 템플릿과 Action 연동으로<br>거짓 정보 제공 리스크 제로화</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 12. 시연 시나리오 -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>탄소중립플랫폼 시연 시나리오</h1></div>
+            <div class="content">
+                <h2>의도 설계부터 실제 채팅 서비스까지의 흐름</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h3 style="margin-top:0; color:var(--primary); font-size:24px;">STEP 1. Intent Factory 환경 셋업</h3>
+                        <p style="font-size: 20px; color: #475569;">신규 프로젝트 생성 및 탄소중립 매뉴얼(PDF/TXT) 업로드</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 style="margin-top:0; color:var(--primary); font-size:24px;">STEP 2. AI 기반 지식 도출 및 Action 매핑</h3>
+                        <p style="font-size: 20px; color: #475569;">AI가 자동 생성한 FAQ 리뷰. "시세 조회" 의도에 KAU 시세 API(query_card) 연결.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 style="margin-top:0; color:var(--primary); font-size:24px;">STEP 3. Pack 빌드 및 Runtime 배포</h3>
+                        <p style="font-size: 20px; color: #475569;">의도 검증 후 v0.1.0 팩을 생성(Zip)하여 Runtime 서버에 Import.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 style="margin-top:0; color:var(--primary); font-size:24px;">STEP 4. 챗봇 테스트 (Live Demo)</h3>
+                        <p style="font-size: 20px; color: #475569;">"탄소 현황 띄워줘"(화면이동) / "규정 알려줘"(FAQ) / "배출권 시세 얼마야"(API 연동) 질의 검증.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 13. 향후 Roadmap -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>향후 Roadmap</h1></div>
+            <div class="content">
+                <h2>J-Brain 발전 방향 및 고도화 전략</h2>
+                <div class="flex-row" style="margin-top: 40px;">
+                    <div class="glass-card flex-1" style="background: #f8fafc; opacity: 0.7;">
+                        <div class="badge" style="background: #94a3b8;">Phase 1 (현재)</div>
+                        <h3 style="margin-top: 10px; font-size: 24px;">MVP (C-lite)</h3>
+                        <ul style="font-size: 18px; padding-left: 20px; color: #475569; line-height: 1.6;">
+                            <li>아키텍처 분리 프레임워크 완성</li>
+                            <li>탄소중립플랫폼 1차 파일럿</li>
+                            <li>정적 FAQ 및 화면/API 연동(R/O)</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card flex-1" style="border: 2px solid var(--accent); position: relative;">
+                        <div style="position:absolute; top:-15px; right:-15px; background:var(--danger); color:white; padding:5px 10px; border-radius:10px; font-weight:bold; font-size:14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Next Target</div>
+                        <div class="badge" style="background: var(--accent);">Phase 2 (하반기)</div>
+                        <h3 style="margin-top: 10px; font-size: 24px;">Advanced Engine</h3>
+                        <ul style="font-size: 18px; padding-left: 20px; color: #475569; line-height: 1.6;">
+                            <li>복합 Action (데이터 등록/수정/삭제) 연동</li>
+                            <li>자연어 ➔ SQL 변환 (Text-to-SQL) R&D</li>
+                            <li>운영 피드백(Unanswered) 자가 학습 루프</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card flex-1" style="background: #f8fafc; opacity: 0.7;">
+                        <div class="badge" style="background: #94a3b8;">Phase 3 (내년)</div>
+                        <h3 style="margin-top: 10px; font-size: 24px;">Enterprise Scale</h3>
+                        <ul style="font-size: 18px; padding-left: 20px; color: #475569; line-height: 1.6;">
+                            <li>HR, 재무, 그룹웨어 등 전사 확산</li>
+                            <li>개인화(Personalization) 추천 알고리즘</li>
+                            <li>On-Premise 초거대 모델 하이브리드 통합</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 14. 기대효과 -->
+        <div class="slide">
+            <div class="header"><div class="logo">J-Brain</div><h1>도입 기대 효과 (Business Value)</h1></div>
+            <div class="content">
+                <h2>조직 전체의 생산성 및 서비스 품질 혁신</h2>
+                <div class="flex-row" style="margin-top: 30px;">
+                    <div class="flex-1 glass-card">
+                        <h3 style="color: #0284c7; border-bottom: 2px solid #e0f2fe; padding-bottom: 15px; font-size: 24px; margin-top: 0;">📈 정량적 효과</h3>
+                        <ul style="font-size: 20px; line-height: 2.0; color: #334155;">
+                            <li><strong>도입/운영 비용 절감:</strong> 막대한 LLM API 종량제 비용 및 GPU 서버 유지비 방어</li>
+                            <li><strong>Time-to-Market 단축:</strong> 신규 시스템 챗봇 추가 시 수주 ➔ 수일 내 런칭</li>
+                            <li><strong>사용자 리드타임 감소:</strong> 메뉴 탐색 시간(평균 2분)을 챗봇 질의(5초)로 단축</li>
+                        </ul>
+                    </div>
+                    <div class="flex-1 glass-card">
+                        <h3 style="color: #059669; border-bottom: 2px solid #dcfce7; padding-bottom: 15px; font-size: 24px; margin-top: 0;">✨ 정성적 효과</h3>
+                        <ul style="font-size: 20px; line-height: 2.0; color: #334155;">
+                            <li><strong>보안 컴플라이언스 만족:</strong> 데이터 유출 우려 완전 해소, 무결성 확보</li>
+                            <li><strong>업무 환경 고도화:</strong> 단순 반복 문의(FAQ) 자동화로 실무자 본연 업무 집중</li>
+                            <li><strong>AI 자생력 확보:</strong> 외부 벤더 종속 없이 자체 플랫폼 내재화 및 운영 역량 확보</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 15. Closing -->
+        <div class="slide hero-cover">
+            <div style="font-size: 70px; margin-bottom: 30px;">🚀</div>
+            <h1 style="font-size: 64px; text-transform: uppercase;">감사합니다</h1>
+            <h3 style="font-size: 28px; margin-top: 20px; color: #94a3b8;">질의 응답 및 라이브 시연을 시작하겠습니다.</h3>
+            
+            <div style="margin-top: 60px; padding: 25px 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; display: inline-block; backdrop-filter: blur(10px);">
+                <div style="font-size: 18px; color: #cbd5e1; margin-bottom: 10px;">Next Session</div>
+                <div style="font-size: 28px; color: white; font-weight: bold; letter-spacing: 1px;">[탄소중립플랫폼] J-Brain 챗봇 시연 (Live)</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageIndicator = document.getElementById('pageIndicator');
+
+    function updateSlides() {
+        slides.forEach((slide, index) => {
+            if (index === currentSlide) {
+                slide.classList.add('active');
+            } else {
+                slide.classList.remove('active');
+            }
+        });
+        
+        prevBtn.disabled = currentSlide === 0;
+        nextBtn.disabled = currentSlide === slides.length - 1;
+        pageIndicator.innerText = `${currentSlide + 1} / ${slides.length}`;
+    }
+
+    function nextSlide() {
+        if (currentSlide < slides.length - 1) {
+            currentSlide++;
+            updateSlides();
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            currentSlide--;
+            updateSlides();
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'Enter') {
+            nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+            prevSlide();
+        }
+    });
+
+    function resizePresentation() {
+        const wrapper = document.getElementById('presentation-wrapper');
+        const width = window.innerWidth - 60;
+        const height = window.innerHeight - 100;
+        
+        const scaleX = width / 1280;
+        const scaleY = height / 720;
+        const scale = Math.min(scaleX, scaleY);
+        
+        wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.marginBottom = `-${720 * (1 - scale)}px`;
+    }
+    
+    window.addEventListener('resize', resizePresentation);
+    resizePresentation();
+
+    async function exportPDF() {
+        const element = document.getElementById('presentation');
+        const currentActive = currentSlide;
+        
+        element.style.height = 'auto';
+        element.style.overflow = 'visible';
+        slides.forEach(s => {
+            s.style.display = 'flex';
+            s.style.position = 'relative';
+            s.style.height = '720px';
+            s.style.opacity = '1';
+            s.style.pageBreakAfter = 'always';
+        });
+        
+        const opt = {
+            margin:       0,
+            filename:     'AI_Intent_Factory_구축_완료_보고.pdf',
+            image:        { type: 'jpeg', quality: 1.0 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'px', format: [1280, 720], orientation: 'landscape' }
+        };
+        
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (error) {
+            console.error("PDF Export failed", error);
+            alert("PDF 생성 중 오류가 발생했습니다.");
+        } finally {
+            element.style.height = '720px';
+            element.style.overflow = 'hidden';
+            slides.forEach((s, idx) => {
+                s.style.position = 'absolute';
+                s.style.pageBreakAfter = 'auto';
+                if (idx === currentActive) {
+                    s.style.display = 'flex';
+                } else {
+                    s.style.display = 'none';
+                    s.style.opacity = '0';
+                }
+            });
+        }
+    }
+
+    async function exportImage() {
+        const element = document.getElementById('presentation');
+        try {
+            const dataUrl = await htmlToImage.toPng(element, { quality: 1.0, pixelRatio: 2 });
+            const link = document.createElement('a');
+            link.download = `AI_Intent_Factory_구축_완료_보고_Slide_${currentSlide + 1}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error('oops, something went wrong!', error);
+            alert("이미지 저장 중 오류가 발생했습니다.");
+        }
+    }
+</script>
+
+</body>
+</html>

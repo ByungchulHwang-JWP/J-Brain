@@ -1,0 +1,297 @@
+[
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "03",
+    "synonyms": [
+      "03"
+    ],
+    "code": "03",
+    "is_active": false
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "Brain",
+    "synonyms": [
+      "Brain"
+    ],
+    "code": "BRAIN",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "J-Brain",
+    "synonyms": [
+      "J-Brain"
+    ],
+    "code": "J_BRAIN",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "md",
+    "synonyms": [
+      "md"
+    ],
+    "code": "MD",
+    "is_active": false
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "업로드",
+    "synonyms": [
+      "업로드"
+    ],
+    "code": "업로드",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "운영자",
+    "synonyms": [
+      "운영자"
+    ],
+    "code": "운영자",
+    "is_active": true
+  },
+  {
+    "entity_type": "J_BRAIN_TERM",
+    "canonical_value": "파일",
+    "synonyms": [
+      "파일"
+    ],
+    "code": "파일",
+    "is_active": true
+  },
+  {
+    "entity_type": "error_type",
+    "canonical_value": "권한 오류",
+    "synonyms": [
+      "권한 오류",
+      "권한 없음",
+      "접근 불가",
+      "메뉴가 안 보임",
+      "다운로드가 안 돼"
+    ],
+    "code": "permission_denied",
+    "is_active": true
+  },
+  {
+    "entity_type": "factory",
+    "canonical_value": "A공장",
+    "synonyms": [
+      "A공장",
+      "에이공장",
+      "A Factory",
+      "A현장"
+    ],
+    "code": "FACTORY_A",
+    "is_active": true
+  },
+  {
+    "entity_type": "factory",
+    "canonical_value": "B공장",
+    "synonyms": [
+      "B공장",
+      "비공장",
+      "B Factory"
+    ],
+    "code": "FACTORY_B",
+    "is_active": true
+  },
+  {
+    "entity_type": "fuel_type",
+    "canonical_value": "도시가스",
+    "synonyms": [
+      "도시가스",
+      "LNG",
+      "가스",
+      "도시 가스"
+    ],
+    "code": "lng",
+    "is_active": true
+  },
+  {
+    "entity_type": "menu",
+    "canonical_value": "AI 챗봇 대화 테스트",
+    "synonyms": [
+      "AI 챗봇 대화 테스트",
+      "챗봇 테스트",
+      "대화 테스트",
+      "프롬프트 테스트"
+    ],
+    "code": "JB_MENU_PROMPT_TEST",
+    "is_active": true
+  },
+  {
+    "entity_type": "menu",
+    "canonical_value": "문서(Source) 목록",
+    "synonyms": [
+      "문서 목록",
+      "Source 목록",
+      "소스 목록",
+      "자료 목록"
+    ],
+    "code": "JB_MENU_SOURCES",
+    "is_active": true
+  },
+  {
+    "entity_type": "menu",
+    "canonical_value": "배출량 입력",
+    "synonyms": [
+      "배출량 입력",
+      "배출량 등록",
+      "입력 화면",
+      "산정 입력",
+      "전력 사용량 등록"
+    ],
+    "code": "MENU_EMISSION_INPUT",
+    "is_active": true
+  },
+  {
+    "entity_type": "menu",
+    "canonical_value": "보고서",
+    "synonyms": [
+      "보고서",
+      "리포트",
+      "보고서 다운로드",
+      "배출량 보고서"
+    ],
+    "code": "MENU_REPORT",
+    "is_active": true
+  },
+  {
+    "entity_type": "menu",
+    "canonical_value": "사용 로그 조회",
+    "synonyms": [
+      "사용 로그 조회",
+      "사용 로그",
+      "로그 조회",
+      "대화 로그"
+    ],
+    "code": "JB_MENU_LOGS",
+    "is_active": true
+  },
+  {
+    "entity_type": "menu",
+    "canonical_value": "운영 현황",
+    "synonyms": [
+      "운영 현황",
+      "대시보드",
+      "관리자 대시보드",
+      "시스템 운영 현황"
+    ],
+    "code": "JB_MENU_DASHBOARD",
+    "is_active": true
+  },
+  {
+    "entity_type": "menu",
+    "canonical_value": "인덱싱 작업 현황",
+    "synonyms": [
+      "인덱싱 작업 현황",
+      "인덱싱 작업",
+      "작업 현황",
+      "최근 인덱싱 작업"
+    ],
+    "code": "JB_MENU_JOBS",
+    "is_active": true
+  },
+  {
+    "entity_type": "metric",
+    "canonical_value": "전력 사용량",
+    "synonyms": [
+      "전력 사용량",
+      "전기 사용량",
+      "전력량",
+      "전기사용내역",
+      "kWh"
+    ],
+    "code": "power_usage",
+    "is_active": true
+  },
+  {
+    "entity_type": "metric",
+    "canonical_value": "탄소 배출량",
+    "synonyms": [
+      "탄소 배출량",
+      "배출량",
+      "온실가스 배출량",
+      "탄소량",
+      "CO2 배출량"
+    ],
+    "code": "emission_amount",
+    "is_active": true
+  },
+  {
+    "entity_type": "scope",
+    "canonical_value": "Scope 1",
+    "synonyms": [
+      "Scope 1",
+      "Scope1",
+      "스코프1",
+      "직접배출"
+    ],
+    "code": "scope_1",
+    "is_active": true
+  },
+  {
+    "entity_type": "scope",
+    "canonical_value": "Scope 2",
+    "synonyms": [
+      "Scope 2",
+      "Scope2",
+      "스코프2",
+      "간접배출",
+      "전력배출"
+    ],
+    "code": "scope_2",
+    "is_active": true
+  },
+  {
+    "entity_type": "scope",
+    "canonical_value": "Scope 3",
+    "synonyms": [
+      "Scope 3",
+      "Scope3",
+      "스코프3",
+      "기타간접배출"
+    ],
+    "code": "scope_3",
+    "is_active": true
+  },
+  {
+    "entity_type": "site",
+    "canonical_value": "B현장",
+    "synonyms": [
+      "B현장",
+      "비현장",
+      "B Site",
+      "B사업장"
+    ],
+    "code": "SITE_B",
+    "is_active": true
+  },
+  {
+    "entity_type": "site_or_factory",
+    "canonical_value": "A공장",
+    "synonyms": [
+      "A공장",
+      "에이공장",
+      "A Factory",
+      "A현장"
+    ],
+    "code": "FACTORY_A",
+    "is_active": true
+  },
+  {
+    "entity_type": "site_or_factory",
+    "canonical_value": "B현장",
+    "synonyms": [
+      "B현장",
+      "비현장",
+      "B Site",
+      "B사업장"
+    ],
+    "code": "SITE_B",
+    "is_active": true
+  }
+]

@@ -1,3 +1,6 @@
+import toast from 'react-hot-toast';
+import { Skeleton } from '../../components/common/Loader';
+import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useProjects from '../../hooks/useProjects';
@@ -13,6 +16,8 @@ const IntentList = () => {
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
     if (!searchParams.get('project') && projectId) {
@@ -49,6 +54,17 @@ const IntentList = () => {
     ].filter(Boolean).some((value) => String(value).toLowerCase().includes(query)));
   }, [items, keyword]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword, projectId]);
+
+  const totalItems = filtered.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage, pageSize]);
+
   const activeCount = items.filter((item) => item.status === 'active').length;
   const searchDocCount = items.filter((item) => String(item.category).toUpperCase() === 'SEARCH_DOC').length;
   const scopedCount = items.filter((item) => item.has_source_scope).length;
@@ -84,7 +100,7 @@ const IntentList = () => {
       await fetchIntents(projectId);
     } catch (err) {
       console.error(err);
-      alert('보관 처리에 실패했습니다.');
+      toast.error('보관 처리에 실패했습니다.');
     }
   };
 
@@ -150,10 +166,10 @@ const IntentList = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
-            ) : filtered.length === 0 ? (
+              Array.from({ length: Math.min(pageSize, 5) }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="40px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="80px" /></td></tr>))
+            ) : paginatedItems.length === 0 ? (
               <tr><td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>등록된 Intent가 없습니다. Intent 등록 또는 파일 Pack Import를 실행해 주세요.</td></tr>
-            ) : filtered.map((item) => (
+            ) : paginatedItems.map((item) => (
               <tr key={item.intent_id}>
                 <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{item.intent_id}</td>
                 <td style={{ fontWeight: 600 }}>{item.intent_name}</td>
@@ -172,6 +188,16 @@ const IntentList = () => {
             ))}
           </tbody>
         </table>
+        {!loading && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
+        )}
       </div>
     </div>
   );

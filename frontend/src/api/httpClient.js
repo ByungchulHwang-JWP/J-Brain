@@ -1,4 +1,8 @@
 import axios from 'axios';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+
+NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.1 });
 
 export const AUTH_SESSION_MESSAGE_KEY = 'jbrain-auth-session-message';
 
@@ -23,6 +27,7 @@ export const consumeAuthSessionMessage = () => {
 };
 
 axios.interceptors.request.use((config) => {
+  NProgress.start();
   const token = localStorage.getItem('ai_access_token');
   if (!token || !isApiRequest(config.url)) return config;
 
@@ -34,8 +39,12 @@ axios.interceptors.request.use((config) => {
 });
 
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    NProgress.done();
+    return response;
+  },
   (error) => {
+    NProgress.done();
     const status = error?.response?.status;
     const requestUrl = error?.config?.url || '';
     const isLoginRequest = requestUrl.includes('/auth/login');

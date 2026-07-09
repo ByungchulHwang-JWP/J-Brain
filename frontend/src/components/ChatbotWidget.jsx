@@ -92,8 +92,8 @@ const ChatbotWidget = () => {
         style={{
           position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
           width: '60px', height: '60px', borderRadius: '50%',
-          background: '#031B4B', color: '#fff', border: 'none',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)', cursor: 'pointer',
+          background: 'var(--color-primary)', color: '#fff', border: 'none',
+          boxShadow: 'var(--color-shadow-md)', cursor: 'pointer',
           display: isOpen ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center'
         }}
       >
@@ -104,13 +104,13 @@ const ChatbotWidget = () => {
       {isOpen && (
         <div style={{
           position: 'fixed', bottom: '24px', right: '24px', zIndex: 10000,
-          width: '380px', height: '600px', background: '#fff', borderRadius: '16px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column',
-          overflow: 'hidden', border: '1px solid #ebebeb'
+          width: '380px', height: '600px', background: 'var(--color-bg-surface)', borderRadius: '16px',
+          boxShadow: 'var(--color-shadow-lg)', display: 'flex', flexDirection: 'column',
+          overflow: 'hidden', border: '1px solid var(--color-border)'
         }}>
           {/* Header */}
           <div style={{
-            background: '#031B4B', color: '#fff', padding: '16px 20px',
+            background: 'var(--color-primary)', color: '#fff', padding: '16px 20px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -123,14 +123,14 @@ const ChatbotWidget = () => {
           </div>
 
           {/* Messages */}
-          <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#F5F6FA', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: 'var(--color-bg-base)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {messages.map((msg, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
                   maxWidth: '80%', padding: '12px 16px', borderRadius: '12px', fontSize: '14px', lineHeight: 1.5,
-                  background: msg.role === 'user' ? '#3069B3' : '#fff',
-                  color: msg.role === 'user' ? '#fff' : '#333',
-                  border: msg.role === 'user' ? 'none' : '1px solid #e0e0e0',
+                  background: msg.role === 'user' ? 'var(--color-primary)' : 'var(--color-bg-elevated)',
+                  color: msg.role === 'user' ? '#fff' : 'var(--color-text-main)',
+                  border: msg.role === 'user' ? 'none' : '1px solid var(--color-border)',
                   borderBottomRightRadius: msg.role === 'user' ? '4px' : '12px',
                   borderBottomLeftRadius: msg.role === 'user' ? '12px' : '4px',
                   whiteSpace: 'pre-wrap'
@@ -139,29 +139,30 @@ const ChatbotWidget = () => {
                 </div>
               </div>
             ))}
-            {loading && <div style={{ fontSize: '12px', color: '#888', marginLeft: '10px' }}>AI가 답변을 생성중입니다...</div>}
+            {loading && <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginLeft: '10px' }}>AI가 답변을 생성중입니다...</div>}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}
           <form onSubmit={handleSubmit} style={{
-            padding: '16px', background: '#fff', borderTop: '1px solid #ebebeb', display: 'flex', gap: '8px'
+            padding: '16px', background: 'var(--color-bg-surface)', borderTop: '1px solid var(--color-border)', display: 'flex', gap: '8px'
           }}>
             <input 
+              type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="질문을 입력하세요..."
               disabled={loading || !workspaceId}
               style={{
-                flex: 1, height: '44px', padding: '0 16px', borderRadius: '22px', border: '1px solid #ddd',
-                background: '#F5F6FA', fontSize: '14px', outline: 'none'
+                flex: 1, height: '44px', padding: '0 16px', borderRadius: '22px', border: '1px solid var(--color-border)',
+                background: 'var(--color-input-bg)', color: 'var(--color-text-main)', fontSize: '14px', outline: 'none'
               }}
             />
             <button 
               type="submit" 
               disabled={loading || !workspaceId || !input.trim()}
               style={{
-                width: '44px', height: '44px', borderRadius: '50%', background: '#3069B3', color: '#fff',
+                width: '44px', height: '44px', borderRadius: '50%', background: 'var(--color-primary)', color: '#fff',
                 border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 opacity: (loading || !workspaceId || !input.trim()) ? 0.5 : 1
               }}

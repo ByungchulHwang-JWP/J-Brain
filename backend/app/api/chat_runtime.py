@@ -12,7 +12,8 @@ from app.ai.project_pack_resolver import ProjectPackResolver
 from app.ai.unanswered_logger import UnansweredLogger, default_unanswered_log_path
 from app.api.deps import get_current_user_id
 from app.api.intent_packs import get_pack_loader
-from app.db.session import AsyncSessionLocal
+from app.db.session import AsyncSessionLocal, get_db
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.pack_store_service import get_active_pack
 from app.services.pack_store_service import PACK_STORE_ROOT
 
@@ -54,10 +55,11 @@ class ChatRuntimeRequest(BaseModel):
         return self
 
 
-def build_runtime_response(
+async def build_runtime_response(
     project_id: str,
     question: str,
     pack: IntentPack,
+    db: AsyncSession | None = None,
     top_k: int = 3,
     log_fallback: bool = True,
 ) -> dict[str, Any]:
@@ -67,7 +69,7 @@ def build_runtime_response(
         if log_fallback
         else None
     )
-    card = ActionRouter(pack, unanswered_logger=logger).route(question, matches)
+    card = await ActionRouter(pack, unanswered_logger=logger, db=db).route(question, matches)
     top_match = matches[0] if matches else {}
     message_type = "fallback" if card.get("type") == "fallback_card" else "action_card"
     source_summary = card.get("source_summary") or {}
@@ -155,6 +157,7 @@ async def chat_runtime(
     project_id: str,
     req: ChatRuntimeRequest,
     user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     del user_id
 
@@ -175,10 +178,11 @@ async def chat_runtime(
         except IntentPackValidationError:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    return build_runtime_response(
+    return await build_runtime_response(
         project_id,
         req.query,
         pack,
+        db=db,
         top_k=req.top_k,
         log_fallback=True,
     )

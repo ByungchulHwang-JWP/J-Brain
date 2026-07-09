@@ -1,6 +1,24 @@
 {
   "source_scopes": [
     {
+      "intent_id": "INT-JBRAIN-027927",
+      "source_category": "",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    },
+    {
+      "intent_id": "INT-JBRAIN-215290",
+      "source_category": "",
+      "source_status": "completed",
+      "document_types": [],
+      "tags": [],
+      "top_k": 5,
+      "score_threshold": 0.65
+    },
+    {
       "intent_id": "INT-JBRAIN-522757",
       "source_category": "",
       "source_status": "completed",

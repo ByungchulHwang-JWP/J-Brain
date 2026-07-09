@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Skeleton } from '../components/common/Loader';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -97,7 +98,7 @@ const Dashboard = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
             <tbody>
               {loading ? (
-                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+                Array.from({ length: 3 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="200px" /></td><td><Skeleton width="60px" /></td></tr>))
               ) : !stats?.recent_jobs || stats.recent_jobs.length === 0 ? (
                 <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>최근 인덱싱 이력이 없습니다.</td></tr>
               ) : (

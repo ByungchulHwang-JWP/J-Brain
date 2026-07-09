@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -28,7 +29,7 @@ const SourceNew = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (sourceType === 'FILE' && !file) {
-      alert('업로드할 파일을 선택해주세요.');
+      toast.error('업로드할 파일을 선택해주세요.');
       return;
     }
 
@@ -47,20 +48,20 @@ const SourceNew = () => {
           }
         });
       } else {
-        alert('현재 URL 및 API 연동은 지원되지 않습니다.');
+        toast.error('현재 URL 및 API 연동은 지원되지 않습니다.');
         setIsSubmitting(false);
         return;
       }
       
-      alert('지식 문서가 성공적으로 업로드 되었습니다.');
+      toast.success('지식 문서가 성공적으로 업로드 되었습니다.');
       navigate('/admin/sources');
     } catch (error) {
       console.error(error);
       if (isAuthError(error)) {
-        alert('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+        toast.error('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
         return;
       }
-      alert('문서 등록에 실패했습니다: ' + (error.response?.data?.detail || error.message));
+      toast.error('문서 등록에 실패했습니다: ' + (error.response?.data?.detail || error.message));
     } finally {
       setIsSubmitting(false);
     }

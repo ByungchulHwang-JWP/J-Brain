@@ -8,29 +8,18 @@ const THEMES = [
   { key: 'dark',  icon: '🌙', label: 'AG Dark' },
 ];
 
-const WORKFLOW_PHASE_MENUS = [
-  { id: 'workflow-phase-1', title: '1. 프로젝트 준비', url: '/admin/workflow/projects/:projectId/stages/1' },
-  { id: 'workflow-phase-2', title: '2. 지식 준비', url: '/admin/workflow/projects/:projectId/stages/2' },
-  { id: 'workflow-phase-3', title: '3. 의도 설계', url: '/admin/workflow/projects/:projectId/stages/3' },
-  { id: 'workflow-phase-4', title: '4. 실행 연결', url: '/admin/workflow/projects/:projectId/stages/4' },
-  { id: 'workflow-phase-5', title: '5. Pack 검증/빌드', url: '/admin/workflow/projects/:projectId/stages/5' },
-  { id: 'workflow-phase-6', title: '6. 배포 및 운영 개선', url: '/admin/workflow/projects/:projectId/stages/6' },
+
+
+const WORKFLOW_COMPACT_CHILDREN = [
+  { id: 'wf-dashboard', title: '프로젝트 대시보드', url: '/admin/workflow/projects' },
+  { id: 'wf-current',   title: '현재 진행 단계',   url: '/admin/workflow/projects/:projectId/stages/1' },
 ];
 
 const normalizeWorkflowMenus = (menuGroups = []) => menuGroups.map((group) => {
-  if (group.title !== '구축 워크플로우') return group;
-
-  const dashboard = (group.children || []).find((child) => child.url === '/admin/workflow') || {
-    id: 'workflow-dashboard',
-    title: '워크플로우 대시보드',
-    url: '/admin/workflow',
-  };
-
-  return {
-    ...group,
-    title: '구축 워크플로우',
-    children: [dashboard, ...WORKFLOW_PHASE_MENUS],
-  };
+  if (group.title.includes('구축 워크플로우') || group.id === 'workflow') {
+    return { ...group, children: WORKFLOW_COMPACT_CHILDREN };
+  }
+  return group;
 });
 
 const AdminLayout = () => {

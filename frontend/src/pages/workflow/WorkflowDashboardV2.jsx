@@ -1,3 +1,4 @@
+import { Spinner } from '../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import WorkflowActionBar from '../../components/workflow/WorkflowActionBar';
@@ -63,7 +64,7 @@ const WorkflowDashboardV2 = () => {
   if (!summary) {
     return (
       <div className="inner workflow-page">
-        <div className="workflow-empty-state">워크플로우 대시보드를 확인하고 있습니다.</div>
+        <div className="workflow-empty-state" style={{display:'flex', flexDirection:'column', alignItems:'center'}}><Spinner size={32} color="var(--color-primary)" style={{marginBottom: 16}} />워크플로우 대시보드를 확인하고 있습니다.</div>
       </div>
     );
   }

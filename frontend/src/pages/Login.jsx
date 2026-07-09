@@ -1,13 +1,18 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { consumeAuthSessionMessage } from '../api/httpClient';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
-const Login = () => {
+const LoginContent = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [sessionMessage, setSessionMessage] = useState('');
   const navigate = useNavigate();
+
+  const isDevMode = import.meta.env.MODE === 'development' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
   // 저장된 테마 적용
   useEffect(() => {
@@ -16,7 +21,7 @@ const Login = () => {
     setSessionMessage(consumeAuthSessionMessage() || '');
   }, []);
 
-  const handleLogin = async (e) => {
+  const handleMockLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('/api/v1/auth/login/mock', {
@@ -29,8 +34,30 @@ const Login = () => {
       navigate('/admin/workflow');
     } catch (error) {
       console.error(error);
-      alert('로그인에 실패했습니다.');
+      const msg = error.response?.data?.detail || '로그인에 실패했습니다.';
+      toast.error(msg);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const token = credentialResponse.credential;
+      const response = await axios.post('/api/v1/auth/login/google', {
+        token: token
+      });
+      
+      const { access_token } = response.data;
+      localStorage.setItem('ai_access_token', access_token);
+      navigate('/admin/workflow');
+    } catch (error) {
+      console.error(error);
+      const msg = error.response?.data?.detail || '구글 로그인에 실패했습니다.';
+      toast.error(msg);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error('구글 로그인 호출에 실패했습니다.');
   };
 
   return (
@@ -75,24 +102,57 @@ const Login = () => {
           )}
         </div>
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <input 
-            type="email" 
-            placeholder="이메일 주소" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            className="btn-primary"
-            style={{ height: '52px', fontSize: '16px', borderRadius: '10px', width: '100%', marginTop: '8px' }}
-          >
-            로그인
-          </button>
-        </form>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap={false}
+            />
+          </div>
+
+          {isDevMode && (
+            <>
+              <div style={{ 
+                display: 'flex', alignItems: 'center', 
+                color: 'var(--color-text-muted)', fontSize: '14px', margin: '8px 0' 
+              }}>
+                <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+                <span style={{ padding: '0 12px' }}>또는 (Dev Only)</span>
+                <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+              </div>
+
+              <form onSubmit={handleMockLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <input 
+                  type="email" 
+                  placeholder="테스트 이메일 주소" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ height: '52px', fontSize: '16px', borderRadius: '10px', width: '100%', marginTop: '8px' }}
+                >
+                  Mock 로그인
+                </button>
+              </form>
+            </>
+          )}
+        </div>
       </div>
     </div>
+  );
+};
+
+const Login = () => {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy-client-id';
+  
+  return (
+    <GoogleOAuthProvider clientId={clientId}>
+      <LoginContent />
+    </GoogleOAuthProvider>
   );
 };
 

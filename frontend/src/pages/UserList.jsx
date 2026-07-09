@@ -1,5 +1,7 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Skeleton } from '../components/common/Loader';
 
 const ROLES = ['ROLE_ADMIN', 'ROLE_USER'];
 const STATUS_OPTIONS = ['approved', 'pending', 'rejected'];
@@ -34,7 +36,7 @@ const UserList = () => {
       setUsers(res.data);
     } catch (err) {
       console.error(err);
-      alert('계정 목록을 불러오는데 실패했습니다.');
+      toast.error('계정 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -44,7 +46,7 @@ const UserList = () => {
 
   const handleCreate = async () => {
     if (!newEmail.trim() || !newName.trim()) {
-      alert('이메일과 이름을 모두 입력해주세요.');
+      toast.error('이메일과 이름을 모두 입력해주세요.');
       return;
     }
     try {
@@ -58,7 +60,7 @@ const UserList = () => {
       setNewEmail(''); setNewName(''); setNewRole('ROLE_ADMIN'); setNewDept('');
       fetchUsers();
     } catch (err) {
-      alert('생성에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('생성에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -81,7 +83,7 @@ const UserList = () => {
       setEditUser(null);
       fetchUsers();
     } catch (err) {
-      alert('수정에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('수정에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -93,7 +95,7 @@ const UserList = () => {
       setDeleteTarget(null);
       fetchUsers();
     } catch (err) {
-      alert('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
+      toast.error('삭제에 실패했습니다: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -122,7 +124,7 @@ const UserList = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+              Array.from({ length: 5 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="180px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="80px" /></td></tr>))
             ) : users.length === 0 ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>등록된 계정이 없습니다.</td></tr>
             ) : users.map(u => (

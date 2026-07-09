@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { getActivePack } from '../../api/intentFactory';
 import ActionCard from '../../components/chat/ActionCard';
 import useProjects from '../../hooks/useProjects';
+import { Spinner } from '../../components/common/Loader';
 
 const SAMPLE_QUESTIONS = [
   'J-Brain 주요 기능 알려줘',

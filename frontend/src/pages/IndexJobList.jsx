@@ -1,7 +1,9 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useProjects from '../hooks/useProjects';
+import { Skeleton } from '../components/common/Loader';
 
 const IndexJobList = () => {
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ const IndexJobList = () => {
       setJobs(mapped);
     } catch (error) {
       console.error(error);
-      alert('인덱싱 작업 목록을 불러오는데 실패했습니다.');
+      toast.error('인덱싱 작업 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -86,7 +88,7 @@ const IndexJobList = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+              Array.from({ length: 5 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="80px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="100px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="80px" /></td></tr>))
             ) : jobs.length === 0 ? (
               <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>인덱싱 작업 내역이 없습니다.</td></tr>
             ) : (

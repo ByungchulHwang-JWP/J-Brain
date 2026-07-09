@@ -1,6 +1,8 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import useProjects from '../hooks/useProjects';
+import { Skeleton } from '../components/common/Loader';
 
 const LogList = () => {
   const [logs, setLogs] = useState([]);
@@ -21,7 +23,7 @@ const LogList = () => {
       setLogs(res.data);
     } catch (err) {
       console.error(err);
-      alert('로그 목록을 불러오는데 실패했습니다.');
+      toast.error('로그 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -90,7 +92,7 @@ const LogList = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>로딩 중...</td></tr>
+              Array.from({ length: 5 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="60px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="100px" /></td><td><Skeleton width="200px" /></td><td><Skeleton width="60px" /></td></tr>))
             ) : logs.length === 0 ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>해당 조건의 로그가 없습니다.</td></tr>
             ) : (

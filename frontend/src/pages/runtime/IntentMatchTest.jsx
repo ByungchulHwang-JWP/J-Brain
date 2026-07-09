@@ -6,6 +6,7 @@ import useProjects from '../../hooks/useProjects';
 import { getActivePack } from '../../api/intentFactory';
 import ActionCard from '../../components/chat/ActionCard';
 import IntentDiagnostics from '../../components/chat/IntentDiagnostics';
+import { Spinner } from '../../components/common/Loader';
 
 const SAMPLE_QUESTIONS = [
   '운영 현황 보여줘',
@@ -281,7 +282,7 @@ const IntentMatchTest = () => {
             ))}
           </div>
           <button className="btn-primary intent-match-submit" type="button" onClick={() => runMatch()} disabled={loadingMatch || !selectedProjectId}>
-            {loadingMatch ? '매칭 중...' : 'Intent 매칭 실행'}
+            {loadingMatch ? <><Spinner size={14} style={{marginRight: 6}} /> 매칭 중...</> : 'Intent 매칭 실행'}
           </button>
         </div>
 

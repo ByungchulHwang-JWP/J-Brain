@@ -1,3 +1,6 @@
+import toast from 'react-hot-toast';
+import { Spinner, Skeleton } from '../../components/common/Loader';
+import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
 import useProjects from '../../hooks/useProjects';
 import {
@@ -49,6 +52,11 @@ const parseRoles = (value) => (
 
 const rolesToText = (roles) => (Array.isArray(roles) ? roles.join(', ') : '');
 
+const generateActionId = (projectId, actionType = 'NAVIGATE') => {
+  const normalizedProjectId = String(projectId || 'PROJECT').replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'PROJECT';
+  return `ACT-${normalizedProjectId}-${actionType}-${Date.now().toString().slice(-6)}`;
+};
+
 const ActionList = () => {
   const { projects } = useProjects();
   const [projectId, setProjectId] = useState('J-Brain');
@@ -59,6 +67,8 @@ const ActionList = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
     if (projects.length > 0 && !projects.some((project) => project.id === projectId)) {
@@ -84,7 +94,7 @@ const ActionList = () => {
   useEffect(() => {
     loadActions(projectId);
     setSelectedActionId(null);
-    setForm(emptyForm);
+    setForm({ ...emptyForm, action_id: generateActionId(projectId, emptyForm.action_type) });
   }, [projectId]);
 
   const filteredItems = useMemo(() => {
@@ -98,6 +108,17 @@ const ActionList = () => {
       item.api_endpoint,
     ].filter(Boolean).some((value) => String(value).toLowerCase().includes(normalized)));
   }, [items, keyword]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword, projectId]);
+
+  const totalItems = filteredItems.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredItems.slice(start, start + pageSize);
+  }, [filteredItems, currentPage, pageSize]);
 
   const stats = useMemo(() => {
     const byType = items.reduce((acc, item) => {
@@ -116,7 +137,7 @@ const ActionList = () => {
 
   const handleNew = () => {
     setSelectedActionId(null);
-    setForm(emptyForm);
+    setForm({ ...emptyForm, action_id: generateActionId(projectId, emptyForm.action_type) });
     setMessage('신규 Action을 등록할 수 있습니다.');
   };
 
@@ -146,7 +167,7 @@ const ActionList = () => {
   };
 
   const buildPayload = () => ({
-    action_id: form.action_id.trim(),
+    action_id: (form.action_id || generateActionId(projectId, form.action_type)).trim(),
     action_name: form.action_name.trim(),
     action_type: form.action_type,
     description: form.description.trim() || null,
@@ -162,11 +183,11 @@ const ActionList = () => {
 
   const handleSave = async () => {
     if (!form.action_id.trim()) {
-      alert('Action ID를 입력해 주세요.');
+      toast.error('Action ID를 입력해 주세요.');
       return;
     }
     if (!form.action_name.trim()) {
-      alert('Action 이름을 입력해 주세요.');
+      toast.error('Action 이름을 입력해 주세요.');
       return;
     }
     setSaving(true);
@@ -226,7 +247,7 @@ const ActionList = () => {
             {projects.length === 0 && <option value={projectId}>{projectId}</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={() => loadActions(projectId)} disabled={loading}>{loading ? '조회 중...' : '새로고침'}</button>
+          <button className="btn-secondary" onClick={() => loadActions(projectId)} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
           <button className="btn-primary" onClick={handleNew}>Action 등록</button>
         </div>
       </div>
@@ -268,13 +289,13 @@ const ActionList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredItems.length === 0 ? (
+              {paginatedItems.length === 0 ? (
                 <tr>
                   <td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>
                     등록된 Action이 없습니다.
                   </td>
                 </tr>
-              ) : filteredItems.map((item) => (
+              ) : paginatedItems.map((item) => (
                 <tr
                   key={item.action_id}
                   onClick={() => handleSelect(item.action_id)}
@@ -289,6 +310,16 @@ const ActionList = () => {
               ))}
             </tbody>
           </table>
+          {!loading && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
+          )}
         </div>
 
         <div className="table-area" style={{ padding: '18px' }}>
@@ -311,7 +342,14 @@ const ActionList = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <label>
                 <span className="modal-label">Action 유형</span>
-                <select value={form.action_type} onChange={(e) => updateForm({ action_type: e.target.value })} style={fieldStyle}>
+                <select value={form.action_type} onChange={(e) => {
+                  const newType = e.target.value;
+                  if (!selectedActionId) {
+                    updateForm({ action_type: newType, action_id: generateActionId(projectId, newType) });
+                  } else {
+                    updateForm({ action_type: newType });
+                  }
+                }} style={fieldStyle}>
                   <option value="NAVIGATE">NAVIGATE</option>
                   <option value="SEARCH_DOC">SEARCH_DOC</option>
                   <option value="QUERY">QUERY</option>

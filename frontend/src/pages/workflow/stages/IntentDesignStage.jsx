@@ -1,8 +1,10 @@
+import { Skeleton } from '../../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowRight, BrainCircuit, GitMerge, Lightbulb, MessageSquarePlus, PauseCircle, PlusCircle, X } from 'lucide-react';
 import IntentForm from '../../../components/intent-factory/IntentForm';
+import Pagination from '../../../components/common/Pagination';
 import WorkflowQuickPanel from '../../../components/workflow/WorkflowQuickPanel';
 import { createIntent, listActions, listIntents } from '../../../api/intentFactory';
 
@@ -50,6 +52,8 @@ const IntentDesignStage = ({ projectId, stage, summary }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   const loadIntents = async () => {
     setLoading(true);
@@ -146,6 +150,17 @@ const IntentDesignStage = ({ projectId, stage, summary }) => {
     : activeTab === 'merge'
       ? mergeCandidates
       : holdCandidates;
+
+  const sortedItems = useMemo(() => {
+    return [...currentItems].sort((a, b) => b.intent_id.localeCompare(a.intent_id));
+  }, [currentItems]);
+  const totalItems = sortedItems.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = sortedItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const workCards = [
     {
@@ -310,10 +325,10 @@ const IntentDesignStage = ({ projectId, stage, summary }) => {
             <thead><tr><th>Intent ID</th><th>Intent 이름</th><th>Category</th><th>Action</th><th>예상 질문</th><th>상태</th><th>관리</th></tr></thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7">Intent 목록을 불러오는 중입니다.</td></tr>
+                Array.from({ length: 5 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="100px" /></td><td><Skeleton width="40px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="80px" /></td></tr>))
               ) : currentItems.length === 0 ? (
                 <tr><td colSpan="7">{activeTab === 'registered' ? '등록된 Intent가 없습니다.' : '검토 대상이 없습니다.'}</td></tr>
-              ) : currentItems.map((item) => (
+              ) : paginatedItems.map((item) => (
                 <tr key={`${activeTab}-${item.intent_id}`}>
                   <td><div className="name mono">{item.intent_id}</div></td>
                   <td><div className="name">{item.intent_name}</div></td>
@@ -330,6 +345,14 @@ const IntentDesignStage = ({ projectId, stage, summary }) => {
               ))}
             </tbody>
           </table>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { ArrowRight, FileQuestion, RefreshCw, Send, ShieldAlert } from 'lucide-react';
+import Pagination from '../../components/common/Pagination';
 import { convertUnansweredToFaqCandidate, listUnansweredLogs } from '../../api/intentFactory';
 
 const getAccessToken = () => localStorage.getItem('ai_access_token');
@@ -28,6 +29,8 @@ const UnansweredAnalysis = () => {
   const [loading, setLoading] = useState(true);
   const [converting, setConverting] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
     axios.get('/api/v1/projects', {
@@ -64,6 +67,17 @@ const UnansweredAnalysis = () => {
     loadLogs();
   }, [loadLogs]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [projectId]);
+
+  const totalItems = items.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return items.slice(start, start + pageSize);
+  }, [items, currentPage, pageSize]);
+
   const selectedItem = useMemo(
     () => items.find((item) => item.log_id === selectedLogId) || items[0],
     [items, selectedLogId],
@@ -91,11 +105,15 @@ const UnansweredAnalysis = () => {
         tags,
       });
       setSuggestedAnswer('');
-      setMessage('FAQ 후보로 전환했습니다. 개선 요청 관리 화면에서 후속 보완을 진행할 수 있습니다.');
+      const successMsg = 'FAQ 후보로 전환했습니다. 개선 요청 관리 화면에서 후속 보완을 진행할 수 있습니다.';
+      setMessage(successMsg);
+      alert(successMsg);
       await loadLogs();
     } catch (err) {
       console.error(err);
-      setMessage('FAQ 후보 전환에 실패했습니다. 이미 전환되었거나 서버 상태를 확인해 주세요.');
+      const errorMsg = 'FAQ 후보 전환에 실패했습니다. 이미 전환되었거나 서버 상태를 확인해 주세요.';
+      setMessage(errorMsg);
+      alert(errorMsg);
     } finally {
       setConverting(false);
     }
@@ -142,26 +160,38 @@ const UnansweredAnalysis = () => {
 
           {loading ? (
             <div className="operations-empty">미응답 로그를 불러오는 중입니다.</div>
-          ) : items.length === 0 ? (
+          ) : paginatedItems.length === 0 ? (
             <div className="operations-empty">미응답 로그가 없습니다. Runtime QA에서 낮은 신뢰도 질문을 실행하면 이곳에 표시됩니다.</div>
           ) : (
-            <div className="operations-log-list">
-              {items.map((item) => (
-                <button
-                  className={`operations-log-row ${selectedItem?.log_id === item.log_id ? 'active' : ''}`}
-                  key={item.log_id}
-                  type="button"
-                  onClick={() => setSelectedLogId(item.log_id)}
-                >
-                  <span className={`severity ${item.severity}`}>{severityLabel[item.severity] || item.severity}</span>
-                  <div>
-                    <strong>{item.question}</strong>
-                    <small>{item.log_id} · {typeLabel[item.improvement_type] || item.improvement_type} · {item.confidence_label}</small>
-                  </div>
-                  <span className={`status ${item.status === 'open' ? 'open' : 'done'}`}>{item.status}</span>
-                </button>
-              ))}
-            </div>
+            <>
+              <div className="operations-log-list">
+                {paginatedItems.map((item) => (
+                  <button
+                    className={`operations-log-row ${selectedItem?.log_id === item.log_id ? 'active' : ''}`}
+                    key={item.log_id}
+                    type="button"
+                    onClick={() => setSelectedLogId(item.log_id)}
+                  >
+                    <span className={`severity ${item.severity}`}>{severityLabel[item.severity] || item.severity}</span>
+                    <div>
+                      <strong>{item.question}</strong>
+                      <small>{item.log_id} · {typeLabel[item.improvement_type] || item.improvement_type} · {item.confidence_label}</small>
+                    </div>
+                    <span className={`status ${item.status === 'open' ? 'open' : 'done'}`}>{item.status}</span>
+                  </button>
+                ))}
+              </div>
+              {!loading && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={setPageSize}
+                />
+              )}
+            </>
           )}
         </section>
 
@@ -196,14 +226,28 @@ const UnansweredAnalysis = () => {
                   placeholder="운영자가 확인한 답변 초안을 입력합니다. 비워두면 질문만 FAQ 후보로 등록됩니다."
                 />
               </label>
-              <button
-                className="btn-primary"
-                type="button"
-                onClick={handleConvert}
-                disabled={converting || selectedItem.status !== 'open'}
-              >
-                <Send size={15} /> FAQ 후보로 전환
-              </button>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  className="btn-primary"
+                  type="button"
+                  onClick={handleConvert}
+                  disabled={converting || selectedItem.status !== 'open'}
+                >
+                  <Send size={15} /> FAQ 후보로 전환
+                </button>
+                {selectedItem.intent_id && (
+                  <button
+                    className="btn-secondary"
+                    type="button"
+                    onClick={() => {
+                      const url = `/admin/intent-factory/intents/${encodeURIComponent(selectedItem.intent_id)}?project=${encodeURIComponent(projectId)}`;
+                      window.open(url, '_blank');
+                    }}
+                  >
+                    Intent 수정 화면으로 이동
+                  </button>
+                )}
+              </div>
             </>
           ) : (
             <div className="operations-empty">선택된 미응답 질문이 없습니다.</div>

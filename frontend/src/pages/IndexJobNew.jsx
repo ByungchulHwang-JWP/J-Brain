@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -31,11 +32,11 @@ const IndexJobNew = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      alert('인덱싱 작업이 시작되었습니다.');
+      toast.success('인덱싱 작업이 시작되었습니다.');
       navigate('/admin/jobs');
     } catch (error) {
       console.error(error);
-      alert('작업 실행에 실패했습니다: ' + (error.response?.data?.detail || error.message));
+      toast.error('작업 실행에 실패했습니다: ' + (error.response?.data?.detail || error.message));
     } finally {
       setIsSubmitting(false);
     }

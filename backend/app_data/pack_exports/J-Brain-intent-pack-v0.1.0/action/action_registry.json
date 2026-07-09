@@ -40,6 +40,22 @@
     "enabled": true
   },
   {
+    "action_id": "ACT-J-BRAIN-NAVIGATE-954153",
+    "action_name": "J-Brain 프로젝트 조회",
+    "action_type": "QUERY",
+    "description": null,
+    "execution_mode": "sql_template",
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-J-BRAIN-NAVIGATE-379362",
+    "action_name": "사용자 목록 쿼리 실행",
+    "action_type": "QUERY",
+    "description": null,
+    "execution_mode": "sql_template",
+    "enabled": true
+  },
+  {
     "action_id": "ACT-J-BRAIN-NAVIGATE-340048",
     "action_name": "시스템 오류 해결 가이드 검색",
     "action_type": "SEARCH_DOC",
