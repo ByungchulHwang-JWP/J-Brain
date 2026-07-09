@@ -1350,6 +1350,7 @@ input::placeholder { color: var(--color-input-placeholder); }
   display: grid;
   gap: 8px;
   margin-bottom: 14px;
+  overflow: visible;
 }
 
 .workflow-stage-shell-v2 .workflow-stepper {
@@ -5350,19 +5351,34 @@ input::placeholder { color: var(--color-input-placeholder); }
 .topology-node-wrapper {
   display: contents;
 }
-/* 분기가 있는 노드: column flex로 전환하여 아래에 트리 공간 확보 */
+/* 분기가 있는 노드: position relative로 분기 그룹의 기준점 역할 */
 .topology-node-wrapper.has-branch {
+  display: contents;
+  /* 내부 step과 branch-group이 각각 독립적으로 배치됨 */
+}
+/* has-branch 안의 step에 relative 추가 (분기 그룹의 position 기준점) */
+.topology-node-wrapper.has-branch > .workflow-stepper-step {
+  position: relative;
+}
+
+/* topology-mode Stepper: 분기 공간 확보 */
+.workflow-stepper.topology-mode {
+  overflow: visible !important;
+  position: relative;
+  padding-bottom: 130px; /* 분기 트리 높이만큼 공간 확보 */
+  margin-bottom: 10px;
+}
+
+/* ── 분기 그룹: absolute로 메인 노드 아래에 배치 ── */
+.topology-branch-group {
+  position: absolute;
+  top: 100%; /* 메인 노드 바로 아래 */
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  z-index: 2;
-}
-
-/* topology-mode Stepper: 분기 공간 확보를 위해 overflow visible */
-.workflow-stepper.topology-mode {
-  overflow: visible;
-  position: relative;
+  z-index: 10;
 }
 
 /* ── 수직 줄기 (메인 노드 → 가지) ── */
@@ -5375,7 +5391,6 @@ input::placeholder { color: var(--color-input-placeholder); }
 
 /* ── 수평 가지 (서브 노드를 잇는 가로선) ── */
 .topology-spread-bar {
-  /* 하위 노드 수에 따라 너비 조정: 2개=200px, 3개=300px */
   width: calc(var(--branch-count, 3) * 110px);
   max-width: 360px;
   height: 2px;
@@ -5391,6 +5406,11 @@ input::placeholder { color: var(--color-input-placeholder); }
   max-width: 400px;
   margin-top: 16px;
   position: relative;
+}
+
+/* 분기 노드가 없을 때는 padding-bottom 제거 */
+.workflow-stepper.topology-mode:not(:has(.topology-branch-group)) {
+  padding-bottom: 14px;
 }
 
 /* ── 서브 노드 개별 카드 ── */
