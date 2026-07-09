@@ -48,40 +48,48 @@ const WorkflowStepper = ({
               {/* Topology Branch: step 내부에 배치하여 position:relative 기준으로 동작 */}
               {showBranch && (
                 <div className="topology-branch-group" aria-label="하위 작업 분기">
-                  <div className="topology-trunk" />
-                  <div className="topology-sub-nodes">
-                    {/* 활성화된 노드가 있을 경우, 트렁크(중앙)에서 해당 노드까지만 파란색 수평선을 덮어씌움 */}
-                    {subtasks.findIndex(c => Number(c.subtask?.stage) === Number(activeSubtaskStage)) !== -1 && (
-                      (() => {
-                        const activeIdx = subtasks.findIndex(c => Number(c.subtask?.stage) === Number(activeSubtaskStage));
-                        const nodeWidth = 115;
-                        const gap = 16;
-                        // 해당 노드의 중앙 위치 (왼쪽에서부터 픽셀 기준)
-                        const nodeCenterPx = activeIdx * (nodeWidth + gap) + (nodeWidth / 2);
-                        // 전체 컨테이너 너비
-                        const totalWidthPx = subtasks.length * nodeWidth + (subtasks.length - 1) * gap;
-                        // 중앙 트렁크 위치
-                        const trunkCenterPx = totalWidthPx / 2;
-                        
-                        // 중앙 노드인 경우 (예: 홀수 개의 정중앙) 수평선 불필요
-                        if (Math.abs(nodeCenterPx - trunkCenterPx) < 1) return null;
+                  
+                  {/* 동적 SVG 라우팅 라인 */}
+                  {(() => {
+                    const activeIdx = subtasks.findIndex(c => Number(c.subtask?.stage) === Number(activeSubtaskStage));
+                    if (activeIdx === -1) return null; // 활성 노드가 없으면 선을 그리지 않음
 
-                        const isLeft = nodeCenterPx < trunkCenterPx;
-                        const leftPx = isLeft ? nodeCenterPx : trunkCenterPx;
-                        const widthPx = Math.abs(trunkCenterPx - nodeCenterPx);
+                    const N = subtasks.length;
+                    const nodeWidth = 115;
+                    const gap = 16;
+                    const panelPadding = 16;
+                    const panelMarginTop = 32;
 
-                        return (
-                          <div
-                            className="topology-active-horizontal-overlay"
-                            style={{
-                              left: `${leftPx}px`,
-                              width: `${widthPx}px`
-                            }}
-                          />
-                        );
-                      })()
-                    )}
+                    const W = N * nodeWidth + (N - 1) * gap + panelPadding * 2;
+                    const startX = W / 2;
+                    const startY = 0; // 메인 노드 하단 중앙
 
+                    const targetX = panelPadding + activeIdx * (nodeWidth + gap) + (nodeWidth / 2);
+                    const targetY = panelMarginTop + panelPadding; // 서브 노드 카드 상단 중앙
+
+                    // 부드러운 S자 곡선 (Cubic Bezier)
+                    const pathD = `M ${startX} ${startY} C ${startX} ${startY + 24}, ${targetX} ${targetY - 24}, ${targetX} ${targetY}`;
+
+                    return (
+                      <svg
+                        className="topology-dynamic-svg"
+                        width={W}
+                        height={targetY}
+                        style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', zIndex: 0, overflow: 'visible' }}
+                      >
+                        <path
+                          d={pathD}
+                          fill="none"
+                          stroke="var(--color-primary)"
+                          strokeWidth="2.5"
+                          className="topology-dynamic-path"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    );
+                  })()}
+
+                  <div className="topology-sub-panel">
                     {subtasks.map((child) => {
                       const sub = child.subtask || {};
                       const isActive = Number(child.stage) === Number(activeSubtaskStage);
@@ -98,11 +106,9 @@ const WorkflowStepper = ({
                           onClick={(e) => { e.stopPropagation(); onSubtaskClick?.(child); }}
                           title={sub.description}
                         >
-                          <span className="topology-sub-level">{sub.level}</span>
-                          <span className="topology-sub-title">{sub.title}</span>
-                          <span className={`topology-sub-status ${child.status === 'done' ? 'done' : isActive ? 'active' : ''}`}>
-                            {statusLabel}
-                          </span>
+                          <span className="step-number">{child.stage}</span>
+                          <span className="step-label line-clamp-2">{sub.name}</span>
+                          <span className="step-status">{statusLabel}</span>
                         </button>
                       );
                     })}

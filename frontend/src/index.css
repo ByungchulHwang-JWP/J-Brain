@@ -5381,48 +5381,31 @@ input::placeholder { color: var(--color-input-placeholder); }
   z-index: 10;
 }
 
-/* ── 수직 줄기 (메인 노드 → 분기 시작점) ── */
-.topology-trunk {
-  width: 1.5px;
-  height: 16px;
-  background: var(--color-success);
-  flex-shrink: 0;
-  opacity: 0.85;
+/* ── SVG 동적 라우팅 애니메이션 ── */
+.topology-dynamic-path {
+  stroke-dasharray: 10, 6; /* 점선 효과 */
+  animation: svg-path-flow 1s linear infinite; /* 흐르는 듯한 애니메이션 */
+  filter: drop-shadow(0 0 6px rgba(30, 58, 138, 0.4));
 }
 
-/* ── 서브 노드 컨테이너 ── */
-.topology-sub-nodes {
+@keyframes svg-path-flow {
+  from { stroke-dashoffset: 16; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* ── 서브 노드 그룹핑 패널 (Background Box) ── */
+.topology-sub-panel {
   display: flex;
   justify-content: center;
-  gap: 16px; /* 서브 노드 간 간격 */
+  gap: 16px;
   position: relative;
-  padding-top: 16px; /* 수직 낙하선(drop line)을 위한 공간 */
-  margin-top: 0;
-}
-
-/* ── 수평 가지 (전체 서브 노드를 잇는 가로선 기본 녹색) ── */
-.topology-sub-nodes::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  /* 양쪽 끝 노드의 정중앙(115px의 절반인 57.5px)에서 시작/끝나도록 설정 */
-  left: 57.5px;
-  right: 57.5px;
-  height: 1.5px;
-  background: var(--color-success);
-  opacity: 0.85;
-  border-radius: 1px;
-}
-
-/* ── 활성화된 서브 노드로 향하는 파란색 수평선 오버레이 ── */
-.topology-active-horizontal-overlay {
-  position: absolute;
-  top: 0;
-  height: 1.5px;
-  background: var(--color-primary);
-  border-radius: 1px;
-  z-index: 2;
-  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  background: var(--color-bg-base); /* 은은한 배경색 */
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-top: 32px; /* SVG 라우팅을 위한 상단 여백 */
+  z-index: 1;
 }
 
 /* 분기 노드가 없을 때는 padding-bottom 제거 */
@@ -5446,46 +5429,34 @@ input::placeholder { color: var(--color-input-placeholder); }
   transition: all 0.3s cubic-bezier(.4,0,.2,1);
   font-family: inherit;
   text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
-/* ── 수직 낙하선 (수평선 → 개별 서브 노드) ── */
-.topology-sub-node::before {
-  content: '';
-  position: absolute;
-  top: -16px; /* padding-top 16px 공간 채우기 */
-  left: 50%;
-  width: 1.5px;
-  height: 16px;
-  background: var(--color-success);
-  transform: translateX(-50%);
-  opacity: 0.85;
-  transition: background 0.3s ease, width 0.3s ease;
-}
-
-/* Hover 시 라인 강조 효과 */
-.topology-sub-node:hover::before {
-  background: var(--color-primary);
-}
-
-/* ── 서브 노드 활성화 시 연결선(회로) 강조 효과 ── */
-/* 서브 노드 중 하나라도 active 상태이면 수직 줄기(Trunk)를 파란색으로 강조 (수평선은 오버레이가 담당) */
-.topology-branch-group:has(.topology-sub-node.active) .topology-trunk {
-  background: var(--color-primary);
-  opacity: 1;
-}
-
-/* 현재 선택된 메인 Phase 노드(active-view) 외곽선 강조 대신 부드러운 플로팅 효과 적용 (High-end UI) */
+/* 현재 선택된 메인 Phase 노드(active-view) 강조 (High-end UI: Scale 1.02 & Soft Floating) */
 .workflow-stepper-step.active-view {
   box-shadow: 0 8px 24px -4px rgba(30, 58, 138, 0.15), 0 4px 10px -4px rgba(30, 58, 138, 0.1);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
   z-index: 5;
+  position: relative; /* 인디케이터 배치를 위해 추가 */
 }
 
-/* 활성(진행 중인) 서브 노드로 이어지는 수직 낙하선 강조 */
-.topology-sub-node.active::before {
-  background: var(--color-primary);
-  width: 2px;
+/* ── 선택된 메인 노드 하단 인디케이터 (▼) ── */
+.workflow-stepper-step.active-view::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; /* 아래로 살짝 삐져나오게 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--color-bg-surface);
+  filter: drop-shadow(0 4px 4px rgba(30, 58, 138, 0.1));
+  z-index: 6;
 }
+
+/* ── 기존 낙하선 스타일 삭제됨 ── */
 
 
 
