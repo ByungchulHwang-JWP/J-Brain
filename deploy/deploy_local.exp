@@ -1,0 +1,32 @@
+#!/usr/bin/expect -f
+# =============================================================================
+# 로컬(Mac)에서 원격 Dev 서버 배포 파이프라인 트리거 스크립트
+# 사용법: ./deploy/deploy_local.exp
+# =============================================================================
+
+set timeout 300
+set password "app1234!"
+set server "appuser@dev.jwinpartners.com"
+set port "2222"
+
+puts "==========================================="
+puts "  로컬 -> 원격 Dev 서버 원격 배포 시작"
+puts "==========================================="
+
+# 1. 원격 서버에 접속하여 git pull 및 재구동 스크립트(deploy.sh) 실행
+spawn ssh -p $port $server "chmod +x /app/j-brain/deploy/deploy.sh && /app/j-brain/deploy/deploy.sh"
+
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+
+expect eof
+puts "==========================================="
+puts "  원격 배포 트리거 완료!"
+puts "==========================================="
