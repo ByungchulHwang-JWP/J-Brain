@@ -44,44 +44,44 @@ const WorkflowStepper = ({
                 {tone === 'done' ? <Check size={14} /> : tone === 'locked' ? <LockKeyhole size={12} /> : stage.stage}
               </span>
               <span className="step-label">{stage.name}</span>
-            </div>
 
-            {/* Topology Branch: 활성 Phase의 하위 작업을 분기 노드로 표시 */}
-            {showBranch && (
-              <div className="topology-branch-group" aria-label="하위 작업 분기">
-                <div className="topology-trunk" />
-                <div
-                  className="topology-spread-bar"
-                  style={{ '--branch-count': subtasks.length }}
-                />
-                <div className="topology-sub-nodes">
-                  {subtasks.map((child) => {
-                    const sub = child.subtask || {};
-                    const isActive = Number(child.stage) === Number(activeSubtaskStage);
-                    const statusLabel = child.status === 'done'
-                      ? '✓ 완료'
-                      : isActive
-                        ? '● 진행중'
-                        : '○ 대기';
-                    return (
-                      <button
-                        key={child.stage}
-                        type="button"
-                        className={`topology-sub-node ${isActive ? 'active' : ''} ${child.status || 'waiting'}`}
-                        onClick={() => onSubtaskClick?.(child)}
-                        title={sub.description}
-                      >
-                        <span className="topology-sub-level">{sub.level}</span>
-                        <span className="topology-sub-title">{sub.title}</span>
-                        <span className={`topology-sub-status ${child.status === 'done' ? 'done' : isActive ? 'active' : ''}`}>
-                          {statusLabel}
-                        </span>
-                      </button>
-                    );
-                  })}
+              {/* Topology Branch: step 내부에 배치하여 position:relative 기준으로 동작 */}
+              {showBranch && (
+                <div className="topology-branch-group" aria-label="하위 작업 분기">
+                  <div className="topology-trunk" />
+                  <div
+                    className="topology-spread-bar"
+                    style={{ '--branch-count': subtasks.length }}
+                  />
+                  <div className="topology-sub-nodes">
+                    {subtasks.map((child) => {
+                      const sub = child.subtask || {};
+                      const isActive = Number(child.stage) === Number(activeSubtaskStage);
+                      const statusLabel = child.status === 'done'
+                        ? '✓ 완료'
+                        : isActive
+                          ? '● 진행중'
+                          : '○ 대기';
+                      return (
+                        <button
+                          key={child.stage}
+                          type="button"
+                          className={`topology-sub-node ${isActive ? 'active' : ''} ${child.status || 'waiting'}`}
+                          onClick={(e) => { e.stopPropagation(); onSubtaskClick?.(child); }}
+                          title={sub.description}
+                        >
+                          <span className="topology-sub-level">{sub.level}</span>
+                          <span className="topology-sub-title">{sub.title}</span>
+                          <span className={`topology-sub-status ${child.status === 'done' ? 'done' : isActive ? 'active' : ''}`}>
+                            {statusLabel}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {idx < stages.length - 1 && (
               <span className={`workflow-stepper-connector ${stage.status === 'done' ? 'done' : ''}`} />
