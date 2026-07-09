@@ -106,9 +106,11 @@ const WorkflowStepper = ({
                           onClick={(e) => { e.stopPropagation(); onSubtaskClick?.(child); }}
                           title={sub.description}
                         >
-                          <span className="step-number">{child.stage}</span>
-                          <span className="step-label line-clamp-2">{sub.name}</span>
-                          <span className="step-status">{statusLabel}</span>
+                          <span className="topology-sub-level">{child.stage}</span>
+                          <span className="topology-sub-title">{sub.name}</span>
+                          <span className={`topology-sub-status ${child.status === 'done' ? 'done' : isActive ? 'active' : ''}`}>
+                            {statusLabel}
+                          </span>
                         </button>
                       );
                     })}

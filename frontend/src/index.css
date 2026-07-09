@@ -5365,7 +5365,7 @@ input::placeholder { color: var(--color-input-placeholder); }
 .workflow-stepper.topology-mode {
   overflow: visible !important;
   position: relative;
-  padding-bottom: 130px; /* 분기 트리 높이만큼 공간 확보 */
+  padding-bottom: 180px; /* 분기 트리 및 패널 높이만큼 충분한 공간 확보 */
   margin-bottom: 10px;
 }
 
