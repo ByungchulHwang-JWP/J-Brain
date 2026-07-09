@@ -5457,6 +5457,19 @@ input::placeholder { color: var(--color-input-placeholder); }
   opacity: 1;
 }
 
+/* 현재 선택된 메인 Phase 노드(active-view) 외곽선 강조 */
+.workflow-stepper-step.active-view {
+  box-shadow: 0 0 0 2px var(--color-bg-surface), 0 0 0 3.5px var(--color-primary);
+  z-index: 5;
+}
+
+/* 활성(진행 중인) 서브 노드로 이어지는 수직 낙하선 강조 */
+.topology-sub-node.active::before {
+  background: var(--color-primary);
+  width: 2.5px;
+  opacity: 1;
+}
+
 
 
 /* 서브 노드 완료 상태 */

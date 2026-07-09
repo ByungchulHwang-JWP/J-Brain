@@ -35,7 +35,7 @@ const WorkflowStepper = ({
             className={`topology-node-wrapper ${showBranch ? 'has-branch' : ''}`}
           >
             <div
-              className={`workflow-stepper-step ${tone}`}
+              className={`workflow-stepper-step ${tone} ${isActivePhase ? 'active-view' : ''}`}
               onClick={() => stage.can_enter && onStageClick?.(stage)}
               style={{ opacity: stage.can_enter ? 1 : 0.55 }}
               title={stage.locked_reason || stage.name}
