@@ -51,9 +51,9 @@ const WorkflowStepper = ({
                   <div className="topology-trunk" />
                   <div className="topology-sub-nodes">
                     {/* 활성화된 노드가 있을 경우, 트렁크(중앙)에서 해당 노드까지만 파란색 수평선을 덮어씌움 */}
-                    {subtasks.findIndex(c => c.subtask?.stage === activeSubtaskStage) !== -1 && (
+                    {subtasks.findIndex(c => Number(c.subtask?.stage) === Number(activeSubtaskStage)) !== -1 && (
                       (() => {
-                        const activeIdx = subtasks.findIndex(c => c.subtask?.stage === activeSubtaskStage);
+                        const activeIdx = subtasks.findIndex(c => Number(c.subtask?.stage) === Number(activeSubtaskStage));
                         const nodeWidth = 115;
                         const gap = 16;
                         // 해당 노드의 중앙 위치 (왼쪽에서부터 픽셀 기준)

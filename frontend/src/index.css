@@ -5474,9 +5474,10 @@ input::placeholder { color: var(--color-input-placeholder); }
   opacity: 1;
 }
 
-/* 현재 선택된 메인 Phase 노드(active-view) 외곽선 강조 (High-end 은은한 글로우) */
+/* 현재 선택된 메인 Phase 노드(active-view) 외곽선 강조 대신 부드러운 플로팅 효과 적용 (High-end UI) */
 .workflow-stepper-step.active-view {
-  box-shadow: 0 0 0 3px var(--color-bg-surface), 0 0 0 5px rgba(30, 58, 138, 0.25);
+  box-shadow: 0 8px 24px -4px rgba(30, 58, 138, 0.15), 0 4px 10px -4px rgba(30, 58, 138, 0.1);
+  transform: translateY(-2px);
   z-index: 5;
 }
 
