@@ -76,9 +76,101 @@ J-Brain은 안전성을 위해 외부망의 **Intent Factory**와 고객 내부�
 | **그래프 시각화** | react-force-graph-2d | Entity/Relation 등 복잡한 지식 네트워크를 사용자에게 직관적이고 인터랙티브하게 표시 |
 | **인증 시스템** | JWT (HS256) | 서버 세션 스토리지 부담이 없는 무상태(Stateless) 토큰 기반 인증 제공 |
 
+<br/>
+
+### 📊 기술 스택 요약 다이어그램
+```mermaid
+flowchart LR
+    subgraph Frontend ["💻 프론트엔드 (Port: 5174)"]
+        direction TB
+        Vite["Vite 5"]
+        React["React 18"]
+        Router["React Router 7"]
+        Axios["Axios"]
+        ForceGraph["Force Graph 2D"]
+    end
+
+    subgraph Backend ["⚙️ 백엔드 (Port: 8080)"]
+        direction TB
+        FastAPI["FastAPI"]
+        Uvicorn["Uvicorn"]
+        Pydantic["Pydantic"]
+        PyJWT["PyJWT"]
+    end
+
+    subgraph DB ["🗄️ 데이터베이스"]
+        direction TB
+        SQLAlchemy["SQLAlchemy 2.0"]
+        PostgreSQL["PostgreSQL"]
+        pgvector["pgvector"]
+        asyncpg["asyncpg"]
+    end
+
+    subgraph AI ["🧠 AI/ML 파이프라인"]
+        direction TB
+        LangChain["LangChain"]
+        LangGraph["LangGraph"]
+        OpenAI["OpenAI GPT"]
+        TextSplitters["Text Splitters"]
+    end
+
+    Frontend -- "Vite Proxy / API" --> Backend
+    Backend --> DB
+    Backend --> AI
+    
+    SQLAlchemy -.-> asyncpg
+    asyncpg -.-> PostgreSQL
+    PostgreSQL -.-> pgvector
+    LangChain -.-> LangGraph
+```
+
 ---
 
-## 5. 🎬 Demo Scenario (Intent Factory 6단계 워크플로우)
+## 5. 🗄️ ERD & Data Model (핵심 데이터 구조)
+
+J-Brain은 멀티 프로젝트(Tenant) 환경과 AI 지식 관리를 완벽하게 지원하기 위해 4가지 핵심 도메인으로 데이터베이스를 설계했습니다. 모든 관계형 데이터와 벡터(Embedding) 데이터는 PostgreSQL 단일 DB에서 통합 관리됩니다.
+
+```mermaid
+erDiagram
+    %% A. 시스템 및 사용자 관리
+    SYS_ROLES ||--o{ ADMIN_USERS : "1:N"
+    SYS_ROLES ||--o{ SYS_ROLE_MENUS : "1:N"
+    SYS_MENUS ||--o{ SYS_ROLE_MENUS : "1:N"
+    PROJECTS ||--o{ PROJECT_USERS : "1:N"
+    
+    %% B. 지식 및 인덱싱 (GraphRAG)
+    PROJECTS ||--o{ GRAPHRAG_SOURCES : "1:N"
+    GRAPHRAG_SOURCES ||--o{ INDEX_JOBS : "1:N"
+    GRAPHRAG_SOURCES ||--o{ GRAPHRAG_CHUNKS : "1:N"
+    GRAPHRAG_SOURCES ||--o{ GRAPHRAG_ENTITIES : "1:N"
+    GRAPHRAG_ENTITIES ||--o{ GRAPHRAG_RELATIONS : "1:N (source/target)"
+
+    %% C. 채팅 및 프롬프트
+    PROJECTS ||--o{ SYSTEM_PROMPTS : "1:N"
+    PROJECTS ||--o{ CHAT_SESSIONS : "1:N"
+    CHAT_SESSIONS ||--o{ CHAT_HISTORY : "1:N"
+
+    %% D. Intent Factory
+    PROJECTS ||--o{ INTENT_DEFINITIONS : "1:N"
+    INTENT_DEFINITIONS ||--o{ INTENT_EXAMPLES : "1:N"
+    INTENT_DEFINITIONS ||--o{ INTENT_ACTION_LINKS : "1:N"
+    INTENT_ACTIONS ||--o{ INTENT_ACTION_LINKS : "1:N"
+    INTENT_DEFINITIONS ||--o{ INTENT_ENTITIES : "1:N"
+    INTENT_ENTITIES ||--o{ INTENT_SYNONYMS : "1:N"
+    PROJECTS ||--o{ INTENT_FAQS : "1:N"
+    PROJECTS ||--o{ RUNTIME_PACK_STORE : "1:N"
+```
+
+| 도메인 그룹 | 핵심 테이블 및 역할 |
+| :--- | :--- |
+| **시스템 & 사용자 관리** | `admin_users`, `sys_roles`, `projects` (관리자 계정 및 프로젝트별 접근 권한 통제) |
+| **지식 & 인덱싱 (GraphRAG)** | `graphrag_sources`, `graphrag_chunks` (문서 메타데이터 및 pgvector 임베딩), `graphrag_entities`, `graphrag_relations` (지식 그래프 저장) |
+| **채팅 & 프롬프트** | `system_prompts`, `chat_sessions`, `chat_history` (프로젝트별 프롬프트 이력 및 대화 세션/로그 관리) |
+| **Intent Factory & 런타임** | `intent_definitions`, `intent_actions` (의도 및 업무 매핑), `runtime_pack_store` (배포된 Pack 저장 및 활성화 관리) |
+
+---
+
+## 6. 🎬 Demo Scenario (Intent Factory 6단계 워크플로우)
 
 챗봇 구축부터 라이브 서비스 배포까지, J-Brain 대시보드에서 제공하는 체계적인 6단계 파이프라인입니다.
 
