@@ -25,7 +25,9 @@ echo ""
 echo "[2/4] 백엔드(Python) 의존성 업데이트..."
 cd "$PROJECT_DIR/backend"
 if [ -f "venv/bin/activate" ]; then
+    set +u
     source venv/bin/activate
+    set -u
     pip install -r requirements.txt
     deactivate
 else
