@@ -2,6 +2,7 @@ import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Skeleton } from '../components/common/Loader';
+import Pagination from '../components/common/Pagination';
 
 const ROLES = ['ROLE_ADMIN', 'ROLE_USER'];
 const STATUS_OPTIONS = ['approved', 'pending', 'rejected'];
@@ -10,6 +11,10 @@ const STATUS_LABEL = { approved: '활성', pending: '대기', rejected: '거부'
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
@@ -99,6 +104,10 @@ const UserList = () => {
     }
   };
 
+  const totalItems = users.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const displayedUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>
       <div className="breadcrumb">
@@ -125,9 +134,9 @@ const UserList = () => {
           <tbody>
             {loading ? (
               Array.from({ length: 5 }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="180px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="80px" /></td></tr>))
-            ) : users.length === 0 ? (
+            ) : displayedUsers.length === 0 ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)' }}>등록된 계정이 없습니다.</td></tr>
-            ) : users.map(u => (
+            ) : displayedUsers.map(u => (
               <tr key={u.id}>
                 <td style={{ fontWeight: 600, color: 'var(--color-text-main)' }}>{u.email}</td>
                 <td style={{ color: 'var(--color-text-main)' }}>{u.name}</td>
@@ -151,6 +160,17 @@ const UserList = () => {
             ))}
           </tbody>
         </table>
+        
+        {!loading && users.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
+        )}
       </div>
 
       {/* 신규 등록 모달 */}
