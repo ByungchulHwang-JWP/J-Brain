@@ -38,7 +38,9 @@ Thumbs.db
 
 
 # Ignored paths
-deploy/
+deploy/*
+!deploy/*.md
+!deploy/*.sh
 logs/
 docs/superpowers/
 
