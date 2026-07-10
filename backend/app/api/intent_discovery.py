@@ -97,7 +97,7 @@ async def api_create_discovery_run(
         if not sources:
             raise HTTPException(status_code=400, detail="신규 분석 대상 Source가 없습니다.")
 
-    run = AutoDiscoveryService().generate(project_id, sources, faqs)
+    run = await AutoDiscoveryService().generate(project_id, sources, faqs)
     saved = store.save_incremental_run(run) if payload.scope == "new" else store.save_run(run)
     return model_to_dict(saved)
 

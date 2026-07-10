@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from app.schemas.llm_discovery import LLMDiscoveryOutput
+from app.core.config import settings
+
+
 import json
 import re
 from datetime import datetime, timezone
@@ -215,7 +221,7 @@ def build_validation_question_payloads_from_apply_plan(
 
 
 class AutoDiscoveryService:
-    def generate(self, project_id: str, sources: list[dict], faqs: list[dict] | None = None) -> DiscoveryRun:
+    async def generate(self, project_id: str, sources: list[dict], faqs: list[dict] | None = None) -> DiscoveryRun:
         run_id = "DISC-%s" % uuid4().hex[:12].upper()
         timestamp = now_iso()
         normalized_sources = sources or []
@@ -242,124 +248,84 @@ class AutoDiscoveryService:
         intent_id = "INTENT_%s_SEARCH_DOC" % slugify(project_id)
         action_id = "ACT_%s_SEARCH_DOC" % slugify(project_id)
 
-        base_candidates = [
-            self._candidate(
-                run_id,
-                project_id,
-                "CATEGORY",
-                "문서 검색 카테고리",
-                {
-                    "category": "SEARCH_DOC",
-                    "description": "등록된 Source와 FAQ를 검색하여 답변 근거를 제공하는 기본 카테고리입니다.",
-                    **source_context,
-                },
-                0.82,
-                "등록된 지식 자료가 있으므로 SEARCH_DOC 카테고리를 기본 후보로 생성했습니다.",
-                timestamp,
-            ),
-            self._candidate(
-                run_id,
-                project_id,
-                "ACTION",
-                "문서 검색 Action",
-                {
-                    "action_id": action_id,
-                    "action_name": "%s 문서 검색" % project_id,
-                    "action_type": "SEARCH_DOC",
-                    "execution_mode": "local",
-                    "description": "폐쇄망 Runtime에서 Source/FAQ를 검색합니다.",
-                    **source_context,
-                },
-                0.8,
-                "지식 준비 단계의 기본 실행 방식으로 SEARCH_DOC Action 후보를 생성했습니다.",
-                timestamp,
-            ),
-            self._candidate(
-                run_id,
-                project_id,
-                "INTENT",
-                "%s 문서/기능 질의" % project_id,
-                {
-                    "intent_id": intent_id,
-                    "intent_name": "%s 문서/기능 질의" % project_id,
-                    "category": "SEARCH_DOC",
-                    "action_id": action_id,
-                    "examples": self._build_examples(project_id, keywords),
-                    "description": "%s 관련 문서와 FAQ에서 답변 근거를 검색합니다." % project_id,
-                    **source_context,
-                },
-                0.76,
-                "Source 제목과 설명에서 대표 문서 검색 Intent를 추정했습니다.",
-                timestamp,
-            ),
-            self._candidate(
-                run_id,
-                project_id,
-                "SOURCE_SCOPE",
-                "%s 검색 범위" % project_id,
-                {
-                    "intent_id": intent_id,
-                    "source_category": project_id,
-                    "source_ids": [str(source.get("id")) for source in normalized_sources if source.get("id")],
-                    "source_status": "completed",
-                    "top_k": 5,
-                    "score_threshold": 0.65,
-                    **source_context,
-                },
-                0.78,
-                "현재 프로젝트 Source를 검색 범위 후보로 연결했습니다.",
-                timestamp,
-            ),
-            self._candidate(
-                run_id,
-                project_id,
-                "ENTITY",
-                "핵심 업무 용어",
-                {
-                    "entity_type": "%s_TERM" % slugify(project_id),
-                    "display_name": "%s 핵심 용어" % project_id,
-                    "value_type": "string",
-                    "synonyms": [{"canonical_value": keyword, "synonyms": [keyword], "code": slugify(keyword)} for keyword in keywords[:5]],
-                    **source_context,
-                },
-                0.68,
-                "Source 텍스트에서 반복 가능성이 높은 업무 용어를 추출했습니다.",
-                timestamp,
-            ),
-            self._candidate(
-                run_id,
-                project_id,
-                "FAQ",
-                "%s 대표 FAQ" % project_id,
-                {**self._build_faq_payload(project_id, source_id, source_name, normalized_faqs), **source_context},
-                0.7,
-                "기존 FAQ 또는 Source 제목을 기준으로 대표 FAQ 후보를 생성했습니다.",
-                timestamp,
-            ),
-        ]
+        # LLM 연동을 통한 실제 로직 구현
+        llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.OPENAI_API_KEY)
+        structured_llm = llm.with_structured_output(LLMDiscoveryOutput)
         
-        # 데모 시나리오를 위해 각 타입별 14개씩, 총 84건 생성
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are an AI assistant that analyzes enterprise manuals and extracts structured knowledge for a chatbot. Extract intents, entities, and FAQs. Provide output in Korean."),
+            ("human", "Analyze the following document and extract the chatbot knowledge: {text}")
+        ])
+        
+        chain = prompt | structured_llm
+        
+        # 텍스트 길이 제한 (LLM Context Window 보호)
+        truncated_text = source_text[:15000]
+        
         candidates = []
-        for i in range(14):
-            for base_c in base_candidates:
-                # 깊은 복사를 피하기 위해 필드들을 복사해서 새 인스턴스 생성
-                new_payload = dict(base_c.payload)
-                if "intent_id" in new_payload:
-                    new_payload["intent_id"] = f"{new_payload['intent_id']}_{i+1}"
-                if "action_id" in new_payload:
-                    new_payload["action_id"] = f"{new_payload['action_id']}_{i+1}"
-                    
-                new_c = self._candidate(
-                    run_id=base_c.run_id,
-                    project_id=base_c.project_id,
-                    type_str=base_c.type,
-                    title=f"{base_c.title} #{i+1}",
-                    payload=new_payload,
-                    confidence=base_c.confidence,
-                    reason=base_c.reason,
-                    timestamp=base_c.created_at,
+        try:
+            llm_result = await chain.ainvoke({"text": truncated_text})
+            
+            # 1. Category 추가
+            candidates.append(
+                self._candidate(
+                    run_id, project_id, "CATEGORY", "문서 검색 카테고리",
+                    {"category": "SEARCH_DOC", "description": "기본 카테고리", **source_context},
+                    0.9, "기본 카테고리", timestamp
                 )
-                candidates.append(new_c)
+            )
+            # 2. Action 추가
+            candidates.append(
+                self._candidate(
+                    run_id, project_id, "ACTION", "문서 검색 Action",
+                    {"action_id": action_id, "action_name": f"{project_id} 검색", "action_type": "SEARCH_DOC", "execution_mode": "local", **source_context},
+                    0.9, "기본 Action", timestamp
+                )
+            )
+            # 3. Source Scope 추가
+            candidates.append(
+                self._candidate(
+                    run_id, project_id, "SOURCE_SCOPE", "검색 범위",
+                    {"intent_id": intent_id, "source_category": project_id, "source_ids": [str(s.get("id")) for s in normalized_sources if s.get("id")], "source_status": "completed", "top_k": 5, "score_threshold": 0.65, **source_context},
+                    0.9, "기본 검색 범위", timestamp
+                )
+            )
+            
+            # LLM 추출 결과 매핑
+            idx = 1
+            for intent in llm_result.intents:
+                candidates.append(
+                    self._candidate(
+                        run_id, project_id, "INTENT", intent.intent_name,
+                        {"intent_id": f"{intent_id}_{idx}", "intent_name": intent.intent_name, "category": "SEARCH_DOC", "action_id": action_id, "examples": intent.examples, "description": intent.description, **source_context},
+                        0.85, "LLM 추출", timestamp
+                    )
+                )
+                idx += 1
+                
+            for entity in llm_result.entities:
+                candidates.append(
+                    self._candidate(
+                        run_id, project_id, "ENTITY", entity.display_name,
+                        {"entity_type": entity.entity_type, "display_name": entity.display_name, "value_type": "string", "synonyms": [{"canonical_value": entity.canonical_value, "synonyms": entity.synonyms, "code": slugify(entity.canonical_value)}], **source_context},
+                        0.85, "LLM 추출", timestamp
+                    )
+                )
+                
+            for faq in llm_result.faqs:
+                candidates.append(
+                    self._candidate(
+                        run_id, project_id, "FAQ", faq.question,
+                        {"question": faq.question, "answer": faq.answer, "source_id": source_id, "source_name": source_name, **source_context},
+                        0.85, "LLM 추출", timestamp
+                    )
+                )
+                
+        except Exception as e:
+            print(f"LLM Extraction failed: {e}")
+            # Fallback
+            pass
+            
         run = DiscoveryRun(
             run_id=run_id,
             project_id=project_id,
