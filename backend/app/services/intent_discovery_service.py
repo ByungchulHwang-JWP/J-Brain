@@ -242,7 +242,7 @@ class AutoDiscoveryService:
         intent_id = "INTENT_%s_SEARCH_DOC" % slugify(project_id)
         action_id = "ACT_%s_SEARCH_DOC" % slugify(project_id)
 
-        candidates = [
+        base_candidates = [
             self._candidate(
                 run_id,
                 project_id,
@@ -337,6 +337,29 @@ class AutoDiscoveryService:
                 timestamp,
             ),
         ]
+        
+        # 데모 시나리오를 위해 각 타입별 14개씩, 총 84건 생성
+        candidates = []
+        for i in range(14):
+            for base_c in base_candidates:
+                # 깊은 복사를 피하기 위해 필드들을 복사해서 새 인스턴스 생성
+                new_payload = dict(base_c.payload)
+                if "intent_id" in new_payload:
+                    new_payload["intent_id"] = f"{new_payload['intent_id']}_{i+1}"
+                if "action_id" in new_payload:
+                    new_payload["action_id"] = f"{new_payload['action_id']}_{i+1}"
+                    
+                new_c = self._candidate(
+                    run_id=base_c.run_id,
+                    project_id=base_c.project_id,
+                    type_str=base_c.type,
+                    title=f"{base_c.title} #{i+1}",
+                    payload=new_payload,
+                    confidence=base_c.confidence,
+                    reason=base_c.reason,
+                    timestamp=base_c.created_at,
+                )
+                candidates.append(new_c)
         run = DiscoveryRun(
             run_id=run_id,
             project_id=project_id,
