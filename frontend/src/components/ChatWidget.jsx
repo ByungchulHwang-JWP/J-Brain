@@ -318,6 +318,35 @@ const ChatWidget = () => {
                       </div>
                     )}
 
+                    {msg.sender === 'bot' && msg.action_card && msg.action_card.type === 'download_card' && msg.action_card.download_url && (
+                      <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                        <a
+                          href={msg.action_card.download_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            padding: '10px 16px',
+                            background: '#007bff',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            width: '100%',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textDecoration: 'none',
+                            boxSizing: 'border-box',
+                            boxShadow: '0 2px 8px rgba(0,123,255,0.3)'
+                          }}
+                        >
+                          {msg.action_card.button_label || `${msg.action_card.file_name || '파일'} 다운로드`} ➔
+                        </a>
+                      </div>
+                    )}
+
                     {msg.sender === 'bot' && msg.sources && msg.sources.length > 0 && (
                       <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                         <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontWeight: 500 }}>SOURCES</div>

@@ -2,7 +2,7 @@
   {
     "template_id": "SQL-ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
     "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
-    "sql_template": "SELECT COUNT(*)::int AS active_project_count FROM graphrag.projects WHERE status = 'active'",
+    "sql_template": "SELECT COALESCE(NULLIF((SELECT COUNT(*) FROM graphrag.projects WHERE COALESCE(status, '') NOT IN ('deleted', 'archived')), 0), (SELECT COUNT(DISTINCT category) FROM graphrag.graphrag_sources WHERE category IS NOT NULL))::int AS active_project_count",
     "readonly": true,
     "status": "active"
   }
