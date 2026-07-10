@@ -5660,7 +5660,6 @@ input::placeholder { color: var(--color-input-placeholder); }
 .workflow-stepper-step.current .step-number {
   background: var(--color-primary);
   color: #fff;
-  animation: stepper-glow-pulse 2.4s ease-in-out infinite;
 }
 .workflow-stepper-step.current .step-number::after {
   content: '';
@@ -5773,7 +5772,6 @@ input::placeholder { color: var(--color-input-placeholder); }
 /* ── SVG 동적 라우팅 애니메이션 ── */
 .topology-dynamic-path {
   stroke-dasharray: 10, 6; /* 점선 효과 */
-  animation: svg-path-flow 1s linear infinite; /* 흐르는 듯한 애니메이션 */
   filter: drop-shadow(0 0 6px rgba(30, 58, 138, 0.4));
 }
 
