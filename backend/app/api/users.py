@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from typing import Any, List, Optional
 from pydantic import BaseModel
+from zoneinfo import ZoneInfo
 
 from app.db.session import get_db
 from app.api.deps import get_current_user_role
@@ -39,6 +40,14 @@ async def list_users(
         """)
     )
     rows = res.fetchall()
+    def to_kst(dt):
+        if not dt:
+            return "-"
+        if dt.tzinfo is None:
+            from datetime import timezone
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(ZoneInfo("Asia/Seoul")).strftime("%Y-%m-%d %H:%M")
+
     return [{
         "id": r.id,
         "email": r.email,
@@ -46,8 +55,8 @@ async def list_users(
         "role_id": r.role_id or "ROLE_ADMIN",
         "department": r.department or "",
         "approval_status": r.approval_status or "approved",
-        "created_at": r.created_at.strftime("%Y-%m-%d %H:%M") if r.created_at else "-",
-        "last_login_at": r.last_login_at.strftime("%Y-%m-%d %H:%M") if r.last_login_at else "-",
+        "created_at": to_kst(r.created_at),
+        "last_login_at": to_kst(r.last_login_at),
     } for r in rows]
 
 
