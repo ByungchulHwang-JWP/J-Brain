@@ -4,7 +4,7 @@
 # 위치: J-Brain/deploy/deploy.sh
 # 실행 환경: dev.jwinpartners.com 서버 내부 (/app/j-brain)
 # =============================================================================
-set -euo pipefail
+set -eo pipefail
 
 PROJECT_DIR="${PROJECT_DIR:-/app/j-brain}"
 BRANCH="${BRANCH:-codex/jbrain-planning-docs}"
@@ -25,9 +25,7 @@ echo ""
 echo "[2/4] 백엔드(Python) 의존성 업데이트..."
 cd "$PROJECT_DIR/backend"
 if [ -f "venv/bin/activate" ]; then
-    set +u
     source venv/bin/activate
-    set -u
     pip install -r requirements.txt
     deactivate
 else
