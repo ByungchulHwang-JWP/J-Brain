@@ -57,6 +57,12 @@ async def login_mock(
         if user.approval_status and user.approval_status not in ('approved',):
             raise HTTPException(status_code=400, detail="계정 승인 대기 중입니다.")
         user_id = user.id
+        
+        await db.execute(
+            text("UPDATE graphrag.admin_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :uid"),
+            {"uid": user_id}
+        )
+        await db.commit()
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
@@ -130,10 +136,22 @@ async def login_google(
             
             if status == 'pending':
                 raise HTTPException(status_code=403, detail="최초 로그인입니다. 관리자 승인 대기 중입니다.")
+            
+            await db.execute(
+                text("UPDATE graphrag.admin_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :uid"),
+                {"uid": user_id}
+            )
+            await db.commit()
         else:
             if user.approval_status != 'approved':
                 raise HTTPException(status_code=403, detail="계정 승인 대기 중입니다. 관리자에게 문의하세요.")
             user_id = user.id
+            
+            await db.execute(
+                text("UPDATE graphrag.admin_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = :uid"),
+                {"uid": user_id}
+            )
+            await db.commit()
 
         # Issuing our own JWT
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

@@ -16,6 +16,9 @@ const UserList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Sorting state
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
@@ -104,9 +107,32 @@ const UserList = () => {
     }
   };
 
-  const totalItems = users.length;
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedUsers = [...users].sort((a, b) => {
+    let aVal = a[sortConfig.key];
+    let bVal = b[sortConfig.key];
+    if (aVal === undefined || aVal === null || aVal === '-') aVal = '';
+    if (bVal === undefined || bVal === null || bVal === '-') bVal = '';
+
+    if (aVal < bVal) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (aVal > bVal) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const totalItems = sortedUsers.length;
   const totalPages = Math.ceil(totalItems / pageSize);
-  const displayedUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const displayedUsers = sortedUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="inner" style={{ paddingBottom: '60px' }}>
@@ -122,12 +148,24 @@ const UserList = () => {
         <table>
           <thead>
             <tr>
-              <th>이메일 (ID)</th>
-              <th>이름</th>
-              <th>부서</th>
-              <th>권한 (Role)</th>
-              <th>상태</th>
-              <th>최근 로그인</th>
+              <th onClick={() => handleSort('email')} style={{ cursor: 'pointer' }}>
+                이메일 (ID) {sortConfig.key === 'email' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                이름 {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th onClick={() => handleSort('department')} style={{ cursor: 'pointer' }}>
+                부서 {sortConfig.key === 'department' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th onClick={() => handleSort('role_id')} style={{ cursor: 'pointer' }}>
+                권한 (Role) {sortConfig.key === 'role_id' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th onClick={() => handleSort('approval_status')} style={{ cursor: 'pointer' }}>
+                상태 {sortConfig.key === 'approval_status' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+              </th>
+              <th onClick={() => handleSort('last_login_at')} style={{ cursor: 'pointer' }}>
+                최근 로그인 {sortConfig.key === 'last_login_at' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+              </th>
               <th>관리</th>
             </tr>
           </thead>
