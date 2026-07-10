@@ -40,7 +40,7 @@ async def _load_project_sources(db: AsyncSession, project_id: str) -> list[dict[
                 SELECT
                     source_id,
                     COUNT(*) AS chunk_count,
-                    LEFT(STRING_AGG(content, ' ' ORDER BY chunk_index), 4000) AS content
+                    LEFT(STRING_AGG(content, ' ' ORDER BY chunk_index), 20000) AS content
                 FROM graphrag.graphrag_chunks
                 GROUP BY source_id
             ) c ON c.source_id = s.id
@@ -150,7 +150,7 @@ async def api_apply_approved_discovery_candidates(
     await ensure_intent_factory_schema(db)
     store = default_candidate_store()
     candidates = store.list_candidates(project_id)
-    plan = build_approved_candidate_apply_plan(candidates)
+    plan = build_approved_candidate_apply_plan(project_id, candidates)
     if plan["approved"] == 0:
         raise HTTPException(status_code=400, detail="적용할 승인 후보가 없습니다.")
 
@@ -166,6 +166,9 @@ async def api_apply_approved_discovery_candidates(
     validation_questions = build_validation_question_payloads_from_apply_plan(project_id, plan)
     for question in validation_questions:
         await save_validation_question(db, project_id, question)
+
+    await db.commit()
+
     for candidate_id in applied_candidate_ids:
         store.update_candidate_status(project_id, candidate_id, "applied")
 

@@ -1,15 +1,5 @@
 {
-  "source_scopes": [
-    {
-      "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
-      "source_category": "J-Brain",
-      "source_status": "completed",
-      "document_types": [],
-      "tags": [],
-      "top_k": 5,
-      "score_threshold": 0.65
-    }
-  ],
+  "source_scopes": [],
   "data_residency": "customer_internal_network",
   "external_transfer": "pack_metadata_only"
 }

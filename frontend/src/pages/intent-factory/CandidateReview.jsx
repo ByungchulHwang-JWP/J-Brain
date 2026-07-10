@@ -32,7 +32,7 @@ const statusTone = {
   rejected: 'red',
 };
 
-const CandidateReview = () => {
+const CandidateReview = ({ embedded = false }) => {
   const { projectId = 'J-Brain' } = useParams();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -128,6 +128,41 @@ const CandidateReview = () => {
     }
   };
 
+  const handleApproveAll = async () => {
+    const pendingItems = orderedItems.filter(item => item.status === 'pending');
+    if (pendingItems.length === 0 && approvedPendingCount === 0) {
+      setMessage('현재 목록에 승인하거나 적용할 후보가 없습니다.');
+      return;
+    }
+
+    const confirmMessage = pendingItems.length > 0
+      ? `현재 목록의 대기 중인 ${pendingItems.length}건을 일괄 승인하고 Intent Factory DB에 적용하시겠습니까?`
+      : `이미 승인된 ${approvedPendingCount}건을 Intent Factory DB에 적용하시겠습니까?`;
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setApplying(true);
+    setMessage('');
+    try {
+      await Promise.all(pendingItems.map(item =>
+        updateDiscoveryCandidateStatus(projectId, item.candidate_id, 'approved')
+      ));
+      const result = await applyApprovedDiscoveryCandidates(projectId);
+      await loadCandidates();
+      setMessage(
+        `${pendingItems.length || approvedPendingCount}건이 승인 및 적용되었습니다. Intent ${result.applied?.intents || 0}건, `
+        + `Entity ${result.applied?.entities || 0}건, FAQ ${result.applied?.faqs || 0}건, `
+        + `Action ${result.applied?.actions || 0}건이 반영되었습니다.`
+      );
+    } catch (err) {
+      console.error(err);
+      setMessage(`일괄 승인에 실패했습니다: ${err.message}`);
+    } finally {
+      setApplying(false);
+    }
+  };
+
   const renderPayload = (payload = {}) => {
     const fields = [
       payload.intent_id,
@@ -147,40 +182,44 @@ const CandidateReview = () => {
   const sourceNames = (payload = {}) => payload.source_names || payload.sourceNames || [];
 
   return (
-    <div className="inner workflow-page">
-      <div className="breadcrumb">
-        <span>구축 워크플로우</span> {'>'} <span>{projectId}</span> {'>'} <span>자동 후보 검토</span>
-      </div>
+    <div className={embedded ? "" : "inner workflow-page"}>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>구축 워크플로우</span> {'>'} <span>{projectId}</span> {'>'} <span>자동 후보 검토</span>
+        </div>
+      )}
 
-      <div className="workflow-header">
-        <div>
-          <h2>Auto Discovery 후보 검토</h2>
-          <p>Source/FAQ 기반으로 생성된 후보를 승인하거나 제외합니다. 승인된 후보만 워크플로우 진행률에 반영됩니다.</p>
+      {!embedded && (
+        <div className="workflow-header">
+          <div>
+            <h2>Auto Discovery 후보 검토</h2>
+            <p>Source/FAQ 기반으로 생성된 후보를 승인하거나 제외합니다. 승인된 후보만 워크플로우 진행률에 반영됩니다.</p>
+          </div>
+          <div className="workflow-header-actions">
+            <button className="btn-secondary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/2`)}>
+              2단계로 돌아가기
+            </button>
+            <button className="btn-secondary" type="button" onClick={() => handleRun('new')} disabled={running}>
+              <Sparkles size={16} /> {running ? '분석 중...' : '신규 자료 분석'}
+            </button>
+            <button className="btn-primary" type="button" onClick={() => handleRun('all')} disabled={running}>
+              <Sparkles size={16} /> {running ? '생성 중...' : '전체 재분석'}
+            </button>
+            <button
+              className="btn-primary"
+              type="button"
+              onClick={handleApplyApproved}
+              disabled={applying || approvedPendingCount === 0}
+            >
+              <DatabaseZap size={16} /> {applying ? '적용 중...' : '승인 후보 적용'}
+            </button>
+          </div>
         </div>
-        <div className="workflow-header-actions">
-          <button className="btn-secondary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/2`)}>
-            2단계로 돌아가기
-          </button>
-          <button className="btn-secondary" type="button" onClick={() => handleRun('new')} disabled={running}>
-            <Sparkles size={16} /> {running ? '분석 중...' : '신규 자료 분석'}
-          </button>
-          <button className="btn-primary" type="button" onClick={() => handleRun('all')} disabled={running}>
-            <Sparkles size={16} /> {running ? '생성 중...' : '전체 재분석'}
-          </button>
-          <button
-            className="btn-primary"
-            type="button"
-            onClick={handleApplyApproved}
-            disabled={applying || approvedPendingCount === 0}
-          >
-            <DatabaseZap size={16} /> {applying ? '적용 중...' : '승인 후보 적용'}
-          </button>
-        </div>
-      </div>
+      )}
 
       {message && <div className="workflow-message">{message}</div>}
 
-      {latestRun && (
+      {!embedded && latestRun && (
         <div className="workflow-inline-note">
           최근 분석 결과: {latestRun.scope === 'new' ? '신규 자료 분석' : '전체 재분석'}
           {' · '}분석 대상 Source {latestRun.source_count || latestRunSourceNames.length || 0}건
@@ -188,26 +227,30 @@ const CandidateReview = () => {
         </div>
       )}
 
-      <div className="workflow-knowledge-metrics">
-        <div className="panel workflow-status-card"><span>전체 후보</span><strong>{summary.total || 0}건</strong><small>생성된 후보</small></div>
-        <div className="panel workflow-status-card"><span>승인/적용</span><strong>{summary.approved || 0}건</strong><small>진행률 반영</small></div>
-        <div className="panel workflow-status-card"><span>검토 대기</span><strong>{summary.pending || 0}건</strong><small>상태 결정 필요</small></div>
-        <div className="panel workflow-status-card"><span>제외</span><strong>{summary.rejected || 0}건</strong><small>진행률 제외</small></div>
-      </div>
+      {!embedded && (
+        <div className="workflow-knowledge-metrics">
+          <div className="panel workflow-status-card"><span>전체 후보</span><strong>{summary.total || 0}건</strong><small>생성된 후보</small></div>
+          <div className="panel workflow-status-card"><span>승인/적용</span><strong>{summary.approved || 0}건</strong><small>진행률 반영</small></div>
+          <div className="panel workflow-status-card"><span>검토 대기</span><strong>{summary.pending || 0}건</strong><small>상태 결정 필요</small></div>
+          <div className="panel workflow-status-card"><span>제외</span><strong>{summary.rejected || 0}건</strong><small>진행률 제외</small></div>
+        </div>
+      )}
 
-      <section className="panel workflow-discovery-summary">
-        <div className="workflow-board-head">
-          <div>
-            <h3>후보 유형별 현황</h3>
-            <p>Category, Intent, Entity, FAQ, Source Scope, Action 후보를 한 번에 검토합니다.</p>
+      {!embedded && (
+        <section className="panel workflow-discovery-summary">
+          <div className="workflow-board-head">
+            <div>
+              <h3>후보 유형별 현황</h3>
+              <p>Category, Intent, Entity, FAQ, Source Scope, Action 후보를 한 번에 검토합니다.</p>
+            </div>
           </div>
-        </div>
-        <div className="workflow-type-chip-row">
-          {Object.keys(typeLabels).map((type) => (
-            <span className="workflow-pill blue" key={type}>{typeLabels[type]} {byType[type] || 0}</span>
-          ))}
-        </div>
-      </section>
+          <div className="workflow-type-chip-row">
+            {Object.keys(typeLabels).map((type) => (
+              <span className="workflow-pill blue" key={type}>{typeLabels[type]} {byType[type] || 0}</span>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="panel workflow-table-card">
         <div className="workflow-board-head">
@@ -215,9 +258,29 @@ const CandidateReview = () => {
             <h3>후보 목록</h3>
             <p>상태를 승인으로 변경하면 해당 후보 유형이 다음 단계 진행률에 반영됩니다.</p>
           </div>
-          <button className="btn-secondary" type="button" onClick={loadCandidates} disabled={loading}>
-            {loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={handleApproveAll}
+              disabled={applying || (orderedItems.filter(i => i.status === 'pending').length === 0 && approvedPendingCount === 0)}
+            >
+              <CheckCircle2 size={14} style={{ marginRight: 6 }} /> 목록 전체 승인 및 적용
+            </button>
+            {embedded && (
+              <button
+                className="btn-primary"
+                type="button"
+                onClick={handleApplyApproved}
+                disabled={applying || approvedPendingCount === 0}
+              >
+                <DatabaseZap size={14} style={{marginRight: 6}} /> {applying ? '적용 중...' : '승인 후보 적용'}
+              </button>
+            )}
+            <button className="btn-secondary" type="button" onClick={loadCandidates} disabled={loading}>
+              {loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}
+            </button>
+          </div>
         </div>
         <table>
           <thead>

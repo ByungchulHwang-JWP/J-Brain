@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "mapping_id": "API-ACT_J_BRAIN_API_DASHBOARD_STATS",
+    "action_id": "ACT_J_BRAIN_API_DASHBOARD_STATS",
+    "method": "GET",
+    "endpoint": "/api/v1/projects/{project_id}/dashboard/stats",
+    "allowed_roles": [
+      "ROLE_ADMIN"
+    ],
+    "status": "active"
+  },
+  {
+    "mapping_id": "API-ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "method": "GET",
+    "endpoint": "/internal/query/project-summary",
+    "allowed_roles": [
+      "ROLE_ADMIN"
+    ],
+    "status": "active"
+  }
+]

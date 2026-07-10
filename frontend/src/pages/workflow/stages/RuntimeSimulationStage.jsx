@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, BotMessageSquare, CheckCircle2, FileSearch, MessageSquareText, MonitorPlay, Route, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BotMessageSquare, CheckCircle2, FileSearch, MessageSquareText, MonitorPlay, PlayCircle, Route, ShieldCheck } from 'lucide-react';
 import WorkflowQuickPanel from '../../../components/workflow/WorkflowQuickPanel';
 import { getActivePack, listPackValidationResults, listRuntimePacks } from '../../../api/intentFactory';
 
@@ -74,6 +74,13 @@ const RuntimeSimulationStage = ({ projectId, stage, summary }) => {
       sample: '문서 목록 열어줘',
       panel: 'navigation',
     },
+    {
+      icon: PlayCircle,
+      title: 'Action 라우팅 실행',
+      description: 'Intent 매칭 후 Action Router가 올바른 실행 카드를 반환하는지 확인합니다.',
+      sample: '의도에 맞는 Action 반환 여부',
+      panel: 'routing',
+    },
   ];
 
   const quickPanels = {
@@ -105,6 +112,16 @@ const RuntimeSimulationStage = ({ projectId, stage, summary }) => {
         { title: '샘플 질문', description: '문서 목록 열어줘' },
         { title: 'Action 결과', description: 'Action ID와 Route가 Pack의 허용 목록에 포함되어 있는지 확인합니다.' },
         { title: '권한/메뉴 확인', description: '폐쇄망 Runtime에서 허용된 화면만 이동 후보로 노출되어야 합니다.' },
+      ],
+    },
+    routing: {
+      eyebrow: '5단계 Pack 검증/빌드',
+      title: 'Action 라우팅 실행 테스트',
+      description: '4단계에서 연결한 Intent와 Action이 올바르게 라우팅되어 Runtime에서 실행 카드로 반환되는지 확인합니다.',
+      items: [
+        { title: 'Action 연결 확인', description: '매칭된 Intent에 설정된 Action ID가 실행 카드로 반환되는지 검증합니다.' },
+        { title: '실행 모드 라우팅', description: '화면 이동, 검색 등 Action 유형에 맞는 결과가 노출되는지 확인합니다.' },
+        { title: '권한 및 예외 처리', description: '허용되지 않은 Action은 실행되지 않고 예외 처리되는지 점검합니다.' },
       ],
     },
   };

@@ -9,6 +9,7 @@
 /* ─── Pearl White (Default) ─────────────────────────────────── */
 :root,
 [data-theme="light"] {
+  --app-header-offset: 60px;
   --color-bg-base: #F8F9FC;
   --color-bg-surface: #FFFFFF;
   --color-bg-elevated: #F0F2F7;
@@ -5035,6 +5036,10 @@ input::placeholder { color: var(--color-input-placeholder); }
 }
 
 @media (max-width: 767px) {
+  :root {
+    --app-header-offset: 104px;
+  }
+
   .header {
     min-height: 60px;
     height: auto;
@@ -5582,8 +5587,9 @@ input::placeholder { color: var(--color-input-placeholder); }
 /* ── Sticky minimized mode (applied by JS on scroll) ── */
 .workflow-stage-control-strip.sticky-minimized {
   position: sticky;
-  top: 0;
+  top: var(--app-header-offset);
   z-index: 90;
+  transform: translateZ(0);
 }
 .workflow-stage-control-strip.sticky-minimized .workflow-stepper {
   padding: 6px 16px;

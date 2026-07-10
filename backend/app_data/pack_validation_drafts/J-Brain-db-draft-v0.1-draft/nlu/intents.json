@@ -1,8 +1,107 @@
 [
   {
-    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC",
-    "intent_name": "J-Brain 문서/기능 질의",
-    "description": "J-Brain 관련 문서와 FAQ에서 답변 근거를 검색합니다.",
+    "intent_id": "INTENT_J_BRAIN_NAV_PERMISSIONS",
+    "intent_name": "권한 관리 화면 이동",
+    "description": "사용자가 권한 관리 메뉴로 이동하고 싶다는 요청을 처리합니다.",
+    "category": "NAVIGATE",
+    "action_id": "ACT_J_BRAIN_NAV_PERMISSIONS",
+    "priority": 10,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_API_DASHBOARD_STATS",
+    "intent_name": "프로젝트 대시보드 API 조회",
+    "description": "운영자가 내부 API로 대시보드 통계를 조회할 때 사용합니다.",
+    "category": "API",
+    "action_id": "ACT_J_BRAIN_API_DASHBOARD_STATS",
+    "priority": 20,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_DOWNLOAD_PACK",
+    "intent_name": "Runtime Pack 다운로드",
+    "description": "운영자가 검증 완료 Pack ZIP 파일을 다운로드할 때 사용합니다.",
+    "category": "DOWNLOAD",
+    "action_id": "ACT_J_BRAIN_DOWNLOAD_PACK",
+    "priority": 20,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "intent_name": "프로젝트 현황 SQL 조회",
+    "description": "운영자가 DB 기준 프로젝트 현황을 정형 조회할 때 사용합니다.",
+    "category": "QUERY",
+    "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "priority": 20,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내",
+    "intent_name": "J-Brain 소개 안내",
+    "description": "사용자가 J-Brain의 개념과 기능을 설명받고자 할 때 사용한다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내",
+    "intent_name": "Source 관리 안내",
+    "description": "사용자가 Source 문서 등록 및 관리 방법을 알고자 할 때 사용한다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내",
+    "intent_name": "Intent Factory 사용 안내",
+    "description": "사용자가 Intent Factory의 사용 절차를 알고자 할 때 사용한다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "intent_name": "Pack Build 안내",
+    "description": "사용자가 Pack 생성, 배포, 활성화 및 Export 방법을 알고자 할 때 사용한다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내",
+    "intent_name": "Runtime QA 안내",
+    "description": "사용자가 Runtime QA의 기능과 사용 방법을 알고자 할 때 사용한다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동",
+    "intent_name": "메뉴 이동",
+    "description": "사용자가 특정 관리 화면으로 이동하고자 할 때 사용한다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리",
+    "intent_name": "개선 요청 관리",
+    "description": "사용자가 개선 요청을 등록하고자 할 때 사용한다.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "intent_name": "미응답 분석 활용",
+    "description": "사용자가 미응답 분석 메뉴의 활용 방법을 알고자 할 때 사용한다.",
     "category": "SEARCH_DOC",
     "action_id": "ACT_J_BRAIN_SEARCH_DOC",
     "priority": 100,

@@ -66,6 +66,8 @@ class ActionRouter:
             return self._document_card(question, top_match, action)
         if action_type in {"QUERY", "API"}:
             return await self._query_card(question, top_match, action)
+        if action_type == "DOWNLOAD":
+            return self._download_card(top_match, action)
         if action_type == "GUIDE":
             return self._guide_card(top_match, action)
         if action_type in {"CREATE_REQUEST", "FALLBACK"}:
@@ -137,6 +139,28 @@ class ActionRouter:
                 "faq_count": len(faq_matches),
                 "document_count": len(document_matches),
             },
+        }
+
+    def _download_card(
+        self,
+        match: dict[str, Any],
+        action: dict[str, Any],
+    ) -> dict[str, Any]:
+        file_name = action.get("menu_name") or action.get("action_name") or "다운로드 파일"
+        download_url = action.get("route_value") or action.get("api_endpoint")
+        return {
+            "type": "download_card",
+            "status": "ready" if download_url else "blocked",
+            "intent_id": match.get("intent_id"),
+            "action_id": action["action_id"],
+            "confidence_label": match.get("confidence_label"),
+            "title": action.get("action_name"),
+            "message": action.get("description") or "요청하신 파일을 다운로드할 수 있습니다.",
+            "download_url": download_url,
+            "file_name": file_name,
+            "button_label": f"{file_name} 다운로드",
+            "confirmation_required": True,
+            "execution_mode": action.get("execution_mode"),
         }
 
     def _direct_faq_card(

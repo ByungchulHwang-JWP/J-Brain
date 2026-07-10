@@ -1,5 +1,5 @@
 import { Spinner } from '../../components/common/Loader';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import WorkflowStepper from '../../components/workflow/WorkflowStepper';
 import WorkflowGatePanel from '../../components/workflow/WorkflowGatePanel';
@@ -58,17 +58,45 @@ const WorkflowStagePage = () => {
   const [activeLegacyStageNo, setActiveLegacyStageNo] = useState(null);
   const [isSticky, setIsSticky] = useState(false);
   const stickySentinelRef = useRef(null);
+  const stickyStateRef = useRef(false);
 
-  // Sticky 감지: sentinel이 뷰포트 밖으로 나가면 stepper를 sticky-minimized 모드로 전환
+  // Sticky 감지: 레이아웃 높이가 바뀌는 영역을 직접 관찰하면 경계에서 토글 루프가 생길 수 있어
+  // 스크롤 위치 기준 + hysteresis로 안정적으로 minimized 상태를 전환한다.
   useEffect(() => {
     const sentinel = stickySentinelRef.current;
     if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsSticky(!entry.isIntersecting),
-      { threshold: 0, rootMargin: '-1px 0px 0px 0px' }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
+
+    let frameId = null;
+    const getScrollY = () => window.scrollY || document.documentElement.scrollTop || 0;
+    const getTriggerY = () => sentinel.getBoundingClientRect().top + getScrollY();
+
+    const updateSticky = () => {
+      frameId = null;
+      const scrollY = getScrollY();
+      const triggerY = getTriggerY();
+      const shouldStick = stickyStateRef.current
+        ? scrollY > triggerY - 32
+        : scrollY > triggerY + 16;
+
+      if (shouldStick !== stickyStateRef.current) {
+        stickyStateRef.current = shouldStick;
+        setIsSticky(shouldStick);
+      }
+    };
+
+    const scheduleUpdate = () => {
+      if (frameId !== null) return;
+      frameId = window.requestAnimationFrame(updateSticky);
+    };
+
+    scheduleUpdate();
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+    return () => {
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('resize', scheduleUpdate);
+    };
   }, [summary]);
 
   useEffect(() => {

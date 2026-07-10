@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "template_id": "SQL-ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "sql_template": "SELECT COUNT(*)::int AS active_project_count FROM graphrag.projects WHERE status = 'active'",
+    "readonly": true,
+    "status": "active"
+  }
+]

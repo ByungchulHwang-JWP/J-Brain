@@ -12,7 +12,7 @@ echo "==========================================="
 
 # --- 1. 백엔드 API 서버 종료 ---
 echo ""
-echo "[1/2] 백엔드 API 서버 종료 중... (포트 8080)"
+echo "[1/2] 백엔드 API 서버 종료 중... (포트 8083)"
 
 if [ -f "$LOG_DIR/backend.pid" ]; then
     BACKEND_PID=$(cat "$LOG_DIR/backend.pid")
@@ -28,16 +28,16 @@ else
 fi
 
 # 포트 기반으로 추가 정리
-EXISTING=$(lsof -ti:8080)
+EXISTING=$(lsof -ti:8083)
 if [ -n "$EXISTING" ]; then
     kill -9 $EXISTING 2>/dev/null
-    echo "  → 포트 8080 잔여 프로세스 (PID: $EXISTING) 강제 종료"
+    echo "  → 포트 8083 잔여 프로세스 (PID: $EXISTING) 강제 종료"
 fi
 echo "  ✅ 백엔드 서버 종료 완료"
 
 # --- 2. 프론트엔드 서버 종료 ---
 echo ""
-echo "[2/2] 프론트엔드(FO) 서버 종료 중... (포트 5174)"
+echo "[2/2] 프론트엔드(FO) 서버 종료 중... (포트 5176)"
 
 if [ -f "$LOG_DIR/frontend.pid" ]; then
     FRONTEND_PID=$(cat "$LOG_DIR/frontend.pid")
@@ -53,10 +53,10 @@ else
 fi
 
 # 포트 기반으로 추가 정리
-EXISTING=$(lsof -ti:5174)
+EXISTING=$(lsof -ti:5176)
 if [ -n "$EXISTING" ]; then
     kill -9 $EXISTING 2>/dev/null
-    echo "  → 포트 5174 잔여 프로세스 (PID: $EXISTING) 강제 종료"
+    echo "  → 포트 5176 잔여 프로세스 (PID: $EXISTING) 강제 종료"
 fi
 echo "  ✅ 프론트엔드 서버 종료 완료"
 

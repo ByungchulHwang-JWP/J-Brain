@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -148,6 +149,15 @@ async def run_pack_validation(
 ) -> dict[str, Any]:
     pack = await _load_pack_for_validation(db, project_id, payload)
     questions = await _load_questions_for_pack(db, project_id, payload.pack_id, payload.pack_version)
+    seeded_question_count = 0
+    if not questions and payload.target_type == "draft":
+        seeded_question_count = await seed_validation_questions_from_draft(db, project_id, payload)
+        questions = await _load_questions_for_pack(db, project_id, payload.pack_id, payload.pack_version)
+    if not questions:
+        raise ValueError(
+            "활성 검증 질문이 없습니다. Intent와 Action 후보를 적용한 뒤 검증 질문을 등록하거나 "
+            "DB Draft 대상으로 검증을 실행해 자동 생성해 주세요."
+        )
     pack.validation["validation_questions"] = questions
 
     raw_result = await ValidationRunner(pack).run()
@@ -161,6 +171,7 @@ async def run_pack_validation(
         "passed_count": passed_count,
         "failed_count": total - passed_count,
         "status": status,
+        "auto_seeded_validation_questions": seeded_question_count,
     }
 
     await db.execute(
@@ -256,6 +267,137 @@ async def _load_questions_for_pack(
         }
         for row in result.fetchall()
     ]
+
+
+async def seed_validation_questions_from_draft(
+    db: AsyncSession,
+    project_id: str,
+    payload: PackValidationRunPayload,
+) -> int:
+    draft = await build_pack_draft(db, project_id)
+    generated_questions = build_auto_validation_questions_from_draft(
+        project_id,
+        draft,
+        pack_id=payload.pack_id,
+        pack_version=payload.pack_version,
+    )
+    if not generated_questions:
+        return 0
+
+    for question in generated_questions:
+        await db.execute(
+            text(
+                """
+                INSERT INTO graphrag.pack_validation_questions
+                    (project_id, question_id, question, expected_intent_id, expected_action_id,
+                     min_confidence_score, pack_id, pack_version, status, updated_at)
+                VALUES
+                    (:project_id, :question_id, :question, :expected_intent_id, :expected_action_id,
+                     :min_confidence_score, :pack_id, :pack_version, :status, NOW())
+                ON CONFLICT (project_id, question_id) DO UPDATE SET
+                    question = EXCLUDED.question,
+                    expected_intent_id = EXCLUDED.expected_intent_id,
+                    expected_action_id = EXCLUDED.expected_action_id,
+                    min_confidence_score = EXCLUDED.min_confidence_score,
+                    pack_id = EXCLUDED.pack_id,
+                    pack_version = EXCLUDED.pack_version,
+                    status = EXCLUDED.status,
+                    updated_at = NOW()
+                """
+            ),
+            {
+                "project_id": project_id,
+                "question_id": question["question_id"],
+                "question": question["question"],
+                "expected_intent_id": question["expected_intent_id"],
+                "expected_action_id": question["expected_action_id"],
+                "min_confidence_score": question["min_confidence_score"],
+                "pack_id": question["pack_id"],
+                "pack_version": question["pack_version"],
+                "status": question["status"],
+            },
+        )
+    await db.commit()
+    return len(generated_questions)
+
+
+def build_auto_validation_questions_from_draft(
+    project_id: str,
+    draft: dict[str, Any],
+    *,
+    pack_id: str | None,
+    pack_version: str | None,
+    min_confidence_score: float = 0.65,
+) -> list[dict[str, Any]]:
+    examples_by_intent: dict[str, list[str]] = {}
+    for example in draft.get("nlu", {}).get("intent_examples", []):
+        intent_id = example.get("intent_id")
+        text_value = example.get("text") or example.get("example") or example.get("example_text")
+        if intent_id and text_value:
+            normalized = " ".join(str(text_value).split())
+            if normalized and normalized not in examples_by_intent.setdefault(intent_id, []):
+                examples_by_intent[intent_id].append(normalized)
+
+    questions: list[dict[str, Any]] = []
+    seen_question_keys: set[tuple[str, str]] = set()
+    for intent in draft.get("nlu", {}).get("intents", []):
+        if intent.get("status") == "archived":
+            continue
+        intent_id = intent.get("intent_id")
+        action_id = intent.get("action_id")
+        if not intent_id or not action_id:
+            continue
+
+        candidates = examples_by_intent.get(intent_id, [])[:2]
+        fallback_question = _fallback_validation_question(intent)
+        if fallback_question:
+            candidates.append(fallback_question)
+
+        for index, question_text in enumerate(_unique_texts(candidates)[:2], start=1):
+            question_key = (intent_id, question_text)
+            if question_key in seen_question_keys:
+                continue
+            seen_question_keys.add(question_key)
+            digest = hashlib.sha1(
+                f"{project_id}|{intent_id}|{action_id}|{index}|{question_text}".encode("utf-8")
+            ).hexdigest()[:12].upper()
+            questions.append(
+                {
+                    "question_id": f"VAL-AUTO-{digest}",
+                    "question": question_text,
+                    "expected_intent_id": intent_id,
+                    "expected_action_id": action_id,
+                    "min_confidence_score": min_confidence_score,
+                    "pack_id": pack_id,
+                    "pack_version": pack_version,
+                    "status": "active",
+                }
+            )
+    return questions
+
+
+def _fallback_validation_question(intent: dict[str, Any]) -> str | None:
+    name = intent.get("intent_name") or intent.get("name")
+    description = intent.get("description")
+    source = name or description or intent.get("intent_id")
+    if not source:
+        return None
+    return f"{source} 알려줘"
+
+
+def _unique_texts(values: list[str]) -> list[str]:
+    unique_values: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        normalized = " ".join(str(value).split())
+        if not normalized:
+            continue
+        dedupe_key = normalized.lower()
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        unique_values.append(normalized)
+    return unique_values
 
 
 async def _load_pack_for_validation(

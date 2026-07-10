@@ -78,6 +78,8 @@ def _build_pack_files(
 
     actions = draft.get("action", {})
     knowledge = draft.get("knowledge", {})
+    validation = draft.get("validation", {})
+    validation_questions = validation.get("validation_questions", [])
 
     return {
         "manifest/pack_manifest.json": manifest,
@@ -114,14 +116,27 @@ def _build_pack_files(
             "low_confidence": "질문 의도를 명확히 판단하지 못했습니다.",
             "missing_entity": "필수 조건을 추가로 입력해 주세요.",
         },
-        "validation/validation_questions.json": [],
-        "validation/expected_results.json": [],
+        "validation/validation_questions.json": validation_questions,
+        "validation/expected_results.json": _build_expected_results(validation_questions),
         "validation/acceptance_criteria.json": {
             "intent_top1_accuracy": 0.8,
             "intent_top3_accuracy": 0.9,
             "action_routing_success_rate": 0.95,
         },
     }
+
+
+def _build_expected_results(validation_questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "question_id": question.get("question_id"),
+            "expected_intent_id": question.get("expected_intent_id"),
+            "expected_action_id": question.get("expected_action_id"),
+            "min_confidence_score": question.get("min_confidence_score", 0.65),
+            "expected_entities": question.get("expected_entities", []),
+        }
+        for question in validation_questions
+    ]
 
 
 def write_pack_directory(
@@ -149,7 +164,7 @@ def write_pack_directory(
 
 
 def make_pack_zip(pack_dir: Path) -> Path:
-    archive_base = pack_dir.with_suffix("")
+    archive_base = pack_dir.parent / pack_dir.name
     zip_path = Path(shutil.make_archive(str(archive_base), "zip", pack_dir.parent, pack_dir.name))
     return zip_path
 
@@ -169,6 +184,18 @@ async def create_pack_export(
     draft = await build_pack_draft(db, project_id)
     resolved_pack_id = pack_id or f"{project_id}-intent-pack"
     resolved_pack_version = pack_version or "0.1.0"
+    validation_questions = await _load_validation_questions_for_export(db, project_id)
+    draft = {
+        **draft,
+        "validation": {
+            **draft.get("validation", {}),
+            "validation_questions": validation_questions,
+        },
+        "counts": {
+            **draft.get("counts", {}),
+            "validation_questions": len(validation_questions),
+        },
+    }
 
     pack_dir = write_pack_directory(
         project_id=project_id,
@@ -217,6 +244,32 @@ async def create_pack_export(
         "validation": validation,
         "counts": draft.get("counts", {}),
     }
+
+
+async def _load_validation_questions_for_export(
+    db: AsyncSession,
+    project_id: str,
+) -> list[dict[str, Any]]:
+    result = await db.execute(
+        text(
+            """
+            SELECT question_id, question, expected_intent_id, expected_action_id,
+                   min_confidence_score, pack_id, pack_version, status
+            FROM graphrag.pack_validation_questions
+            WHERE project_id = :project_id
+              AND status = 'active'
+            ORDER BY created_at ASC, question_id ASC
+            """
+        ),
+        {"project_id": project_id},
+    )
+    questions: list[dict[str, Any]] = []
+    for row in result.fetchall():
+        item = dict(row._mapping)
+        item["min_confidence_score"] = float(item.get("min_confidence_score") or 0.65)
+        item["expected_entities"] = []
+        questions.append(item)
+    return questions
 
 
 async def list_pack_exports(db: AsyncSession, project_id: str) -> dict[str, Any]:

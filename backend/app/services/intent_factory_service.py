@@ -104,6 +104,10 @@ def _action_to_pack_records(action: dict[str, Any]) -> dict[str, list[dict[str, 
         "execution_mode": action.get("execution_mode", "local"),
         "enabled": action.get("status") == "active",
     }
+    if action_type == "DOWNLOAD":
+        registry["route_value"] = action.get("route_value")
+        registry["menu_name"] = action.get("menu_name")
+        registry["api_endpoint"] = action.get("api_endpoint")
     records = {
         "action_registry": [registry],
         "screen_routes": [],

@@ -6,8 +6,13 @@ from app.schemas.llm_discovery import LLMDiscoveryOutput
 from app.core.config import settings
 
 
+import logging
+import hashlib
 import json
 import re
+import time
+import random
+from typing import Any
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -20,11 +25,18 @@ from app.schemas.intent_factory import (
     IntentPayload,
     PackValidationQuestionPayload,
     SourceScopePayload,
+    SynonymPayload,
 )
 
 
 VALID_CANDIDATE_STATUSES = {"pending", "approved", "rejected", "applied"}
 VALID_CANDIDATE_TYPES = {"CATEGORY", "INTENT", "ENTITY", "FAQ", "SOURCE_SCOPE", "ACTION"}
+MIN_DISCOVERY_INTENTS = 8
+MIN_DISCOVERY_ENTITIES = 8
+MIN_DISCOVERY_FAQS = 8
+MAX_DISCOVERY_INPUT_CHARS = 60000
+
+logger = logging.getLogger(__name__)
 
 
 def now_iso() -> str:
@@ -95,7 +107,7 @@ def model_to_dict(model) -> dict:
     return model.dict()
 
 
-def build_approved_candidate_apply_plan(candidates: list[DiscoveryCandidate]) -> dict:
+def build_approved_candidate_apply_plan(project_id: str, candidates: list[DiscoveryCandidate]) -> dict:
     approved = [candidate for candidate in candidates if candidate.status == "approved"]
     source_scopes_by_intent = {
         candidate.payload.get("intent_id"): candidate.payload
@@ -104,7 +116,7 @@ def build_approved_candidate_apply_plan(candidates: list[DiscoveryCandidate]) ->
     }
     actions: list[ActionPayload] = []
     intents: list[IntentPayload] = []
-    entities: list[EntityPayload] = []
+    entities_by_type: dict[str, EntityPayload] = {}
     faqs: list[FaqPayload] = []
     skipped = len(candidates) - len(approved)
 
@@ -153,23 +165,35 @@ def build_approved_candidate_apply_plan(candidates: list[DiscoveryCandidate]) ->
                 )
             )
         elif candidate.candidate_type == "ENTITY":
-            entities.append(
-                EntityPayload(
-                    entity_type=payload["entity_type"],
-                    display_name=payload.get("display_name") or payload["entity_type"],
+            entity_type = payload["entity_type"]
+            existing = entities_by_type.get(entity_type)
+            incoming_synonyms = payload.get("synonyms") or []
+            if existing is None:
+                entities_by_type[entity_type] = EntityPayload(
+                    entity_type=entity_type,
+                    display_name=payload.get("display_name") or entity_type,
                     value_type=payload.get("value_type") or "string",
                     required_validation=bool(payload.get("required_validation") or False),
                     normalization_rule=payload.get("normalization_rule"),
                     description=payload.get("description"),
                     status="active",
-                    synonyms=payload.get("synonyms") or [],
+                    synonyms=incoming_synonyms,
                 )
-            )
+            else:
+                seen_canonical_values = {synonym.canonical_value for synonym in existing.synonyms}
+                for synonym in incoming_synonyms:
+                    canonical_value = synonym.get("canonical_value") if isinstance(synonym, dict) else synonym.canonical_value
+                    if canonical_value not in seen_canonical_values:
+                        existing.synonyms.append(SynonymPayload(**synonym) if isinstance(synonym, dict) else synonym)
+                        seen_canonical_values.add(canonical_value)
+                existing.required_validation = existing.required_validation or bool(payload.get("required_validation") or False)
+                existing.description = existing.description or payload.get("description")
+                existing.normalization_rule = existing.normalization_rule or payload.get("normalization_rule")
         elif candidate.candidate_type == "FAQ":
             faqs.append(
                 FaqPayload(
-                    faq_id=payload["faq_id"],
-                    question=payload["question"],
+                    faq_id=payload.get("faq_id") or f"FAQ-{project_id.upper()}-{int(time.time())}-{random.randint(100, 999)}",
+                    question=payload.get("question", "질문 없음"),
                     answer=payload.get("answer") or "답변 후보를 검토해 주세요.",
                     category=payload.get("category"),
                     tags=payload.get("tags") or [],
@@ -183,7 +207,7 @@ def build_approved_candidate_apply_plan(candidates: list[DiscoveryCandidate]) ->
     return {
         "actions": actions,
         "intents": intents,
-        "entities": entities,
+        "entities": list(entities_by_type.values()),
         "faqs": faqs,
         "source_scopes": list(source_scopes_by_intent.values()),
         "approved": len(approved),
@@ -235,97 +259,72 @@ class AutoDiscoveryService:
             or primary_source.get("name")
             or "%s Source" % project_id
         )
-        source_text = " ".join(
-            str(part or "")
-            for source in normalized_sources
-            for part in [
-                source.get("filename") or source.get("file_name"),
-                source.get("description"),
-                source.get("content"),
-            ]
-        )
+        source_text = self._build_source_text(normalized_sources)
         keywords = self._extract_keywords(source_text, project_id)
+        source_signals = self._extract_source_signals(source_text, project_id)
         intent_id = "INTENT_%s_SEARCH_DOC" % slugify(project_id)
         action_id = "ACT_%s_SEARCH_DOC" % slugify(project_id)
+        candidates = self._base_candidates(
+            run_id,
+            project_id,
+            intent_id,
+            action_id,
+            source_context,
+            normalized_sources,
+            timestamp,
+        )
 
-        # LLM 연동을 통한 실제 로직 구현
-        llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.OPENAI_API_KEY)
-        structured_llm = llm.with_structured_output(LLMDiscoveryOutput)
-        
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are an AI assistant that analyzes enterprise manuals and extracts structured knowledge for a chatbot. Extract intents, entities, and FAQs. Provide output in Korean."),
-            ("human", "Analyze the following document and extract the chatbot knowledge: {text}")
-        ])
-        
-        chain = prompt | structured_llm
-        
-        # 텍스트 길이 제한 (LLM Context Window 보호)
-        truncated_text = source_text[:15000]
-        
-        candidates = []
         try:
-            llm_result = await chain.ainvoke({"text": truncated_text})
-            
-            # 1. Category 추가
-            candidates.append(
-                self._candidate(
-                    run_id, project_id, "CATEGORY", "문서 검색 카테고리",
-                    {"category": "SEARCH_DOC", "description": "기본 카테고리", **source_context},
-                    0.9, "기본 카테고리", timestamp
-                )
-            )
-            # 2. Action 추가
-            candidates.append(
-                self._candidate(
-                    run_id, project_id, "ACTION", "문서 검색 Action",
-                    {"action_id": action_id, "action_name": f"{project_id} 검색", "action_type": "SEARCH_DOC", "execution_mode": "local", **source_context},
-                    0.9, "기본 Action", timestamp
-                )
-            )
-            # 3. Source Scope 추가
-            candidates.append(
-                self._candidate(
-                    run_id, project_id, "SOURCE_SCOPE", "검색 범위",
-                    {"intent_id": intent_id, "source_category": project_id, "source_ids": [str(s.get("id")) for s in normalized_sources if s.get("id")], "source_status": "completed", "top_k": 5, "score_threshold": 0.65, **source_context},
-                    0.9, "기본 검색 범위", timestamp
-                )
-            )
-            
-            # LLM 추출 결과 매핑
-            idx = 1
-            for intent in llm_result.intents:
-                candidates.append(
-                    self._candidate(
-                        run_id, project_id, "INTENT", intent.intent_name,
-                        {"intent_id": f"{intent_id}_{idx}", "intent_name": intent.intent_name, "category": "SEARCH_DOC", "action_id": action_id, "examples": intent.examples, "description": intent.description, **source_context},
-                        0.85, "LLM 추출", timestamp
-                    )
-                )
-                idx += 1
-                
-            for entity in llm_result.entities:
-                candidates.append(
-                    self._candidate(
-                        run_id, project_id, "ENTITY", entity.display_name,
-                        {"entity_type": entity.entity_type, "display_name": entity.display_name, "value_type": "string", "synonyms": [{"canonical_value": entity.canonical_value, "synonyms": entity.synonyms, "code": slugify(entity.canonical_value)}], **source_context},
-                        0.85, "LLM 추출", timestamp
-                    )
-                )
-                
-            for faq in llm_result.faqs:
-                candidates.append(
-                    self._candidate(
-                        run_id, project_id, "FAQ", faq.question,
-                        {"question": faq.question, "answer": faq.answer, "source_id": source_id, "source_name": source_name, **source_context},
-                        0.85, "LLM 추출", timestamp
-                    )
-                )
-                
+            llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=settings.OPENAI_API_KEY)
+            structured_llm = llm.with_structured_output(LLMDiscoveryOutput)
+            prompt = ChatPromptTemplate.from_messages([
+                (
+                    "system",
+                    "You analyze enterprise manuals for chatbot intent-pack design. "
+                    "Extract deterministic Korean candidates based only on the provided text. "
+                    "Return 8-12 intents, 8-12 entities, and 8-12 FAQs when the source contains enough material. "
+                    "Each intent must include 3-5 realistic user example utterances. "
+                    "Prefer concrete workflow/menu/domain terms over generic words.",
+                ),
+                (
+                    "human",
+                    "Project ID: {project_id}\n"
+                    "Analyze all source sections below and extract chatbot knowledge candidates.\n\n{text}",
+                ),
+            ])
+            chain = prompt | structured_llm
+            llm_result = await chain.ainvoke({"project_id": project_id, "text": source_text})
         except Exception as e:
-            print(f"LLM Extraction failed: {e}")
-            # Fallback
-            pass
-            
+            logger.warning("LLM Extraction failed for project %s: %s", project_id, e)
+            llm_result = LLMDiscoveryOutput(intents=[], entities=[], faqs=[])
+
+        candidates.extend(
+            self._llm_candidates(
+                run_id,
+                project_id,
+                intent_id,
+                action_id,
+                source_context,
+                source_id,
+                source_name,
+                llm_result,
+                timestamp,
+            )
+        )
+        candidates = self._ensure_minimum_candidates(
+            run_id,
+            project_id,
+            action_id,
+            source_context,
+            source_id,
+            source_name,
+            normalized_faqs,
+            keywords,
+            source_signals,
+            candidates,
+            timestamp,
+        )
+
         run = DiscoveryRun(
             run_id=run_id,
             project_id=project_id,
@@ -337,6 +336,319 @@ class AutoDiscoveryService:
         )
         run.summary = summarize_candidates_with_latest_run(candidates, run, "all")
         return run
+
+    def _build_source_text(self, sources: list[dict]) -> str:
+        sections: list[str] = []
+        if not sources:
+            return ""
+        per_source_budget = max(MAX_DISCOVERY_INPUT_CHARS // max(len(sources), 1), 8000)
+        for index, source in enumerate(sources, start=1):
+            source_name = source.get("filename") or source.get("file_name") or source.get("name") or f"Source {index}"
+            body = "\n".join(
+                str(part or "")
+                for part in [source.get("description"), source.get("content")]
+                if part
+            )
+            section = f"[Source {index}] {source_name}\n{body}"[:per_source_budget]
+            sections.append(section)
+        return "\n\n".join(sections)[:MAX_DISCOVERY_INPUT_CHARS]
+
+    def _base_candidates(
+        self,
+        run_id: str,
+        project_id: str,
+        intent_id: str,
+        action_id: str,
+        source_context: dict,
+        sources: list[dict],
+        timestamp: str,
+    ) -> list[DiscoveryCandidate]:
+        return [
+            self._candidate(
+                run_id, project_id, "CATEGORY", "문서 검색 카테고리",
+                {"category": "SEARCH_DOC", "description": "기본 카테고리", **source_context},
+                0.9, "기본 카테고리", timestamp,
+            ),
+            self._candidate(
+                run_id, project_id, "ACTION", "문서 검색 Action",
+                {"action_id": action_id, "action_name": f"{project_id} 검색", "action_type": "SEARCH_DOC", "execution_mode": "local", **source_context},
+                0.9, "기본 Action", timestamp,
+            ),
+            self._candidate(
+                run_id, project_id, "SOURCE_SCOPE", "검색 범위",
+                {
+                    "intent_id": intent_id,
+                    "source_category": project_id,
+                    "source_ids": [str(source.get("id")) for source in sources if source.get("id")],
+                    "source_status": "completed",
+                    "top_k": 5,
+                    "score_threshold": 0.65,
+                    **source_context,
+                },
+                0.9, "기본 검색 범위", timestamp,
+            ),
+        ]
+
+    def _llm_candidates(
+        self,
+        run_id: str,
+        project_id: str,
+        intent_id: str,
+        action_id: str,
+        source_context: dict,
+        source_id: str,
+        source_name: str,
+        llm_result: LLMDiscoveryOutput,
+        timestamp: str,
+    ) -> list[DiscoveryCandidate]:
+        candidates: list[DiscoveryCandidate] = []
+        for index, intent in enumerate(llm_result.intents, start=1):
+            resolved_intent_id = f"{intent_id}_{index:02d}_{slugify(intent.intent_name, 'INTENT')[:24]}"
+            candidates.append(
+                self._candidate(
+                    run_id, project_id, "INTENT", intent.intent_name,
+                    {
+                        "intent_id": resolved_intent_id,
+                        "intent_name": intent.intent_name,
+                        "category": "SEARCH_DOC",
+                        "action_id": action_id,
+                        "examples": intent.examples[:5],
+                        "description": intent.description,
+                        **source_context,
+                    },
+                    0.85, "LLM 추출", timestamp,
+                )
+            )
+        for entity in llm_result.entities:
+            candidates.append(
+                self._candidate(
+                    run_id, project_id, "ENTITY", entity.display_name,
+                    {
+                        "entity_type": slugify(entity.entity_type, "ENTITY"),
+                        "display_name": entity.display_name,
+                        "value_type": "string",
+                        "synonyms": [
+                            {
+                                "canonical_value": entity.canonical_value,
+                                "synonyms": entity.synonyms[:10],
+                                "code": slugify(entity.canonical_value),
+                            }
+                        ],
+                        **source_context,
+                    },
+                    0.85, "LLM 추출", timestamp,
+                )
+            )
+        for faq in llm_result.faqs:
+            candidates.append(
+                self._candidate(
+                    run_id, project_id, "FAQ", faq.question,
+                    {"question": faq.question, "answer": faq.answer, "source_id": source_id, "source_name": source_name, **source_context},
+                    0.85, "LLM 추출", timestamp,
+                )
+            )
+        return candidates
+
+    def _ensure_minimum_candidates(
+        self,
+        run_id: str,
+        project_id: str,
+        action_id: str,
+        source_context: dict,
+        source_id: str,
+        source_name: str,
+        faqs: list[dict],
+        keywords: list[str],
+        source_signals: dict[str, list[str]],
+        candidates: list[DiscoveryCandidate],
+        timestamp: str,
+    ) -> list[DiscoveryCandidate]:
+        result = list(candidates)
+        existing_keys = {self._candidate_identity(candidate.candidate_type, candidate.title, candidate.payload) for candidate in result}
+
+        def add(candidate: DiscoveryCandidate) -> None:
+            key = self._candidate_identity(candidate.candidate_type, candidate.title, candidate.payload)
+            if key not in existing_keys:
+                result.append(candidate)
+                existing_keys.add(key)
+
+        for payload in self._fallback_intent_payloads(project_id, action_id, keywords, source_signals, source_context):
+            if len([item for item in result if item.candidate_type == "INTENT"]) >= MIN_DISCOVERY_INTENTS:
+                break
+            add(self._candidate(run_id, project_id, "INTENT", payload["intent_name"], payload, 0.7, "규칙 기반 보강", timestamp))
+        for payload in self._fallback_entity_payloads(project_id, keywords, source_signals, source_context):
+            if len([item for item in result if item.candidate_type == "ENTITY"]) >= MIN_DISCOVERY_ENTITIES:
+                break
+            add(self._candidate(run_id, project_id, "ENTITY", payload["display_name"], payload, 0.7, "규칙 기반 보강", timestamp))
+        for payload in self._fallback_faq_payloads(project_id, source_id, source_name, faqs, keywords, source_signals, source_context):
+            if len([item for item in result if item.candidate_type == "FAQ"]) >= MIN_DISCOVERY_FAQS:
+                break
+            add(self._candidate(run_id, project_id, "FAQ", payload["question"], payload, 0.7, "규칙 기반 보강", timestamp))
+        return result
+
+    def _fallback_intent_payloads(
+        self,
+        project_id: str,
+        action_id: str,
+        keywords: list[str],
+        source_signals: dict[str, list[str]],
+        source_context: dict,
+    ) -> list[dict]:
+        first_keyword = keywords[0] if keywords else project_id
+        templates = [
+            *[
+                (
+                    f"HEADING_{index:02d}",
+                    f"{heading} 안내",
+                    f"Source의 '{heading}' 섹션을 기준으로 관련 업무 절차와 사용 방법을 안내합니다.",
+                )
+                for index, heading in enumerate(source_signals.get("headings", [])[:8], start=1)
+            ],
+            ("OVERVIEW", f"{project_id} 개요 안내", f"{project_id}의 주요 기능과 사용 목적을 안내합니다."),
+            ("SOURCE", "Source 등록 및 관리", "문서 Source 등록, 분석, 벡터화 상태 확인 절차를 안내합니다."),
+            ("SEARCH", "문서 검색 및 테스트", "등록된 Source를 기준으로 검색 테스트와 검색 결과 확인을 지원합니다."),
+            ("INTENT", "Intent 설계 및 등록", "사용자 질문 의도를 Intent와 예시 질문으로 설계하는 절차를 안내합니다."),
+            ("TERM", "Entity/Synonym 용어 사전 관리", "업무 용어와 동의어를 표준화해 Entity 추출 품질을 높입니다."),
+            ("ACTION", "Action 연결 관리", "Intent와 화면 이동, 문서 검색, 조회 Action 연결을 안내합니다."),
+            ("PACK", "Pack 검증 및 Build", "검증 질문 실행, Pack Build, 배포 준비 절차를 안내합니다."),
+            ("ROLE", "사용자 역할 및 권한 안내", "관리자와 설계자 등 사용자 역할별 주요 업무를 안내합니다."),
+        ]
+        payloads = []
+        for index, (code, name, description) in enumerate(templates, start=1):
+            intent_id = f"INTENT_{slugify(project_id)}_{code}"
+            payloads.append(
+                {
+                    "intent_id": intent_id,
+                    "intent_name": name,
+                    "category": "SEARCH_DOC",
+                    "action_id": action_id,
+                    "description": description,
+                    "priority": 100 + index,
+                    "examples": [
+                        f"{name} 알려줘",
+                        f"{first_keyword}에서 {name} 어떻게 하나요?",
+                        f"{project_id} {name} 절차 설명해줘",
+                    ],
+                    **source_context,
+                }
+            )
+        return payloads
+
+    def _fallback_entity_payloads(
+        self,
+        project_id: str,
+        keywords: list[str],
+        source_signals: dict[str, list[str]],
+        source_context: dict,
+    ) -> list[dict]:
+        keyword = keywords[0] if keywords else project_id
+        templates = [
+            *[(f"TERM_{index:02d}", term, [term]) for index, term in enumerate(source_signals.get("terms", [])[:8], start=1)],
+            ("PROJECT", project_id, [project_id, f"{project_id} 프로젝트"]),
+            ("SOURCE", "Source", ["문서", "자료", "업로드 파일"]),
+            ("INTENT", "Intent", ["의도", "질문 의도", "Intent 구조"]),
+            ("ENTITY", "Entity", ["용어", "파라미터", "업무 용어"]),
+            ("ACTION", "Action", ["실행", "화면 이동", "검색 Action"]),
+            ("PACK", "Pack", ["Intent Pack", "배포 패키지", "검증 Pack"]),
+            ("USER_ROLE", "사용자 역할", ["System Admin", "관리자", "Intent 설계자"]),
+            ("KEYWORD", keyword, [keyword]),
+        ]
+        return [
+            {
+                "entity_type": entity_type,
+                "display_name": display_name,
+                "value_type": "string",
+                "synonyms": [
+                    {
+                        "canonical_value": display_name,
+                        "synonyms": synonyms,
+                        "code": slugify(display_name),
+                    }
+                ],
+                **source_context,
+            }
+            for entity_type, display_name, synonyms in templates
+        ]
+
+    def _fallback_faq_payloads(
+        self,
+        project_id: str,
+        source_id: str,
+        source_name: str,
+        faqs: list[dict],
+        keywords: list[str],
+        source_signals: dict[str, list[str]],
+        source_context: dict,
+    ) -> list[dict]:
+        keyword = keywords[0] if keywords else project_id
+        payloads: list[dict] = []
+        for faq in faqs[:5]:
+            payloads.append(
+                {
+                    "faq_id": faq.get("faq_id") or f"FAQ_{slugify(project_id)}_{slugify(faq.get('question') or 'AUTO')}",
+                    "question": faq.get("question") or f"{project_id}에서 자주 묻는 질문은 무엇인가요?",
+                    "answer": faq.get("answer") or "등록된 FAQ 원천을 기준으로 답변 후보를 검토해 주세요.",
+                    "category": faq.get("category") or "자동 생성 후보",
+                    "tags": faq.get("tags") or ["auto-discovery"],
+                    "source_id": faq.get("source_id") or source_id or None,
+                    "action_id": faq.get("action_id") or "SEARCH_DOC",
+                    **source_context,
+                }
+            )
+        templates = [
+            *[(question, "Source 원문 질문을 기준으로 답변 후보를 검토해 주세요.") for question in source_signals.get("questions", [])[:8]],
+            (f"{project_id}의 주요 기능은 무엇인가요?", f"{project_id} 문서를 기준으로 주요 기능과 운영 절차를 안내합니다."),
+            ("Source는 어떻게 등록하나요?", "Source 관리 화면에서 문서를 업로드하고 벡터화 상태를 확인합니다."),
+            ("Intent는 어떻게 설계하나요?", "사용자 질문 의도를 Intent로 정의하고 대표 질문을 함께 등록합니다."),
+            ("질문 커버리지는 어떻게 보강하나요?", "Intent별 예시 질문, 구어체 표현, 표기 변형을 추가해 커버리지를 높입니다."),
+            ("용어 사전은 왜 필요한가요?", "Entity와 Synonym을 표준화해 사용자 표현을 정확한 값으로 매칭하기 위해 필요합니다."),
+            ("Pack 검증은 어떻게 진행하나요?", "검증 질문을 실행해 기대 Intent와 Action이 맞는지 확인합니다."),
+            ("Action 연결은 무엇을 확인해야 하나요?", "Intent가 실행할 검색, 화면 이동, 조회 Action이 올바르게 연결됐는지 확인합니다."),
+            (f"{keyword} 관련 내용은 어디서 확인하나요?", "등록된 Source 검색과 FAQ 근거를 통해 관련 내용을 확인합니다."),
+        ]
+        for index, (question, answer) in enumerate(templates, start=1):
+            payloads.append(
+                {
+                    "faq_id": f"FAQ_{slugify(project_id)}_AUTO_{index:02d}",
+                    "question": question,
+                    "answer": answer,
+                    "category": "자동 생성 후보",
+                    "tags": ["auto-discovery", project_id],
+                    "source_id": source_id or None,
+                    "action_id": "SEARCH_DOC",
+                    **source_context,
+                }
+            )
+        return payloads
+
+    def _extract_source_signals(self, text: str, project_id: str) -> dict[str, list[str]]:
+        headings: list[str] = []
+        questions: list[str] = []
+        terms: list[str] = []
+        for raw_line in text.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            heading_match = re.match(r"^(?:#{1,6}\s*|\d+(?:\.\d+)*[.)]\s+)(.+)$", line)
+            if heading_match:
+                heading = re.sub(r"\s+", " ", heading_match.group(1).strip(" -:"))
+                if 2 <= len(heading) <= 60 and heading not in headings:
+                    headings.append(heading)
+            if "?" in line or line.endswith(("나요", "까요", "습니까")):
+                question = re.sub(r"\s+", " ", line.strip())
+                if 5 <= len(question) <= 120 and question not in questions:
+                    questions.append(question)
+            for token in re.findall(r"[A-Za-z][A-Za-z0-9_-]{2,}|[가-힣][가-힣A-Za-z0-9_-]{2,}", line):
+                normalized = token.strip("_- ")
+                if normalized.lower() in {"source", "intent", "entity", "action", "pack"}:
+                    continue
+                if normalized and normalized not in terms and normalized != project_id:
+                    terms.append(normalized)
+        return {
+            "headings": headings[:20],
+            "questions": questions[:20],
+            "terms": terms[:30],
+        }
 
     def _source_context(self, project_id: str, sources: list[dict]) -> dict:
         source_ids: list[str] = []
@@ -366,8 +678,10 @@ class AutoDiscoveryService:
         reason: str,
         timestamp: str,
     ) -> DiscoveryCandidate:
+        candidate_identity = self._candidate_identity(candidate_type, title, payload)
+        digest = hashlib.sha1(f"{project_id}|{candidate_identity}".encode("utf-8")).hexdigest()[:12].upper()
         return DiscoveryCandidate(
-            candidate_id="CAND-%s" % uuid4().hex[:12].upper(),
+            candidate_id="CAND-%s" % digest,
             run_id=run_id,
             project_id=project_id,
             candidate_type=candidate_type,
@@ -379,6 +693,23 @@ class AutoDiscoveryService:
             created_at=timestamp,
             updated_at=timestamp,
         )
+
+    def _candidate_identity(self, candidate_type: str, title: str, payload: dict) -> str:
+        if candidate_type == "CATEGORY":
+            key = payload.get("category") or title
+        elif candidate_type == "ACTION":
+            key = payload.get("action_id") or title
+        elif candidate_type == "INTENT":
+            key = payload.get("intent_id") or payload.get("intent_name") or title
+        elif candidate_type == "SOURCE_SCOPE":
+            key = "%s|%s" % (payload.get("intent_id") or "", payload.get("source_category") or "")
+        elif candidate_type == "ENTITY":
+            key = payload.get("entity_type") or title
+        elif candidate_type == "FAQ":
+            key = payload.get("faq_id") or payload.get("question") or title
+        else:
+            key = title
+        return f"{candidate_type}|{key}"
 
     def _extract_keywords(self, text: str, project_id: str) -> list[str]:
         tokens = re.findall(r"[0-9a-zA-Z가-힣]{2,}", text)
@@ -551,13 +882,73 @@ class MockCandidateStore:
                     existing_values.append(normalized_value)
                     changed = True
             existing.payload[key] = existing_values
+        for key in ("examples", "tags"):
+            if self._merge_scalar_list(existing.payload, incoming.payload, key):
+                changed = True
+        if existing.candidate_type == "ENTITY":
+            if self._merge_synonym_list(existing.payload, incoming.payload):
+                changed = True
+        for key in ("description", "answer", "question", "intent_name", "display_name"):
+            incoming_value = incoming.payload.get(key)
+            existing_value = existing.payload.get(key)
+            if incoming_value and (not existing_value or len(str(incoming_value)) > len(str(existing_value))):
+                existing.payload[key] = incoming_value
+                changed = True
         if existing.candidate_type == "SOURCE_SCOPE":
             for key in ("source_status", "top_k", "score_threshold"):
                 if incoming.payload.get(key) is not None:
                     existing.payload[key] = incoming.payload.get(key)
+                    changed = True
+        if incoming.confidence_score > existing.confidence_score:
+            existing.confidence_score = incoming.confidence_score
+            changed = True
         if changed and existing.status != "pending":
             existing.status = "pending"
         existing.updated_at = incoming.updated_at
+
+    def _merge_scalar_list(self, existing_payload: dict, incoming_payload: dict, key: str) -> bool:
+        changed = False
+        values = list(existing_payload.get(key) or [])
+        for value in incoming_payload.get(key) or []:
+            if value and value not in values:
+                values.append(value)
+                changed = True
+        if changed:
+            existing_payload[key] = values
+        return changed
+
+    def _merge_synonym_list(self, existing_payload: dict, incoming_payload: dict) -> bool:
+        changed = False
+        values = list(existing_payload.get("synonyms") or [])
+        by_canonical = {
+            item.get("canonical_value"): item
+            for item in values
+            if isinstance(item, dict) and item.get("canonical_value")
+        }
+        for incoming in incoming_payload.get("synonyms") or []:
+            if not isinstance(incoming, dict):
+                continue
+            canonical = incoming.get("canonical_value")
+            if not canonical:
+                continue
+            existing = by_canonical.get(canonical)
+            if existing is None:
+                values.append(incoming)
+                by_canonical[canonical] = incoming
+                changed = True
+                continue
+            existing_synonyms = list(existing.get("synonyms") or [])
+            for synonym in incoming.get("synonyms") or []:
+                if synonym and synonym not in existing_synonyms:
+                    existing_synonyms.append(synonym)
+                    changed = True
+            existing["synonyms"] = existing_synonyms
+            if incoming.get("code") and not existing.get("code"):
+                existing["code"] = incoming["code"]
+                changed = True
+        if changed:
+            existing_payload["synonyms"] = values
+        return changed
 
 
 def default_candidate_store() -> MockCandidateStore:

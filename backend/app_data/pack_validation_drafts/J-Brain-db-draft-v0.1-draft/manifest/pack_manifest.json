@@ -3,7 +3,7 @@
   "pack_version": "0.1-draft",
   "project_id": "J-Brain",
   "source": "intent_factory_db",
-  "created_at": "2026-07-04T10:35:28.974183+00:00",
+  "created_at": "2026-07-10T20:32:22.314197+00:00",
   "files": [
     "manifest/pack_manifest.json",
     "profile/service_profile.json",

@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { createDiscoveryRun, createFaq, getDiscoverySummary, listFaqs } from '../../../api/intentFactory';
+import CandidateReview from '../../intent-factory/CandidateReview';
 
 const statusLabel = (status) => {
   if (['completed', 'success', 'SUCCESS', 'active', '인덱싱 완료'].includes(status)) return '완료';
@@ -52,6 +53,7 @@ const KnowledgeStage = ({ projectId, stage, summary }) => {
   const [searchResult, setSearchResult] = useState(null);
   const [discoverySummary, setDiscoverySummary] = useState(null);
   const [discoveryRunning, setDiscoveryRunning] = useState(false);
+  const [showCandidates, setShowCandidates] = useState(false);
 
   const loadSources = async () => {
     setLoading(true);
@@ -376,8 +378,8 @@ const KnowledgeStage = ({ projectId, stage, summary }) => {
             <p>승인된 후보만 다음 단계 진행률에 반영됩니다.</p>
           </div>
           <div className="workflow-header-actions">
-            <button className="btn-secondary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/discovery/candidates`)}>
-              후보 검토
+            <button className="btn-secondary" type="button" onClick={() => setShowCandidates(!showCandidates)}>
+              {showCandidates ? '최근 Source 보기' : '후보 검토'}
             </button>
             <button className="btn-secondary" type="button" onClick={() => handleDiscoveryRun('new')} disabled={discoveryRunning}>
               {discoveryRunning ? '분석 중...' : '신규 자료 분석'}
@@ -450,34 +452,38 @@ const KnowledgeStage = ({ projectId, stage, summary }) => {
       )}
 
       <div className="workflow-knowledge-bottom">
-        <div className="panel workflow-table-card">
-          <div className="workflow-board-head">
-            <div>
-              <h3>최근 Source</h3>
-              <p>최근 등록된 지식 문서와 벡터화 상태입니다.</p>
+        {showCandidates ? (
+          <CandidateReview embedded={true} />
+        ) : (
+          <div className="panel workflow-table-card">
+            <div className="workflow-board-head">
+              <div>
+                <h3>최근 Source</h3>
+                <p>최근 등록된 지식 문서와 벡터화 상태입니다.</p>
+              </div>
+              <button className="btn-secondary" type="button" onClick={() => navigate('/admin/knowledge/sources')}>
+                전체 Source
+              </button>
             </div>
-            <button className="btn-secondary" type="button" onClick={() => navigate('/admin/knowledge/sources')}>
-              전체 Source
-            </button>
+            <table>
+              <thead><tr><th>문서명</th><th>유형</th><th>상태</th><th>등록일</th></tr></thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan="4">Source 목록을 불러오는 중입니다.</td></tr>
+                ) : recentSources.length === 0 ? (
+                  <tr><td colSpan="4">등록된 Source가 없습니다. 문서 업로드부터 진행해 주세요.</td></tr>
+                ) : recentSources.map((source) => (
+                  <tr key={source.id}>
+                    <td><div className="name">{source.filename || source.name || source.file_name || source.id}</div><div className="meta">{projectId}</div></td>
+                    <td>{source.source_type || source.type || '-'}</td>
+                    <td><span className={`badge ${statusClass(source.status)}`}>{statusLabel(source.status)}</span></td>
+                    <td>{source.created_at || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <table>
-            <thead><tr><th>문서명</th><th>유형</th><th>상태</th><th>등록일</th></tr></thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan="4">Source 목록을 불러오는 중입니다.</td></tr>
-              ) : recentSources.length === 0 ? (
-                <tr><td colSpan="4">등록된 Source가 없습니다. 문서 업로드부터 진행해 주세요.</td></tr>
-              ) : recentSources.map((source) => (
-                <tr key={source.id}>
-                  <td><div className="name">{source.filename || source.name || source.file_name || source.id}</div><div className="meta">{projectId}</div></td>
-                  <td>{source.source_type || source.type || '-'}</td>
-                  <td><span className={`badge ${statusClass(source.status)}`}>{statusLabel(source.status)}</span></td>
-                  <td>{source.created_at || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        )}
 
         <div className="panel workflow-stage-guide">
           <div className="workflow-board-head">

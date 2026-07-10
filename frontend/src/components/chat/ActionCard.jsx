@@ -258,6 +258,30 @@ const ActionCard = ({ card }) => {
     );
   }
 
+  if (card.type === 'download_card') {
+    return (
+      <div style={baseCardStyle}>
+        {renderHeader('다운로드', card.title)}
+        {card.message && <p style={messageStyle}>{card.message}</p>}
+        {renderCardMeta(card, [
+          card.status,
+          card.confirmation_required !== undefined ? `확인: ${String(card.confirmation_required)}` : null,
+        ])}
+        {card.download_url && (
+          <a
+            className="btn-primary"
+            href={card.download_url}
+            target="_blank"
+            rel="noreferrer"
+            style={{ width: 'fit-content', minWidth: '180px', height: '38px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+          >
+            {card.button_label || `${card.file_name || '파일'} 다운로드`}
+          </a>
+        )}
+      </div>
+    );
+  }
+
   if (card.type === 'guide_card') {
     return (
       <div style={baseCardStyle}>

@@ -221,6 +221,7 @@ const PackValidation = () => {
       return;
     }
     setValidating(true);
+    setLatestResult(null);
     setMessage('Pack 검증을 실행 중입니다. 잠시만 기다려 주세요.');
     try {
       const result = await runPackValidation(projectId, {
@@ -229,16 +230,19 @@ const PackValidation = () => {
       });
       setLatestResult(result);
       const totalQuestions = result.summary?.total_questions ?? 0;
+      const autoSeededQuestions = result.summary?.auto_seeded_validation_questions ?? 0;
       if (totalQuestions === 0) {
         setMessage(
           `Pack 검증 완료: 검증 질문 0건입니다. ${selectedPack.pack_id} v${selectedPack.pack_version}에 연결된 활성 검증 질문을 등록해 주세요.`,
         );
       } else {
-        setMessage(`Pack 검증 완료: ${result.status} (${result.summary?.passed_count ?? 0}/${totalQuestions})`);
+        const seededMessage = autoSeededQuestions > 0 ? ` / 검증 질문 자동 생성 ${autoSeededQuestions}건` : '';
+        setMessage(`Pack 검증 완료: ${result.status} (${result.summary?.passed_count ?? 0}/${totalQuestions})${seededMessage}`);
       }
       await fetchAll();
     } catch (err) {
       console.error(err);
+      toast.error(err.response?.data?.detail || 'Pack 검증 실패');
       setMessage('Pack 검증 실패: ' + (err.response?.data?.detail || err.message));
     } finally {
       setValidating(false);
@@ -329,7 +333,13 @@ const PackValidation = () => {
               </tr>
             </thead>
             <tbody>
-              {(latestResult.results || []).map((item) => (
+              {(latestResult.results || []).length === 0 ? (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>
+                    검증 결과 항목이 없습니다. 활성 검증 질문을 등록한 뒤 다시 실행해 주세요.
+                  </td>
+                </tr>
+              ) : (latestResult.results || []).map((item) => (
                 <tr key={item.question_id}>
                   <td>{item.question}</td>
                   <td>{item.expected_intent_id}</td>

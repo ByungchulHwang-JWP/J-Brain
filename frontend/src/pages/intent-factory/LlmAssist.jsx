@@ -174,6 +174,41 @@ const LlmAssist = () => {
     }
   };
 
+  const handleApproveAll = async () => {
+    const pendingItems = filteredAndOrderedItems.filter(item => item.status === 'pending');
+    if (pendingItems.length === 0 && approvedPendingCount === 0) {
+      setMessage('현재 목록에 승인하거나 적용할 후보가 없습니다.');
+      return;
+    }
+
+    const confirmMessage = pendingItems.length > 0
+      ? `현재 목록의 대기 중인 ${pendingItems.length}건을 일괄 승인하고 Intent Factory DB에 적용하시겠습니까?`
+      : `이미 승인된 ${approvedPendingCount}건을 Intent Factory DB에 적용하시겠습니까?`;
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setApplying(true);
+    setMessage('');
+    try {
+      await Promise.all(pendingItems.map(item =>
+        updateDiscoveryCandidateStatus(projectId, item.candidate_id, 'approved')
+      ));
+      const result = await applyApprovedDiscoveryCandidates(projectId);
+      await loadCandidates();
+      setMessage(
+        `${pendingItems.length || approvedPendingCount}건이 승인 및 적용되었습니다. Intent ${result.applied?.intents || 0}건, `
+        + `Entity ${result.applied?.entities || 0}건, FAQ ${result.applied?.faqs || 0}건, `
+        + `Action ${result.applied?.actions || 0}건이 반영되었습니다.`
+      );
+    } catch (err) {
+      console.error(err);
+      setMessage(`일괄 승인에 실패했습니다: ${err.message}`);
+    } finally {
+      setApplying(false);
+    }
+  };
+
   const renderPayload = (payload = {}) => {
     const fields = [
       payload.intent_id,
@@ -297,9 +332,19 @@ const LlmAssist = () => {
             <h3>후보 목록</h3>
             <p>상태를 승인으로 변경하면 해당 후보 유형이 다음 단계 진행률에 반영됩니다.</p>
           </div>
-          <button className="btn-secondary" type="button" onClick={() => loadCandidates(projectId)} disabled={loading || !projectId}>
-            {loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={handleApproveAll}
+              disabled={applying || (filteredAndOrderedItems.filter(i => i.status === 'pending').length === 0 && approvedPendingCount === 0)}
+            >
+              <CheckCircle2 size={14} style={{ marginRight: 6 }} /> 목록 전체 승인 및 적용
+            </button>
+            <button className="btn-secondary" type="button" onClick={() => loadCandidates(projectId)} disabled={loading || !projectId}>
+              {loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}
+            </button>
+          </div>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>

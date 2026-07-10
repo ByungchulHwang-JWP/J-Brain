@@ -1,12 +1,22 @@
 [
   {
-    "entity_type": "J_BRAIN_TERM",
-    "display_name": "J-Brain 핵심 용어",
+    "entity_type": "MENU",
+    "display_name": "Source 관리",
     "value_type": "string",
     "required_validation": false,
     "normalization_rule": null,
     "description": null,
     "status": "active",
-    "synonym_count": 5
+    "synonym_count": 4
+  },
+  {
+    "entity_type": "ROLE",
+    "display_name": "시스템 관리자",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": null,
+    "description": null,
+    "status": "active",
+    "synonym_count": 4
   }
 ]
