@@ -242,7 +242,7 @@ const ActionList = () => {
             Intent가 실행할 화면 이동, 문서 검색, 정형 조회, 안내 Action을 등록하고 Pack Export에 반영합니다.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
             {projects.length === 0 && <option value={projectId}>{projectId}</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
@@ -252,7 +252,7 @@ const ActionList = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px', marginBottom: '18px' }}>
+      <div className="responsive-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px', marginBottom: '18px' }}>
         {stats.map(([label, value]) => (
           <div key={label} className="table-area" style={{ padding: '18px' }}>
             <div style={{ color: 'var(--color-text-sub)', fontSize: '13px', marginBottom: '8px' }}>{label}</div>
@@ -267,7 +267,7 @@ const ActionList = () => {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(520px, 1fr) minmax(420px, 0.8fr)', gap: '18px', alignItems: 'start' }}>
+      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(520px, 1fr) minmax(420px, 0.8fr)', gap: '18px', alignItems: 'start' }}>
         <div className="table-area" style={{ padding: '18px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '14px' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>Action 목록</h3>

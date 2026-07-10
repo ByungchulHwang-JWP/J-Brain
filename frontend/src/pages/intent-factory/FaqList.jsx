@@ -216,7 +216,7 @@ const FaqList = () => {
             자주 묻는 질문과 승인된 답변을 관리하고 Pack의 FAQ 지식으로 반영합니다.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
             {projects.length === 0 && <option value={projectId}>{projectId}</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
@@ -226,7 +226,7 @@ const FaqList = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px', marginBottom: '18px' }}>
+      <div className="responsive-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px', marginBottom: '18px' }}>
         {stats.map(([label, value]) => (
           <div key={label} className="table-area" style={{ padding: '18px' }}>
             <div style={{ color: 'var(--color-text-sub)', fontSize: '13px', marginBottom: '8px' }}>{label}</div>
@@ -241,7 +241,7 @@ const FaqList = () => {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(620px, 1fr) minmax(420px, 0.8fr)', gap: '18px', alignItems: 'start' }}>
+      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(620px, 1fr) minmax(420px, 0.8fr)', gap: '18px', alignItems: 'start' }}>
         <div className="table-area" style={{ padding: '18px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>FAQ 목록</h3>

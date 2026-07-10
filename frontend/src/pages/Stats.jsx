@@ -81,7 +81,7 @@ const Stats = () => {
       </div>
 
       {/* API 상세 통계 테이블 */}
-      <div className="panel" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="panel" style={{ padding: 0, overflowX: 'auto', overflowY: 'hidden' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--color-border)' }}>
           <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--color-text-main)' }}>API 호출 상세 통계</h3>
         </div>
