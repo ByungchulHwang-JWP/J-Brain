@@ -43,11 +43,11 @@ const IndexJobList = () => {
   return (
     <div className="inner">
       <div className="breadcrumb">
-        <span>지식 관리</span> {'>'} <span>인덱싱 작업 현황</span>
+        <span>지식 관리</span> {'>'} <span>벡터화 작업 현황</span>
       </div>
       
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 700 }}>인덱싱 작업(IndexJob) 현황</h2>
+        <h2 style={{ fontWeight: 700 }}>벡터화 작업(IndexJob) 현황</h2>
         <button className="btn-primary" onClick={() => navigate('/admin/jobs/new')}>+ 수동 작업 실행</button>
       </div>
 
