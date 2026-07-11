@@ -1,9 +1,10 @@
 import { Spinner } from '../../components/common/Loader';
 import { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import Pagination from '../../components/common/Pagination';
 import ConfirmModal from '../../components/common/ConfirmModal';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import {
   activateRuntimePack,
   approveRuntimePack,
@@ -28,8 +29,10 @@ const fieldStyle = {
 };
 
 const PackRepository = () => {
-  const { projects } = useProjects();
-  const [projectId, setProjectId] = useState('J-Brain');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
+  const projectId = routeProjectId || selectedProjectId;
   const [exports, setExports] = useState([]);
   const [runtimePacks, setRuntimePacks] = useState([]);
   const [activePack, setActivePack] = useState(null);
@@ -50,6 +53,17 @@ const PackRepository = () => {
   const [auditPageSize, setAuditPageSize] = useState(10);
 
   useEffect(() => {
+    if (routeProjectId && routeProjectId !== selectedProjectId) {
+      setSelectedProjectId(routeProjectId);
+    }
+  }, [routeProjectId, selectedProjectId, setSelectedProjectId]);
+
+  const handleProjectChange = (nextProjectId) => {
+    setSelectedProjectId(nextProjectId);
+    setSearchParams({ projectId: nextProjectId }, { replace: true });
+  };
+
+  useEffect(() => {
     setExportsPage(1);
     setRuntimePage(1);
     setAuditPage(1);
@@ -68,6 +82,14 @@ const PackRepository = () => {
   const paginatedAudit = auditLogs.slice((auditPage - 1) * auditPageSize, auditPage * auditPageSize);
 
   const fetchAll = async () => {
+    if (!projectId) {
+      setExports([]);
+      setRuntimePacks([]);
+      setActivePack(null);
+      setAuditLogs([]);
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -96,6 +118,10 @@ const PackRepository = () => {
   const isOperationRunning = (action, id) => operationKey === makeOperationKey(action, id);
 
   const handleImport = async (exportId) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const key = makeOperationKey('import', exportId);
     setOperationKey(key);
     setMessage('Import 처리 중입니다. Pack ZIP을 Runtime Store에 반입하고 검증합니다.');
@@ -112,6 +138,10 @@ const PackRepository = () => {
   };
 
   const handleActivate = async (pack) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const key = makeOperationKey('activate', pack.import_id || `${pack.pack_id}:${pack.pack_version}`);
     setOperationKey(key);
     setMessage('Active 전환 처리 중입니다. 승인된 Pack을 현재 Runtime 기준으로 설정합니다.');
@@ -132,6 +162,10 @@ const PackRepository = () => {
   };
 
   const handleApprove = async (pack) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const key = makeOperationKey('approve', pack.import_id || `${pack.pack_id}:${pack.pack_version}`);
     setOperationKey(key);
     setMessage('Pack 승인 처리 중입니다. 승인 후 Active 전환 후보가 됩니다.');
@@ -150,6 +184,10 @@ const PackRepository = () => {
   };
 
   const handleReject = async (pack, reason = '') => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const key = makeOperationKey('reject', pack.import_id || `${pack.pack_id}:${pack.pack_version}`);
     setOperationKey(key);
     setMessage('Pack 반려 처리 중입니다.');
@@ -169,6 +207,10 @@ const PackRepository = () => {
   };
 
   const handleRollback = async () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setOperationKey('rollback');
     setMessage('Rollback 처리 중입니다. 직전 정상 Pack으로 되돌립니다.');
     try {
@@ -270,8 +312,8 @@ const PackRepository = () => {
           <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>Export ZIP, Runtime Pack Store, Active Pack, Rollback 상태를 관리합니다.</p>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+          <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
           <button className="btn-secondary" onClick={fetchAll} disabled={loading || Boolean(operationKey)}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>

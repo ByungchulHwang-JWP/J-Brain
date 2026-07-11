@@ -2,13 +2,13 @@ import toast from 'react-hot-toast';
 import { Skeleton } from '../../components/common/Loader';
 import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import { archiveEntity, createEntity, getEntity, listEntities, updateEntity } from '../../api/intentFactory';
 
 const EntityList = ({ mode = 'entities' }) => {
   const isSynonym = mode === 'synonyms';
-  const { projects } = useProjects();
-  const [projectId, setProjectId] = useState('J-Brain');
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const projectId = selectedProjectId;
   const [entities, setEntities] = useState([]);
   const [selected, setSelected] = useState(null);
   const [keyword, setKeyword] = useState('');
@@ -43,6 +43,11 @@ const EntityList = ({ mode = 'entities' }) => {
   };
 
   const fetchEntities = async () => {
+    if (!projectId) {
+      setEntities([]);
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -91,6 +96,10 @@ const EntityList = ({ mode = 'entities' }) => {
   };
 
   const startEdit = async (entity) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setSelected(entity.entity_type);
     setMessage('');
     try {
@@ -127,6 +136,10 @@ const EntityList = ({ mode = 'entities' }) => {
   };
 
   const save = async () => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     if (!form.entity_type?.trim()) {
       toast.error('Entity Type을 입력해 주세요.');
       return;
@@ -160,6 +173,10 @@ const EntityList = ({ mode = 'entities' }) => {
   };
 
   const archive = async (entityType) => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     if (!window.confirm(`${entityType} Entity를 보관 처리할까요?`)) return;
     try {
       await archiveEntity(projectId, entityType);
@@ -182,11 +199,11 @@ const EntityList = ({ mode = 'entities' }) => {
           <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>Entity 정의와 canonical value, 동의어 사전을 DB에 저장합니다.</p>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+          <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-primary" onClick={startCreate}>+ Entity 등록</button>
+          <button className="btn-primary" onClick={startCreate} disabled={!projectId}>+ Entity 등록</button>
         </div>
       </div>
 

@@ -11,6 +11,17 @@ const PermissionMap = () => {
   const [saving, setSaving] = useState(false);
 
   const token = () => localStorage.getItem('ai_access_token');
+  const renderScopeBadge = (scope) => {
+    const isSystem = scope === 'system';
+    return (
+      <span
+        className={`badge ${isSystem ? 'inactive' : 'active'}`}
+        style={{ marginLeft: '8px', fontSize: '11px', verticalAlign: 'middle' }}
+      >
+        {isSystem ? 'System' : 'Project'}
+      </span>
+    );
+  };
 
   const fetchPermissions = async () => {
     setLoading(true);
@@ -120,12 +131,14 @@ const PermissionMap = () => {
                   <tr className="perm-table-group-row">
                     <td colSpan={1 + roles.length * 2} style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 700, color: 'var(--color-text-main)', fontSize: '14px' }}>
                       📂 {pm.name}
+                      {renderScopeBadge(pm.scope)}
                     </td>
                   </tr>
                   {children.map(m => (
                     <tr key={m.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                       <td style={{ padding: '12px 20px', textAlign: 'left', paddingLeft: '40px', borderRight: '1px solid var(--color-border)' }}>
                         <span style={{ color: 'var(--color-text-sub)' }}>└ {m.name}</span>
+                        {renderScopeBadge(m.scope)}
                         <span style={{ color: 'var(--color-text-muted)', fontSize: '12px', marginLeft: '8px' }}>{m.url}</span>
                       </td>
                       {roles.map(r => {

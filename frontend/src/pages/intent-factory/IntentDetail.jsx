@@ -5,7 +5,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import IntentForm from '../../components/intent-factory/IntentForm';
 import IntentEntityConnector from '../../components/intent-factory/IntentEntityConnector';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import { createIntent, getIntent, listActions, updateIntent } from '../../api/intentFactory';
 
 const emptyForm = {
@@ -36,10 +36,9 @@ const IntentDetail = ({ mode = 'edit' }) => {
   const navigate = useNavigate();
   const { intentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { projects } = useProjects();
-  const defaultProjectId = searchParams.get('project') || projects[0]?.id || 'J-Brain';
-  const [projectId, setProjectId] = useState(defaultProjectId);
-  const [form, setForm] = useState(() => (mode === 'new' ? { ...emptyForm, intent_id: generateIntentId(defaultProjectId) } : emptyForm));
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const projectId = selectedProjectId;
+  const [form, setForm] = useState(() => (mode === 'new' ? { ...emptyForm, intent_id: generateIntentId(selectedProjectId) } : emptyForm));
   const [actionOptions, setActionOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
   const [loading, setLoading] = useState(mode === 'edit');
@@ -48,10 +47,27 @@ const IntentDetail = ({ mode = 'edit' }) => {
   const title = useMemo(() => (mode === 'new' ? 'Intent 등록' : 'Intent 상세/수정'), [mode]);
 
   useEffect(() => {
+    const requestedProjectId = searchParams.get('project') || searchParams.get('projectId');
+    if (requestedProjectId && requestedProjectId !== selectedProjectId) {
+      setSelectedProjectId(requestedProjectId);
+    }
+  }, [searchParams, selectedProjectId, setSelectedProjectId]);
+
+  useEffect(() => {
     if (!searchParams.get('project') && projectId) {
       setSearchParams({ project: projectId }, { replace: true });
     }
   }, [projectId, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (mode === 'new' && projectId) {
+      setForm((prev) => (
+        !prev.intent_id || prev.intent_id.startsWith('INT-PROJECT-')
+          ? { ...prev, intent_id: generateIntentId(projectId) }
+          : prev
+      ));
+    }
+  }, [mode, projectId]);
 
   useEffect(() => {
     if (mode !== 'edit' || !intentId || !projectId) return;
@@ -91,7 +107,7 @@ const IntentDetail = ({ mode = 'edit' }) => {
   }, [projectId]);
 
   const handleProjectChange = (nextProjectId) => {
-    setProjectId(nextProjectId);
+    setSelectedProjectId(nextProjectId);
     setSearchParams({ project: nextProjectId }, { replace: true });
     if (mode === 'new') {
       setForm((prev) => ({ ...prev, intent_id: generateIntentId(nextProjectId) }));
@@ -99,6 +115,10 @@ const IntentDetail = ({ mode = 'edit' }) => {
   };
 
   const handleSave = async () => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     if (!form.intent_name?.trim()) {
       toast.error('Intent 이름을 입력해 주세요.');
       return;
@@ -137,11 +157,11 @@ const IntentDetail = ({ mode = 'edit' }) => {
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
           <button className="btn-secondary" onClick={() => navigate(`/admin/intent-factory/intents?project=${encodeURIComponent(projectId)}`)}>목록</button>
-          <button className="btn-primary" onClick={handleSave} disabled={saving}>{saving ? '저장 중...' : '저장'}</button>
+          <button className="btn-primary" onClick={handleSave} disabled={saving || !projectId}>{saving ? '저장 중...' : '저장'}</button>
         </div>
       </div>
 

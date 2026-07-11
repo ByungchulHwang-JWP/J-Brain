@@ -5,6 +5,7 @@ import { Archive, RotateCcw, ShieldCheck } from 'lucide-react';
 import ActionCard from '../components/chat/ActionCard';
 import IntentDiagnostics from '../components/chat/IntentDiagnostics';
 import { getActivePack } from '../api/intentFactory';
+import { useProjectContext } from '../context/ProjectContext';
 
 const AUTH_EXPIRED_MESSAGE = '로그인 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
 
@@ -72,17 +73,18 @@ const ProjectQA = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationProjectId = location.state?.projectId;
+  const {
+    projects,
+    selectedProjectId,
+    setSelectedProjectId,
+    projectLoadError,
+  } = useProjectContext();
+  const resolvedProjectId = navigationProjectId || id || selectedProjectId || '';
   
-  const [projects, setProjects] = useState([]);
-  const [selectedProjectId, setSelectedProjectId] = useState(
-    navigationProjectId || id || localStorage.getItem('jbrain-workflow-project-id') || ''
-  );
   const [recommendedQuestions, setRecommendedQuestions] = useState([]);
   const [selectedPackMode, setSelectedPackMode] = useState('runtime-resolver');
   const [packDraftSummary, setPackDraftSummary] = useState(null);
   const [activePack, setActivePack] = useState(null);
-  const [projectLoadError, setProjectLoadError] = useState('');
-  
   const [chatHistory, setChatHistory] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -100,30 +102,11 @@ const ProjectQA = () => {
     }
   }, [navigate]);
 
-  // Fetch projects list
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setProjectLoadError('');
-        const res = await axios.get('/api/v1/projects', {
-          headers: { Authorization: `Bearer ${getAccessToken()}` }
-        });
-        setProjects(res.data);
-        setSelectedProjectId(prev => prev || (res.data.length > 0 ? res.data[0].id : ''));
-      } catch (err) {
-        console.error('Failed to load projects', err);
-        setProjectLoadError('프로젝트 목록을 불러오지 못했습니다. 로그인 상태 또는 서버 연결을 확인해 주세요.');
-        handleAuthError(err);
-      }
-    };
-    fetchProjects();
-  }, [handleAuthError]);
-
-  useEffect(() => {
-    if (navigationProjectId && navigationProjectId !== selectedProjectId) {
-      setSelectedProjectId(navigationProjectId);
+    if (resolvedProjectId && resolvedProjectId !== selectedProjectId) {
+      setSelectedProjectId(resolvedProjectId);
     }
-  }, [navigationProjectId, selectedProjectId]);
+  }, [resolvedProjectId, selectedProjectId, setSelectedProjectId]);
 
   // Fetch recommended questions and restore local Runtime QA history when project changes.
   useEffect(() => {
@@ -359,6 +342,9 @@ const ProjectQA = () => {
   };
 
   const starterQuestions = recommendedQuestions.length > 0 ? recommendedQuestions : DEFAULT_RUNTIME_QUESTIONS;
+  const projectWarning = projectLoadError
+    ? '프로젝트 목록을 불러오지 못했습니다. 로그인 상태 또는 서버 연결을 확인해 주세요.'
+    : '';
   const lastAiMessage = [...chatHistory].reverse().find((message) => message.role === 'ai' && !message.isStreaming);
   const lastQaSummary = lastAiMessage?.qaSummary || null;
   const lastConfidence = lastQaSummary?.intent?.confidence_label || '-';
@@ -421,7 +407,7 @@ const ProjectQA = () => {
 
       {(!selectedProjectId || projectLoadError) && (
         <div className="runtime-qa-project-warning">
-          {projectLoadError || '프로젝트를 선택하면 Runtime QA를 실행할 수 있습니다.'}
+          {projectWarning || '프로젝트를 선택하면 Runtime QA를 실행할 수 있습니다.'}
         </div>
       )}
 

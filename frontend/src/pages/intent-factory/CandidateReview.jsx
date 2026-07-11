@@ -2,6 +2,7 @@ import { Skeleton, Spinner } from '../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle2, CircleSlash2, DatabaseZap, RotateCcw, Sparkles } from 'lucide-react';
+import { useProjectContext } from '../../context/ProjectContext';
 import {
   applyApprovedDiscoveryCandidates,
   createDiscoveryRun,
@@ -33,8 +34,10 @@ const statusTone = {
 };
 
 const CandidateReview = ({ embedded = false }) => {
-  const { projectId = 'J-Brain' } = useParams();
+  const { projectId: routeProjectId } = useParams();
   const navigate = useNavigate();
+  const { selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const projectId = routeProjectId || selectedProjectId;
   const [items, setItems] = useState([]);
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(true);
@@ -42,7 +45,20 @@ const CandidateReview = ({ embedded = false }) => {
   const [applying, setApplying] = useState(false);
   const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    if (routeProjectId && routeProjectId !== selectedProjectId) {
+      setSelectedProjectId(routeProjectId);
+    }
+  }, [routeProjectId, selectedProjectId, setSelectedProjectId]);
+
   const loadCandidates = async () => {
+    if (!projectId) {
+      setItems([]);
+      setSummary({});
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -78,6 +94,10 @@ const CandidateReview = ({ embedded = false }) => {
   }, [items]);
 
   const handleRun = async (scope = 'all') => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setRunning(true);
     setMessage('');
     try {
@@ -98,6 +118,10 @@ const CandidateReview = ({ embedded = false }) => {
   };
 
   const handleStatus = async (candidateId, status) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setMessage('');
     try {
       await updateDiscoveryCandidateStatus(projectId, candidateId, status);
@@ -109,6 +133,10 @@ const CandidateReview = ({ embedded = false }) => {
   };
 
   const handleApplyApproved = async () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setApplying(true);
     setMessage('');
     try {
@@ -129,6 +157,10 @@ const CandidateReview = ({ embedded = false }) => {
   };
 
   const handleApproveAll = async () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const pendingItems = orderedItems.filter(item => item.status === 'pending');
     if (pendingItems.length === 0 && approvedPendingCount === 0) {
       setMessage('현재 목록에 승인하거나 적용할 후보가 없습니다.');
@@ -199,17 +231,17 @@ const CandidateReview = ({ embedded = false }) => {
             <button className="btn-secondary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/2`)}>
               2단계로 돌아가기
             </button>
-            <button className="btn-secondary" type="button" onClick={() => handleRun('new')} disabled={running}>
+            <button className="btn-secondary" type="button" onClick={() => handleRun('new')} disabled={running || !projectId}>
               <Sparkles size={16} /> {running ? '분석 중...' : '신규 자료 분석'}
             </button>
-            <button className="btn-primary" type="button" onClick={() => handleRun('all')} disabled={running}>
+            <button className="btn-primary" type="button" onClick={() => handleRun('all')} disabled={running || !projectId}>
               <Sparkles size={16} /> {running ? '생성 중...' : '전체 재분석'}
             </button>
             <button
               className="btn-primary"
               type="button"
               onClick={handleApplyApproved}
-              disabled={applying || approvedPendingCount === 0}
+              disabled={applying || approvedPendingCount === 0 || !projectId}
             >
               <DatabaseZap size={16} /> {applying ? '적용 중...' : '승인 후보 적용'}
             </button>
@@ -263,7 +295,7 @@ const CandidateReview = ({ embedded = false }) => {
               className="btn-secondary"
               type="button"
               onClick={handleApproveAll}
-              disabled={applying || (orderedItems.filter(i => i.status === 'pending').length === 0 && approvedPendingCount === 0)}
+              disabled={applying || !projectId || (orderedItems.filter(i => i.status === 'pending').length === 0 && approvedPendingCount === 0)}
             >
               <CheckCircle2 size={14} style={{ marginRight: 6 }} /> 목록 전체 승인 및 적용
             </button>
@@ -272,7 +304,7 @@ const CandidateReview = ({ embedded = false }) => {
                 className="btn-primary"
                 type="button"
                 onClick={handleApplyApproved}
-                disabled={applying || approvedPendingCount === 0}
+                disabled={applying || approvedPendingCount === 0 || !projectId}
               >
                 <DatabaseZap size={14} style={{marginRight: 6}} /> {applying ? '적용 중...' : '승인 후보 적용'}
               </button>

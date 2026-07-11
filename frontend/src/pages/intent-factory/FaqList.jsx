@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import { Skeleton, Spinner } from '../../components/common/Loader';
 import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import {
   archiveFaq,
   createFaq,
@@ -48,8 +48,8 @@ const generateFaqId = (projectId) => {
 };
 
 const FaqList = () => {
-  const { projects } = useProjects();
-  const [projectId, setProjectId] = useState('J-Brain');
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const projectId = selectedProjectId;
   const [items, setItems] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [selectedFaqId, setSelectedFaqId] = useState(null);
@@ -60,13 +60,12 @@ const FaqList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  useEffect(() => {
-    if (projects.length > 0 && !projects.some((project) => project.id === projectId)) {
-      setProjectId(projects[0].id);
-    }
-  }, [projectId, projects]);
-
   const loadFaqs = async (targetProjectId = projectId) => {
+    if (!targetProjectId) {
+      setItems([]);
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -124,12 +123,20 @@ const FaqList = () => {
   const updateForm = (patch) => setForm((prev) => ({ ...prev, ...patch }));
 
   const handleNew = () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setSelectedFaqId(null);
     setForm({ ...emptyForm, faq_id: generateFaqId(projectId) });
     setMessage('신규 FAQ를 등록할 수 있습니다.');
   };
 
   const handleSelect = async (faqId) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setSelectedFaqId(faqId);
     setMessage('');
     try {
@@ -164,6 +171,10 @@ const FaqList = () => {
   });
 
   const handleSave = async () => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const payload = buildPayload();
     if (!payload.question || !payload.answer) {
       toast.error('질문, 답변을 입력해 주세요.');
@@ -190,6 +201,10 @@ const FaqList = () => {
 
   const handleArchive = async () => {
     if (!selectedFaqId) return;
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     if (!window.confirm(`${selectedFaqId} FAQ를 보관 처리할까요?`)) return;
     try {
       await archiveFaq(projectId, selectedFaqId);
@@ -217,12 +232,12 @@ const FaqList = () => {
           </p>
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+          <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
           <button className="btn-secondary" onClick={() => loadFaqs(projectId)} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
-          <button className="btn-primary" onClick={handleNew}>FAQ 등록</button>
+          <button className="btn-primary" onClick={handleNew} disabled={!projectId}>FAQ 등록</button>
         </div>
       </div>
 

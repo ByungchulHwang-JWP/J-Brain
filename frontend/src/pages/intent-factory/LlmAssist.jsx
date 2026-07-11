@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, CircleSlash2, DatabaseZap, RotateCcw, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import Pagination from '../../components/common/Pagination';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import {
   applyApprovedDiscoveryCandidates,
   createDiscoveryRun,
@@ -38,9 +38,9 @@ const statusTone = {
 const LlmAssist = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { projects, loading: projectsLoading } = useProjects();
+  const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
+  const projectId = selectedProjectId;
   
-  const [projectId, setProjectId] = useState(searchParams.get('project') || 'J-Brain');
   const [items, setItems] = useState([]);
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(true);
@@ -54,10 +54,11 @@ const LlmAssist = () => {
   const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
-    if (projects.length > 0 && !projects.some((p) => p.id === projectId)) {
-      setProjectId(projects[0].id);
+    const requestedProjectId = searchParams.get('project') || searchParams.get('projectId');
+    if (requestedProjectId && requestedProjectId !== selectedProjectId) {
+      setSelectedProjectId(requestedProjectId);
     }
-  }, [projects, projectId]);
+  }, [searchParams, selectedProjectId, setSelectedProjectId]);
 
   useEffect(() => {
     if (!searchParams.get('project') && projectId) {
@@ -66,7 +67,13 @@ const LlmAssist = () => {
   }, [projectId, searchParams, setSearchParams]);
 
   const loadCandidates = async (targetProjectId = projectId) => {
-    if (!targetProjectId) return;
+    if (!targetProjectId) {
+      setItems([]);
+      setSummary({});
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -87,7 +94,7 @@ const LlmAssist = () => {
 
   const handleProjectChange = (e) => {
     const nextProjectId = e.target.value;
-    setProjectId(nextProjectId);
+    setSelectedProjectId(nextProjectId);
     setSearchParams({ project: nextProjectId }, { replace: true });
   };
 
@@ -124,6 +131,10 @@ const LlmAssist = () => {
   }, [filteredAndOrderedItems, currentPage, pageSize]);
 
   const handleRun = async (scope = 'all') => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setRunning(true);
     setMessage('');
     try {
@@ -144,6 +155,10 @@ const LlmAssist = () => {
   };
 
   const handleStatus = async (candidateId, status) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setMessage('');
     try {
       await updateDiscoveryCandidateStatus(projectId, candidateId, status);
@@ -155,6 +170,10 @@ const LlmAssist = () => {
   };
 
   const handleApplyApproved = async () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setApplying(true);
     setMessage('');
     try {
@@ -175,6 +194,10 @@ const LlmAssist = () => {
   };
 
   const handleApproveAll = async () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const pendingItems = filteredAndOrderedItems.filter(item => item.status === 'pending');
     if (pendingItems.length === 0 && approvedPendingCount === 0) {
       setMessage('현재 목록에 승인하거나 적용할 후보가 없습니다.');
@@ -252,9 +275,9 @@ const LlmAssist = () => {
             style={{ width: '200px', padding: '8px', borderRadius: '4px', border: '1px solid var(--color-border)', background: 'var(--color-bg-main)', color: 'var(--color-text-main)' }} 
             value={projectId} 
             onChange={handleProjectChange}
-            disabled={projectsLoading}
+            disabled={loadingProjects}
           >
-            {projectsLoading ? (
+            {loadingProjects ? (
               <option value="">불러오는 중...</option>
             ) : projects.length === 0 ? (
               <option value="">프로젝트 없음</option>

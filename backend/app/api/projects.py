@@ -11,9 +11,44 @@ from app.api.deps import get_current_user_id
 
 router = APIRouter()
 
-# DB에 projects 테이블이 없으므로, graphrag_sources의 category를 
-# project(프로젝트)로 활용하는 방식으로 대응합니다.
-# 프론트엔드에서 Project로 표시할 데이터를 category 기반으로 집계하여 반환합니다.
+PROJECT_LIST_SQL = """
+WITH project_master AS (
+    SELECT
+        id::text AS id,
+        name,
+        description,
+        COALESCE(status, 'active') AS status,
+        created_at,
+        0::int AS doc_count
+    FROM graphrag.projects
+    WHERE COALESCE(status, '') NOT IN ('deleted', 'archived')
+),
+source_projects AS (
+    SELECT
+        category AS id,
+        category AS name,
+        COALESCE(MAX(description) FILTER (WHERE status = 'placeholder'), MAX(description), '') AS description,
+        'active' AS status,
+        MIN(created_at) AS created_at,
+        COUNT(*) FILTER (WHERE COALESCE(status, '') != 'placeholder')::int AS doc_count
+    FROM graphrag.graphrag_sources
+    WHERE category IS NOT NULL
+    GROUP BY category
+)
+SELECT DISTINCT ON (id)
+    id,
+    name,
+    description,
+    status,
+    created_at,
+    doc_count
+FROM (
+    SELECT *, 1 AS source_priority FROM project_master
+    UNION ALL
+    SELECT *, 2 AS source_priority FROM source_projects
+) merged
+ORDER BY id, source_priority ASC, created_at DESC
+"""
 
 class ProjectCreate(BaseModel):
     name: str
@@ -43,22 +78,9 @@ async def list_projects(
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
-    graphrag.graphrag_sources의 category를 기반으로 Project(프로젝트) 목록 반환.
-    고유한 category 값을 하나의 Project로 표현합니다.
+    프로젝트 master를 우선 사용하고, 기존 category 기반 데모/레거시 데이터는 fallback으로 반환합니다.
     """
-    res = await db.execute(
-        text("""
-            SELECT DISTINCT 
-                category AS id,
-                category AS name,
-                COALESCE(MAX(description) FILTER (WHERE status = 'placeholder'), MAX(description), '') AS description,
-                MIN(created_at) AS created_at,
-                COUNT(*) FILTER (WHERE COALESCE(status, '') != 'placeholder') AS doc_count
-            FROM graphrag.graphrag_sources
-            GROUP BY category
-            ORDER BY MIN(created_at) DESC
-        """)
-    )
+    res = await db.execute(text(PROJECT_LIST_SQL))
     rows = res.fetchall()
 
     projects = []
@@ -67,7 +89,7 @@ async def list_projects(
             "id": r.id or "default",
             "name": r.name or "기본 프로젝트",
             "description": r.description or f"문서 {r.doc_count}건",
-            "status": "active",
+            "status": r.status or "active",
             "created_at": r.created_at.strftime("%Y-%m-%d") if r.created_at else "-"
         })
 

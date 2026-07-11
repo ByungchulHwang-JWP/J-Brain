@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { ArrowRight, RotateCcw, SearchCheck, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import { getActivePack } from '../../api/intentFactory';
 import ActionCard from '../../components/chat/ActionCard';
 import IntentDiagnostics from '../../components/chat/IntentDiagnostics';
@@ -66,10 +66,7 @@ const buildRuntimeSummary = (data) => {
 
 const IntentMatchTest = () => {
   const navigate = useNavigate();
-  const { projects, loading } = useProjects();
-  const [selectedProjectId, setSelectedProjectId] = useState(
-    localStorage.getItem('jbrain-workflow-project-id') || ''
-  );
+  const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
   const [activePack, setActivePack] = useState(null);
   const [packMode, setPackMode] = useState('runtime-resolver');
   const [question, setQuestion] = useState(SAMPLE_QUESTIONS[0]);
@@ -80,17 +77,11 @@ const IntentMatchTest = () => {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    if (selectedProjectId || projects.length === 0) return;
-    setSelectedProjectId(projects[0].id);
-  }, [projects, selectedProjectId]);
-
-  useEffect(() => {
     if (!selectedProjectId) {
       setActivePack(null);
       return;
     }
 
-    localStorage.setItem('jbrain-workflow-project-id', selectedProjectId);
     getActivePack(selectedProjectId)
       .then((data) => setActivePack(data?.pack_id ? data : null))
       .catch(() => setActivePack(null));
@@ -104,7 +95,11 @@ const IntentMatchTest = () => {
 
   const runMatch = async (nextQuestion = question) => {
     const trimmedQuestion = String(nextQuestion || '').trim();
-    if (!selectedProjectId || !trimmedQuestion || loadingMatch) return;
+    if (!selectedProjectId) {
+      setError('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
+    if (!trimmedQuestion || loadingMatch) return;
 
     setQuestion(trimmedQuestion);
     setLoadingMatch(true);
@@ -113,9 +108,9 @@ const IntentMatchTest = () => {
     const startedAt = performance.now();
     try {
       const response = await axios.post(
-        `/api/v1/projects/${encodeURIComponent(selectedProjectId)}/chat/runtime`,
+        `/api/v1/intent-match/projects/${encodeURIComponent(selectedProjectId)}`,
         {
-          query: trimmedQuestion,
+          question: trimmedQuestion,
           top_k: Number(topK) || 3,
           ...selectedPackPayload,
         },
@@ -192,8 +187,9 @@ const IntentMatchTest = () => {
             value={selectedProjectId}
             onChange={(event) => setSelectedProjectId(event.target.value)}
             style={FORM_INPUT}
-            disabled={loading}
+            disabled={loadingProjects}
           >
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => (
               <option key={project.id} value={project.id}>{project.name} ({project.id})</option>
             ))}

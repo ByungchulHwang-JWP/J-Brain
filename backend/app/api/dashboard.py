@@ -8,6 +8,21 @@ from app.api.deps import get_current_user_id
 
 router = APIRouter()
 
+GLOBAL_PROJECT_COUNT_SQL = """
+SELECT COALESCE(
+    NULLIF((
+        SELECT COUNT(*)
+        FROM graphrag.projects
+        WHERE COALESCE(status, '') NOT IN ('deleted', 'archived')
+    ), 0),
+    (
+        SELECT COUNT(DISTINCT category)
+        FROM graphrag.graphrag_sources
+        WHERE category IS NOT NULL
+    )
+)::int AS project_count
+"""
+
 @router.get("/dashboard/stats")
 async def get_global_dashboard_stats(
     user_id: str = Depends(get_current_user_id),
@@ -17,9 +32,7 @@ async def get_global_dashboard_stats(
     전역 대시보드 통계를 실제 DB에서 조회하여 반환합니다.
     """
     # 1. 등록된 프로젝트 수
-    proj_res = await db.execute(
-        text("SELECT COUNT(*) FROM graphrag.projects WHERE status = 'active'")
-    )
+    proj_res = await db.execute(text(GLOBAL_PROJECT_COUNT_SQL))
     project_count = proj_res.scalar() or 0
 
     # 2. 총 지식 문서 수

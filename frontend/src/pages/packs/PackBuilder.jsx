@@ -1,11 +1,14 @@
 import { OverlayLoader } from '../../components/common/Loader';
 import { useEffect, useState } from 'react';
-import useProjects from '../../hooks/useProjects';
+import { useSearchParams } from 'react-router-dom';
+import { useProjectContext } from '../../context/ProjectContext';
 import { createPackExport, getPackDraft, getPackExportDownloadUrl, listPackExports } from '../../api/intentFactory';
 
 const PackBuilder = () => {
-  const { projects } = useProjects();
-  const [projectId, setProjectId] = useState('J-Brain');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
+  const projectId = routeProjectId || selectedProjectId;
   const [draft, setDraft] = useState(null);
   const [exportResult, setExportResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -22,7 +25,23 @@ const PackBuilder = () => {
     fontSize: '14px',
   };
 
+  useEffect(() => {
+    if (routeProjectId && routeProjectId !== selectedProjectId) {
+      setSelectedProjectId(routeProjectId);
+    }
+  }, [routeProjectId, selectedProjectId, setSelectedProjectId]);
+
+  const handleProjectChange = (nextProjectId) => {
+    setSelectedProjectId(nextProjectId);
+    setSearchParams({ projectId: nextProjectId }, { replace: true });
+  };
+
   const loadDraft = async () => {
+    if (!projectId) {
+      setDraft(null);
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -42,6 +61,10 @@ const PackBuilder = () => {
   useEffect(() => { loadDraft(); }, [projectId]);
 
   const handleExport = async () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setExporting(true);
     setMessage('');
     try {
@@ -86,12 +109,12 @@ const PackBuilder = () => {
           <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>DB에 저장된 Intent, Entity, Action 연결, Source Scope로 Pack JSON 초안을 생성합니다.</p>
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+          <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-primary" onClick={loadDraft} disabled={loading}>{loading ? '생성 중...' : 'Draft 생성'}</button>
-          <button className="btn-secondary" onClick={handleExport} disabled={exporting || !draft}>{exporting ? '빌드 중...' : 'Pack 빌드'}</button>
+          <button className="btn-primary" onClick={loadDraft} disabled={loading || !projectId}>{loading ? '생성 중...' : 'Draft 생성'}</button>
+          <button className="btn-secondary" onClick={handleExport} disabled={exporting || !draft || !projectId}>{exporting ? '빌드 중...' : 'Pack 빌드'}</button>
         </div>
       </div>
 

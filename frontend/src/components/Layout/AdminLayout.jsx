@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, useParams } from 'react-router-dom';
 import axios from 'axios';
 import ChatWidget from '../ChatWidget';
+import { useProjectContext } from '../../context/ProjectContext';
 
 const THEMES = [
   { key: 'light', icon: '☀️', label: 'Pearl White' },
@@ -11,8 +12,8 @@ const THEMES = [
 
 
 const WORKFLOW_COMPACT_CHILDREN = [
-  { id: 'wf-dashboard', title: '프로젝트 대시보드', url: '/admin/workflow/projects' },
-  { id: 'wf-current',   title: '현재 진행 단계',   url: '/admin/workflow/projects/:projectId/stages/1' },
+  { id: 'wf-dashboard', title: '프로젝트 대시보드', url: '/admin/workflow/projects', scope: 'project' },
+  { id: 'wf-current',   title: '현재 진행 단계',   url: '/admin/workflow/projects/:projectId/stages/1', scope: 'project' },
 ];
 
 const normalizeWorkflowMenus = (menuGroups = []) => menuGroups.map((group) => {
@@ -25,11 +26,18 @@ const normalizeWorkflowMenus = (menuGroups = []) => menuGroups.map((group) => {
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { projectId: routeProjectId } = useParams();
   const mainContentRef = useRef(null);
   const [menus, setMenus] = useState([]);
   const [expandedGroups, setExpandedGroups] = useState({});
   const [theme, setTheme] = useState(() => localStorage.getItem('jbrain-theme') || 'light');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const {
+    projects,
+    selectedProjectId,
+    setSelectedProjectId,
+    loadingProjects,
+  } = useProjectContext();
 
   // 테마 적용
   useEffect(() => {
@@ -47,6 +55,12 @@ const AdminLayout = () => {
     document.body.classList.toggle('mobile-nav-open', mobileMenuOpen);
     return () => document.body.classList.remove('mobile-nav-open');
   }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (routeProjectId && routeProjectId !== selectedProjectId) {
+      setSelectedProjectId(routeProjectId);
+    }
+  }, [routeProjectId, selectedProjectId, setSelectedProjectId]);
 
   useEffect(() => {
     const fetchMenus = async () => {
@@ -85,7 +99,7 @@ const AdminLayout = () => {
     setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const currentWorkflowProjectId = () => localStorage.getItem('jbrain-workflow-project-id') || '';
+  const currentWorkflowProjectId = () => selectedProjectId || '';
 
   const resolveMenuUrl = (url) => {
     if (!url) return url;
@@ -151,8 +165,21 @@ const AdminLayout = () => {
             <span className="logo-symbol"></span>
             JWINPARTNERS
           </div>
-          <select>
-            <option>모든 시스템 관리 (System Admin)</option>
+          <select
+            aria-label="프로젝트 선택"
+            value={selectedProjectId || ''}
+            onChange={(event) => setSelectedProjectId(event.target.value)}
+            disabled={loadingProjects || projects.length === 0}
+          >
+            {projects.length === 0 ? (
+              <option value="">프로젝트 없음</option>
+            ) : (
+              projects.map((project) => (
+                <option key={project.id || project.project_id || project.domain} value={project.id || project.project_id || project.domain}>
+                  {project.name || project.title || project.id || project.project_id || project.domain}
+                </option>
+              ))
+            )}
           </select>
         </div>
         <div className="header-right">

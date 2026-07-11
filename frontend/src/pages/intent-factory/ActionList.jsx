@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import { Spinner, Skeleton } from '../../components/common/Loader';
 import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import {
   archiveAction,
   createAction,
@@ -58,8 +58,8 @@ const generateActionId = (projectId, actionType = 'NAVIGATE') => {
 };
 
 const ActionList = () => {
-  const { projects } = useProjects();
-  const [projectId, setProjectId] = useState('J-Brain');
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const projectId = selectedProjectId;
   const [items, setItems] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [selectedActionId, setSelectedActionId] = useState(null);
@@ -70,13 +70,12 @@ const ActionList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  useEffect(() => {
-    if (projects.length > 0 && !projects.some((project) => project.id === projectId)) {
-      setProjectId(projects[0].id);
-    }
-  }, [projectId, projects]);
-
   const loadActions = async (targetProjectId = projectId) => {
+    if (!targetProjectId) {
+      setItems([]);
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -136,12 +135,20 @@ const ActionList = () => {
   const updateForm = (patch) => setForm((prev) => ({ ...prev, ...patch }));
 
   const handleNew = () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setSelectedActionId(null);
     setForm({ ...emptyForm, action_id: generateActionId(projectId, emptyForm.action_type) });
     setMessage('신규 Action을 등록할 수 있습니다.');
   };
 
   const handleSelect = async (actionId) => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setSelectedActionId(actionId);
     setMessage('');
     try {
@@ -182,6 +189,10 @@ const ActionList = () => {
   });
 
   const handleSave = async () => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     if (!form.action_id.trim()) {
       toast.error('Action ID를 입력해 주세요.');
       return;
@@ -212,6 +223,10 @@ const ActionList = () => {
 
   const handleArchive = async () => {
     if (!selectedActionId) return;
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     if (!window.confirm(`${selectedActionId} Action을 보관 처리할까요?`)) return;
     try {
       await archiveAction(projectId, selectedActionId);
@@ -243,12 +258,12 @@ const ActionList = () => {
           </p>
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+          <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
           <button className="btn-secondary" onClick={() => loadActions(projectId)} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
-          <button className="btn-primary" onClick={handleNew}>Action 등록</button>
+          <button className="btn-primary" onClick={handleNew} disabled={!projectId}>Action 등록</button>
         </div>
       </div>
 

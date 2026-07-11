@@ -1,6 +1,7 @@
 import { Spinner } from '../../components/common/Loader';
 import React, { useEffect, useState } from 'react';
-import useProjects from '../../hooks/useProjects';
+import { useSearchParams } from 'react-router-dom';
+import { useProjectContext } from '../../context/ProjectContext';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   listPackExports,
@@ -26,8 +27,10 @@ const GlowDotBadge = ({ status, label }) => {
 };
 
 const PackVersions = () => {
-  const { projects } = useProjects();
-  const [projectId, setProjectId] = useState('J-Brain');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
+  const projectId = routeProjectId || selectedProjectId;
 
   const [exports, setExports] = useState([]);
   const [runtimePacks, setRuntimePacks] = useState([]);
@@ -36,7 +39,25 @@ const PackVersions = () => {
   const [justDeployedPacks, setJustDeployedPacks] = useState(new Set());
   const [expandedExportId, setExpandedExportId] = useState(null);
 
+  useEffect(() => {
+    if (routeProjectId && routeProjectId !== selectedProjectId) {
+      setSelectedProjectId(routeProjectId);
+    }
+  }, [routeProjectId, selectedProjectId, setSelectedProjectId]);
+
+  const handleProjectChange = (nextProjectId) => {
+    setSelectedProjectId(nextProjectId);
+    setSearchParams({ projectId: nextProjectId }, { replace: true });
+  };
+
   const loadData = async () => {
+    if (!projectId) {
+      setExports([]);
+      setRuntimePacks([]);
+      setActivePack(null);
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     try {
       const [expRes, rpRes, actRes] = await Promise.all([
@@ -58,6 +79,10 @@ const PackVersions = () => {
   useEffect(() => { loadData(); }, [projectId]);
 
   const handleImport = async (exportId) => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     try {
       setLoading(true);
       await importPackExport(projectId, exportId);
@@ -71,6 +96,10 @@ const PackVersions = () => {
   };
 
   const handleActivate = async (packId, packVersion) => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     try {
       setLoading(true);
       const pack = runtimePacks.find(p => p.pack_id === packId && p.pack_version === packVersion);
@@ -115,10 +144,10 @@ const PackVersions = () => {
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select
             value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
+            onChange={(e) => handleProjectChange(e.target.value)}
             style={{ minWidth: '220px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}
           >
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
           <button className="btn-secondary" onClick={loadData} disabled={loading}>

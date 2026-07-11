@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from app.db.session import get_db
 from app.api.deps import get_current_user_role
+from app.core.menu_seed import infer_menu_scope
 
 router = APIRouter()
 
@@ -62,6 +63,7 @@ async def get_permissions(
                 "name": r.menu_name,
                 "parent_id": r.parent_id,
                 "url": r.url or "",
+                "scope": infer_menu_scope(r.url, mid),
                 "permissions": {}
             }
         if r.role_id:

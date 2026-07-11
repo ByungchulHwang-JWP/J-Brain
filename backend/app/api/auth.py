@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.api.deps import get_current_user_role
+from app.core.menu_seed import infer_menu_scope
 
 router = APIRouter()
 
@@ -199,6 +200,7 @@ async def get_my_menus(
             "title": r.menu_name,
             "url": r.url,
             "icon": r.icon_code,
+            "scope": infer_menu_scope(r.url, r.id),
             "parent_id": r.parent_id,
             "children": []
         }

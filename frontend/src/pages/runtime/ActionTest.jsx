@@ -4,7 +4,7 @@ import { ArrowRight, PlayCircle, RotateCcw, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getActivePack } from '../../api/intentFactory';
 import ActionCard from '../../components/chat/ActionCard';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import { Spinner } from '../../components/common/Loader';
 
 const SAMPLE_QUESTIONS = [
@@ -68,10 +68,7 @@ const buildActionSummary = (data) => {
 
 const ActionTest = () => {
   const navigate = useNavigate();
-  const { projects, loading } = useProjects();
-  const [selectedProjectId, setSelectedProjectId] = useState(
-    localStorage.getItem('jbrain-workflow-project-id') || '',
-  );
+  const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
   const [activePack, setActivePack] = useState(null);
   const [packMode, setPackMode] = useState('runtime-resolver');
   const [question, setQuestion] = useState(SAMPLE_QUESTIONS[0]);
@@ -82,17 +79,11 @@ const ActionTest = () => {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    if (selectedProjectId || projects.length === 0) return;
-    setSelectedProjectId(projects[0].id);
-  }, [projects, selectedProjectId]);
-
-  useEffect(() => {
     if (!selectedProjectId) {
       setActivePack(null);
       return;
     }
 
-    localStorage.setItem('jbrain-workflow-project-id', selectedProjectId);
     getActivePack(selectedProjectId)
       .then((data) => setActivePack(data?.pack_id ? data : null))
       .catch(() => setActivePack(null));
@@ -106,7 +97,11 @@ const ActionTest = () => {
 
   const runActionTest = async (nextQuestion = question) => {
     const trimmedQuestion = String(nextQuestion || '').trim();
-    if (!selectedProjectId || !trimmedQuestion || running) return;
+    if (!selectedProjectId) {
+      setError('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
+    if (!trimmedQuestion || running) return;
 
     setQuestion(trimmedQuestion);
     setRunning(true);
@@ -115,9 +110,9 @@ const ActionTest = () => {
     const startedAt = performance.now();
     try {
       const response = await axios.post(
-        `/api/v1/projects/${encodeURIComponent(selectedProjectId)}/chat/runtime`,
+        `/api/v1/action-route/projects/${encodeURIComponent(selectedProjectId)}`,
         {
-          query: trimmedQuestion,
+          question: trimmedQuestion,
           top_k: Number(topK) || 3,
           ...selectedPackPayload,
         },
@@ -194,8 +189,9 @@ const ActionTest = () => {
             value={selectedProjectId}
             onChange={(event) => setSelectedProjectId(event.target.value)}
             style={FORM_INPUT}
-            disabled={loading}
+            disabled={loadingProjects}
           >
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => (
               <option key={project.id} value={project.id}>{project.name} ({project.id})</option>
             ))}

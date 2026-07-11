@@ -3,14 +3,14 @@ import { Skeleton } from '../../components/common/Loader';
 import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import { archiveIntent, importIntentPack, listIntents } from '../../api/intentFactory';
 
 const IntentList = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { projects } = useProjects();
-  const [projectId, setProjectId] = useState(searchParams.get('project') || 'J-Brain');
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const projectId = selectedProjectId;
   const [items, setItems] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,12 +20,24 @@ const IntentList = () => {
   const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
+    const requestedProjectId = searchParams.get('project') || searchParams.get('projectId');
+    if (requestedProjectId && requestedProjectId !== selectedProjectId) {
+      setSelectedProjectId(requestedProjectId);
+    }
+  }, [searchParams, selectedProjectId, setSelectedProjectId]);
+
+  useEffect(() => {
     if (!searchParams.get('project') && projectId) {
       setSearchParams({ project: projectId }, { replace: true });
     }
   }, [projectId, searchParams, setSearchParams]);
 
   const fetchIntents = async (targetProjectId = projectId) => {
+    if (!targetProjectId) {
+      setItems([]);
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -70,11 +82,15 @@ const IntentList = () => {
   const scopedCount = items.filter((item) => item.has_source_scope).length;
 
   const handleProjectChange = (nextProjectId) => {
-    setProjectId(nextProjectId);
+    setSelectedProjectId(nextProjectId);
     setSearchParams({ project: nextProjectId }, { replace: true });
   };
 
   const handleImport = async () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setImporting(true);
     setMessage('');
     try {
@@ -118,11 +134,11 @@ const IntentList = () => {
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={handleImport} disabled={importing}>{importing ? 'Import 중...' : '파일 Pack Import'}</button>
-          <button className="btn-primary" onClick={() => navigate(`/admin/intent-factory/intents/new?project=${encodeURIComponent(projectId)}`)}>+ Intent 등록</button>
+          <button className="btn-secondary" onClick={handleImport} disabled={importing || !projectId}>{importing ? 'Import 중...' : '파일 Pack Import'}</button>
+          <button className="btn-primary" onClick={() => navigate(`/admin/intent-factory/intents/new?project=${encodeURIComponent(projectId)}`)} disabled={!projectId}>+ Intent 등록</button>
         </div>
       </div>
 

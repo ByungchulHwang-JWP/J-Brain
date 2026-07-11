@@ -10,6 +10,7 @@
 - **데이터 상태:** `cleanse_demo_data.py`를 통해 모든 프로젝트/지식/의도 데이터가 `TRUNCATE(RESTART IDENTITY)` 된 완벽한 백지 상태
 - **백업 파일:** `01_백업데이터/` 폴더 내에 `J-Brain_Manual.txt`, `J-Brain_운영_매뉴얼_및_가이드.md` 준비 확인
 - **서버 구동:** 로컬에서 `start.sh` 실행 상태 확인 (`localhost:5176` 띄워두기)
+- **프로젝트 스코프 확인:** 상단 프로젝트 선택 드롭다운을 전환하면 Source, Intent, Entity/Synonym, FAQ, Action, Pack, Runtime 화면은 선택 프로젝트 기준으로 바뀌는지 확인합니다. 반대로 사용자 관리, Permission/권한 관리, 시스템 설정은 프로젝트 선택과 분리된 전역 기능으로 유지되는지 확인합니다.
 
 ---
 

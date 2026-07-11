@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, X } from 'lucide-react';
 import ConfirmModal from '../../components/common/ConfirmModal';
-import useProjects from '../../hooks/useProjects';
+import { useProjectContext } from '../../context/ProjectContext';
 import {
   archiveValidationQuestion,
   createValidationQuestion,
@@ -57,10 +57,10 @@ const textareaStyle = {
 };
 
 const PackValidation = () => {
-  const { projects } = useProjects();
-  const [searchParams] = useSearchParams();
-  const initialProjectId = searchParams.get('projectId') || localStorage.getItem('jbrain-workflow-project-id') || 'J-Brain';
-  const [projectId, setProjectId] = useState(initialProjectId);
+  const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
+  const projectId = routeProjectId || selectedProjectId;
   const [questions, setQuestions] = useState([]);
   const [runtimePacks, setRuntimePacks] = useState([]);
   const [results, setResults] = useState([]);
@@ -76,23 +76,24 @@ const PackValidation = () => {
   const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
 
   useEffect(() => {
-    const requestedProjectId = searchParams.get('projectId');
-    if (requestedProjectId && requestedProjectId !== projectId) {
-      setProjectId(requestedProjectId);
-      return;
+    if (routeProjectId && routeProjectId !== selectedProjectId) {
+      setSelectedProjectId(routeProjectId);
     }
-    if (projects.length > 0 && !projects.some((project) => project.id === projectId)) {
-      setProjectId(projects[0].id);
-    }
-  }, [projectId, projects, searchParams]);
+  }, [routeProjectId, selectedProjectId, setSelectedProjectId]);
 
-  useEffect(() => {
-    if (projectId) {
-      localStorage.setItem('jbrain-workflow-project-id', projectId);
-    }
-  }, [projectId]);
+  const handleProjectChange = (nextProjectId) => {
+    setSelectedProjectId(nextProjectId);
+    setSearchParams({ projectId: nextProjectId }, { replace: true });
+  };
 
   const fetchAll = async () => {
+    if (!projectId) {
+      setQuestions([]);
+      setRuntimePacks([]);
+      setResults([]);
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -131,6 +132,10 @@ const PackValidation = () => {
   const updateQuestionForm = (patch) => setQuestionForm((prev) => ({ ...prev, ...patch }));
 
   const handleNew = () => {
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     setSelectedQuestionId(null);
     setQuestionForm(makeEmptyQuestion(projectId, questions.length + 1));
     setQuestionDrawerOpen(true);
@@ -165,6 +170,10 @@ const PackValidation = () => {
   });
 
   const handleSaveQuestion = async () => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     const payload = buildQuestionPayload();
     if (!payload.question_id || !payload.question || !payload.expected_intent_id || !payload.expected_action_id) {
       toast.error('Question ID, 질문, 기대 Intent, 기대 Action을 입력해 주세요.');
@@ -189,6 +198,10 @@ const PackValidation = () => {
 
   const handleArchiveQuestion = async () => {
     if (!selectedQuestionId) return;
+    if (!projectId) {
+      setMessage('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     try {
       await archiveValidationQuestion(projectId, selectedQuestionId);
       setSelectedQuestionId(null);
@@ -216,6 +229,10 @@ const PackValidation = () => {
   }, [projectId, targetPackKey, targetType]);
 
   const handleRunValidation = async () => {
+    if (!projectId) {
+      toast.error('프로젝트를 먼저 선택해 주세요.');
+      return;
+    }
     if (!selectedPack) {
       toast.error('검증할 Pack을 선택해 주세요.');
       return;
@@ -263,8 +280,8 @@ const PackValidation = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value={projectId}>{projectId}</option>}
+          <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+            {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
           <button className="btn-secondary" onClick={fetchAll} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
