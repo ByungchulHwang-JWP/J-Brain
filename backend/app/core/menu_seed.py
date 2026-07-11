@@ -26,6 +26,36 @@ SYSTEM_PREFIXES = (
 )
 
 
+CONSOLIDATED_MENU_TARGETS: dict[str, str] = {
+    "/admin/packs/builder": "/admin/packs?tab=build",
+    "/admin/packs/validation": "/admin/packs?tab=validation",
+    "/admin/packs/repository": "/admin/packs?tab=repository",
+    "/admin/packs/versions": "/admin/packs?tab=repository",
+    "/admin/packs/deployment": "/admin/packs?tab=repository",
+    "/admin/runtime/qa": "/admin/runtime?tab=chat",
+    "/admin/runtime/intent-match": "/admin/runtime?tab=intent-match",
+    "/admin/runtime/action-test": "/admin/runtime?tab=action-route",
+    "/admin/runtime/widget-preview": "/admin/runtime?tab=widget-preview",
+    "/admin/operations/realtime": "/admin/operations?tab=realtime",
+    "/admin/operations/stats": "/admin/operations?tab=metrics",
+    "/admin/operations/unanswered": "/admin/operations?tab=unanswered",
+    "/admin/operations/improvement-requests": "/admin/operations?tab=improvements",
+    "/admin/operations/pack-history": "/admin/operations?tab=pack-history",
+}
+
+
+DEPRECATED_MENU_ITEMS: list[dict[str, Any]] = [
+    {"id": 2110, "url": "/admin/packs/builder", "deprecated_to": "/admin/packs?tab=build"},
+    {"id": 2120, "url": "/admin/packs/validation", "deprecated_to": "/admin/packs?tab=validation"},
+    {"id": 2130, "url": "/admin/packs/repository", "deprecated_to": "/admin/packs?tab=repository"},
+    {"id": 2140, "url": "/admin/packs/versions", "deprecated_to": "/admin/packs?tab=repository"},
+]
+
+
+def is_deprecated_menu(menu_id: int) -> bool:
+    return any(item["id"] == menu_id for item in DEPRECATED_MENU_ITEMS)
+
+
 INTENT_FACTORY_MENU_ITEMS: list[dict[str, Any]] = [
     {"id": 1000, "parent_id": None, "menu_name": "구축 워크플로우", "url": None, "sort_order": 10, "icon_code": "icon-workflow", "scope": "project"},
     {"id": 2000, "parent_id": None, "menu_name": "관리 기능", "url": None, "sort_order": 20, "icon_code": "icon-settings", "scope": "project"},
@@ -48,23 +78,13 @@ INTENT_FACTORY_MENU_ITEMS: list[dict[str, Any]] = [
     {"id": 2080, "parent_id": 2000, "menu_name": "FAQ 관리", "url": "/admin/intent-factory/faqs", "sort_order": 48, "icon_code": None, "scope": "project"},
     {"id": 2090, "parent_id": 2000, "menu_name": "Action 관리", "url": "/admin/intent-factory/actions", "sort_order": 49, "icon_code": None, "scope": "project"},
     {"id": 2100, "parent_id": 2000, "menu_name": "LLM 지원 도구", "url": "/admin/intent-factory/llm-assist", "sort_order": 50, "icon_code": None, "scope": "project"},
-    {"id": 2110, "parent_id": 2000, "menu_name": "Pack Builder", "url": "/admin/packs/builder", "sort_order": 51, "icon_code": None, "scope": "project"},
-    {"id": 2120, "parent_id": 2000, "menu_name": "Pack 검증", "url": "/admin/packs/validation", "sort_order": 52, "icon_code": None, "scope": "project"},
-    {"id": 2130, "parent_id": 2000, "menu_name": "Pack Repository", "url": "/admin/packs/repository", "sort_order": 53, "icon_code": None, "scope": "project"},
-    {"id": 2140, "parent_id": 2000, "menu_name": "버전/배포 관리", "url": "/admin/packs/versions", "sort_order": 54, "icon_code": None, "scope": "project"},
-    {"id": 2150, "parent_id": 2000, "menu_name": "Action 실행 테스트", "url": "/admin/runtime/action-test", "sort_order": 55, "icon_code": None, "scope": "project"},
-    {"id": 3010, "parent_id": 3000, "menu_name": "챗봇 대화 테스트", "url": "/admin/runtime/qa", "sort_order": 61, "icon_code": None, "scope": "project"},
-    {"id": 3020, "parent_id": 3000, "menu_name": "Intent 매칭 테스트", "url": "/admin/runtime/intent-match", "sort_order": 62, "icon_code": None, "scope": "project"},
-    {"id": 3030, "parent_id": 3000, "menu_name": "고객 위젯 미리보기", "url": "/admin/runtime/widget-preview", "sort_order": 63, "icon_code": None, "scope": "project"},
-    {"id": 3040, "parent_id": 3000, "menu_name": "실시간 모니터링", "url": "/admin/operations/realtime", "sort_order": 64, "icon_code": None, "scope": "project"},
-    {"id": 3050, "parent_id": 3000, "menu_name": "사용 통계", "url": "/admin/operations/stats", "sort_order": 65, "icon_code": None, "scope": "project"},
-    {"id": 3060, "parent_id": 3000, "menu_name": "미응답 분석", "url": "/admin/operations/unanswered", "sort_order": 66, "icon_code": None, "scope": "project"},
-    {"id": 3070, "parent_id": 3000, "menu_name": "개선 요청 관리", "url": "/admin/operations/improvement-requests", "sort_order": 67, "icon_code": None, "scope": "project"},
-    {"id": 3080, "parent_id": 3000, "menu_name": "Pack 개선 이력", "url": "/admin/operations/pack-history", "sort_order": 68, "icon_code": None, "scope": "project"},
-    {"id": 3090, "parent_id": 3000, "menu_name": "감사 로그", "url": "/admin/logs", "sort_order": 69, "icon_code": None, "scope": "system"},
+    {"id": 2110, "parent_id": 2000, "menu_name": "Pack Lifecycle Console", "url": "/admin/packs", "sort_order": 51, "icon_code": None, "scope": "project"},
+    {"id": 3010, "parent_id": 3000, "menu_name": "Runtime Simulation Console", "url": "/admin/runtime", "sort_order": 61, "icon_code": None, "scope": "project"},
+    {"id": 3040, "parent_id": 3000, "menu_name": "Operations Intelligence", "url": "/admin/operations", "sort_order": 64, "icon_code": None, "scope": "project"},
     {"id": 4010, "parent_id": 4000, "menu_name": "사용자 관리", "url": "/admin/users", "sort_order": 81, "icon_code": None, "scope": "system"},
     {"id": 4020, "parent_id": 4000, "menu_name": "권한 관리", "url": "/admin/permissions", "sort_order": 82, "icon_code": None, "scope": "system"},
     {"id": 4030, "parent_id": 4000, "menu_name": "시스템 설정", "url": "/admin/system/settings", "sort_order": 83, "icon_code": None, "scope": "system"},
+    {"id": 3090, "parent_id": 4000, "menu_name": "감사 로그", "url": "/admin/logs", "sort_order": 84, "icon_code": None, "scope": "system"},
 ]
 
 MENU_ITEMS = INTENT_FACTORY_MENU_ITEMS
