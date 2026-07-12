@@ -90,7 +90,7 @@ export const getPackLifecycleSummary = ({ exports = [], runtimePacks = [], activ
     return {
       activeLabel: formatPackLabel(activePack),
       rollbackLabel,
-      nextActionLabel: `${formatPackLabel(approvedPendingPack)} 챗봇 적용`,
+      nextActionLabel: `${formatPackLabel(approvedPendingPack)} ➔ Runtime 목록에서 "챗봇에 적용" 클릭`,
       currentStepId: 'repository',
     };
   }
@@ -99,7 +99,7 @@ export const getPackLifecycleSummary = ({ exports = [], runtimePacks = [], activ
     return {
       activeLabel: formatPackLabel(activePack),
       rollbackLabel,
-      nextActionLabel: `${formatPackLabel(importedPendingPack)} 운영 승인`,
+      nextActionLabel: `${formatPackLabel(importedPendingPack)} ➔ Runtime 목록에서 "운영 승인" 진행`,
       currentStepId: 'repository',
     };
   }
@@ -108,7 +108,7 @@ export const getPackLifecycleSummary = ({ exports = [], runtimePacks = [], activ
     return {
       activeLabel: formatPackLabel(activePack),
       rollbackLabel,
-      nextActionLabel: `${formatPackLabel(activePack)} Runtime 테스트`,
+      nextActionLabel: `✅ 배포 완료 ➔ 다음 탭에서 "Runtime 테스트" 진행`,
       currentStepId: 'runtime-test',
     };
   }
@@ -117,7 +117,7 @@ export const getPackLifecycleSummary = ({ exports = [], runtimePacks = [], activ
     return {
       activeLabel: formatPackLabel(activePack),
       rollbackLabel,
-      nextActionLabel: `${latestExport.pack_id} v${latestExport.pack_version} Runtime Store 반입`,
+      nextActionLabel: `${latestExport.pack_id} v${latestExport.pack_version} ➔ 산출물 내역에서 "Store 반입" 진행`,
       currentStepId: 'repository',
     };
   }

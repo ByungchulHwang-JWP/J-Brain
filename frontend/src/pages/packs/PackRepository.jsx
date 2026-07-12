@@ -345,23 +345,12 @@ const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
 
       {message && <div className="table-area" style={{ padding: '12px 18px', marginBottom: '18px', color: 'var(--color-text-sub)' }}>{message}</div>}
 
-      <RuntimePackStoreTable
-        packs={paginatedRuntime}
-        activePack={activePack}
-        operationKey={operationKey}
-        onApprove={(pack) => openOperationConfirm('approve', { pack })}
-        onReject={(pack) => openOperationConfirm('reject', { pack })}
-        onActivate={(pack) => openOperationConfirm('activate', { pack })}
-        paginationProps={!loading ? {
-          currentPage: runtimePage,
-          totalPages: runtimePages,
-          totalItems: runtimeTotal,
-          pageSize: runtimePageSize,
-          onPageChange: setRuntimePage,
-          onPageSizeChange: setRuntimePageSize,
-        } : null}
-      />
-
+      <div style={{ marginTop: '24px', marginBottom: '8px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-primary)' }}>1. 산출물 반입 대기 (Pack Export)</h3>
+        <p style={{ fontSize: '13px', color: 'var(--color-text-sub)', marginTop: '4px' }}>
+          아래 목록에서 챗봇에 적용할 최신 산출물을 찾아 <strong>[Store 반입]</strong> 버튼을 클릭하세요.
+        </p>
+      </div>
       <PackHistoryPanels
         exports={paginatedExports}
         auditLogs={paginatedAudit}
@@ -385,6 +374,29 @@ const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
           pageSize: auditPageSize,
           onPageChange: setAuditPage,
           onPageSizeChange: setAuditPageSize,
+        } : null}
+      />
+
+      <div style={{ marginTop: '32px', marginBottom: '8px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-primary)' }}>2. 운영 승인 및 챗봇 배포 (Runtime Store)</h3>
+        <p style={{ fontSize: '13px', color: 'var(--color-text-sub)', marginTop: '4px' }}>
+          위에서 반입된 패키지를 확인하고 <strong>[운영 승인]</strong> 후 <strong>[챗봇에 적용]</strong> 하세요.
+        </p>
+      </div>
+      <RuntimePackStoreTable
+        packs={paginatedRuntime}
+        activePack={activePack}
+        operationKey={operationKey}
+        onApprove={(pack) => openOperationConfirm('approve', { pack })}
+        onReject={(pack) => openOperationConfirm('reject', { pack })}
+        onActivate={(pack) => openOperationConfirm('activate', { pack })}
+        paginationProps={!loading ? {
+          currentPage: runtimePage,
+          totalPages: runtimePages,
+          totalItems: runtimeTotal,
+          pageSize: runtimePageSize,
+          onPageChange: setRuntimePage,
+          onPageSizeChange: setRuntimePageSize,
         } : null}
       />
 
