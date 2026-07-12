@@ -9,7 +9,7 @@ import {
   archiveValidationQuestion,
   createValidationQuestion,
   listPackValidationResults,
-  listRuntimePacks,
+  listPackExports,
   listValidationQuestions,
   runPackValidation,
   updateValidationQuestion,
@@ -62,12 +62,12 @@ const PackValidation = ({ embedded = false }) => {
   const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
   const projectId = routeProjectId || selectedProjectId;
   const [questions, setQuestions] = useState([]);
-  const [runtimePacks, setRuntimePacks] = useState([]);
+  const [packExports, setPackExports] = useState([]);
   const [results, setResults] = useState([]);
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
   const [questionForm, setQuestionForm] = useState(emptyQuestion);
   const [targetPackKey, setTargetPackKey] = useState('');
-  const [targetType, setTargetType] = useState('runtime_pack');
+  const [targetType, setTargetType] = useState('export');
   const [latestResult, setLatestResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
@@ -97,14 +97,14 @@ const PackValidation = ({ embedded = false }) => {
     setLoading(true);
     setMessage('');
     try {
-      const [questionData, runtimeData, resultData] = await Promise.all([
+      const [questionData, exportData, resultData] = await Promise.all([
         listValidationQuestions(projectId),
-        listRuntimePacks(projectId),
+        listPackExports(projectId),
         listPackValidationResults(projectId),
       ]);
-      const packItems = runtimeData.items || [];
+      const packItems = exportData.items || [];
       setQuestions(questionData.items || []);
-      setRuntimePacks(packItems);
+      setPackExports(packItems);
       setResults(resultData.items || []);
       if (!targetPackKey && packItems.length > 0) {
         setTargetPackKey(`${packItems[0].pack_id}::${packItems[0].pack_version}`);
@@ -123,11 +123,11 @@ const PackValidation = ({ embedded = false }) => {
     const latest = results[0];
     return [
       ['검증 질문', `${questions.length}건`],
-      ['Runtime Pack', `${runtimePacks.length}건`],
+      ['Pack Export', `${packExports.length}건`],
       ['최근 검증', latest ? latest.status : '없음'],
       ['승인 전 기준', 'Validation Pass'],
     ];
-  }, [questions.length, results, runtimePacks.length]);
+  }, [questions.length, results, packExports.length]);
 
   const updateQuestionForm = (patch) => setQuestionForm((prev) => ({ ...prev, ...patch }));
 
@@ -324,16 +324,16 @@ const PackValidation = ({ embedded = false }) => {
           <label>
             <span className="modal-label">대상 유형</span>
             <select value={targetType} onChange={(e) => setTargetType(e.target.value)} style={fieldStyle}>
-              <option value="runtime_pack">Runtime Pack</option>
+              <option value="export">Pack Export</option>
               <option value="draft">DB Draft</option>
             </select>
           </label>
-          {targetType === 'runtime_pack' ? (
+          {targetType === 'export' ? (
             <label>
-              <span className="modal-label">Runtime Pack</span>
+              <span className="modal-label">Pack Export</span>
               <select value={targetPackKey} onChange={(e) => setTargetPackKey(e.target.value)} style={fieldStyle}>
-                {runtimePacks.length === 0 && <option value="">반입된 Runtime Pack 없음</option>}
-                {runtimePacks.map((pack) => (
+                {packExports.length === 0 && <option value="">생성된 Pack Export 없음</option>}
+                {packExports.map((pack) => (
                   <option key={`${pack.pack_id}-${pack.pack_version}`} value={`${pack.pack_id}::${pack.pack_version}`}>
                     {pack.pack_id} v{pack.pack_version} / {pack.status}
                   </option>
