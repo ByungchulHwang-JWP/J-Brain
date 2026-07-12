@@ -87,12 +87,9 @@ const PackLifecycleConsole = () => {
   };
 
   const handleBuildComplete = (result) => {
-    // 빌드가 완료되면 변경사항 플래그를 초기화하고 자동으로 다음 스텝(Validation)으로 이동
+    // 빌드가 완료되면 미반영 플래그를 초기화합니다. 
+    // 결과(JSON 등)를 확인할 수 있도록 바로 화면을 전환하지 않고 사용자가 직접 이동하게 합니다.
     setHasUnexportedChanges(false);
-    const next = new URLSearchParams(searchParams);
-    next.set('tab', 'validation');
-    next.delete('step');
-    setSearchParams(next, { replace: true });
   };
 
   return (
@@ -136,6 +133,24 @@ const PackLifecycleConsole = () => {
         <>
           <PackLifecycleSummary summary={tabSummary.build} validationLabel="Build 단계" />
           <PackBuilder embedded onBuildComplete={handleBuildComplete} />
+          
+          {!hasUnexportedChanges && (
+            <div style={{ textAlign: 'right', marginTop: '20px', paddingBottom: '20px' }}>
+              <button
+                className="btn-primary"
+                style={{ fontSize: '15px', padding: '12px 24px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set('tab', 'validation');
+                  next.delete('step');
+                  setSearchParams(next, { replace: true });
+                }}
+              >
+                다음 단계 (Validation) 진행하기
+                <span style={{ fontSize: '18px' }}>➔</span>
+              </button>
+            </div>
+          )}
         </>
       )}
       {activeTab === 'validation' && (
