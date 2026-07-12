@@ -13,55 +13,48 @@ const RealtimeMonitoring = ({ embedded = false }) => {
 
   // 이 프로젝트에 적용된 상태값 fetch
   useEffect(() => {
-    // 임시 모킹 데이터 - 백엔드 API 연동 시 fetch 호출로 교체
-    // 백엔드 엔드포인트: `/api/v1/projects/${projectId}/operations/realtime`
-    const mockData = {
-      kpi: {
-        active_pack: 'v1.2.4',
-        requests_last_hour: 450,
-        intent_match_rate: 82.5,
-        fallback_rate: 17.5,
-        avg_response_time: 420,
-        error_count: 0
-      },
-      recent_logs: [
-        {
-          id: 1,
-          session_id: 'sess-1',
-          question: '휴가 신청은 어떻게 하나요?',
-          matched_intent_id: 'INTENT_HR_VACATION',
-          action_id: 'ACT_VACATION_INFO',
-          action_type: 'SEARCH_DOC',
-          confidence: 0.92,
-          confidence_label: 'high',
-          fallback_yn: false,
-          response_status: 'success',
-          response_time_ms: 350,
-          active_pack_version: 'v1.2.4',
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 2,
-          session_id: 'sess-2',
-          question: '노트북 신청 서류는?',
-          matched_intent_id: null,
-          action_id: null,
-          action_type: null,
-          confidence: null,
-          confidence_label: null,
-          fallback_yn: true,
-          response_status: 'fallback',
-          response_time_ms: 200,
-          active_pack_version: 'v1.2.4',
-          created_at: new Date(Date.now() - 5000).toISOString()
+    const fetchRealtimeData = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
         }
-      ]
+        
+        const response = await fetch(`/api/v1/projects/${projectId}/operations/realtime`, {
+          headers
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch realtime operations data');
+        }
+        
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching realtime data:', error);
+        // 오류 발생 시 기본값으로 세팅 (또는 에러 UI 처리)
+        setData({
+          kpi: {
+            active_pack: '-',
+            requests_last_hour: 0,
+            intent_match_rate: 0,
+            fallback_rate: 0,
+            avg_response_time: 0,
+            error_count: 0
+          },
+          recent_logs: []
+        });
+      } finally {
+        setLoading(false);
+      }
     };
+
+    fetchRealtimeData();
     
-    setTimeout(() => {
-      setData(mockData);
-      setLoading(false);
-    }, 500);
+    // 선택적: 주기적으로 실시간 데이터를 폴링(polling)하려면 setInterval을 사용할 수 있습니다.
+    const intervalId = setInterval(fetchRealtimeData, 60000); // 1분 단위 갱신
+    return () => clearInterval(intervalId);
   }, [projectId]);
 
   if (loading || !data) {
