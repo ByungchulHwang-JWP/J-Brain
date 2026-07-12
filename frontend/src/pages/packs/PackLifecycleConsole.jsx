@@ -208,7 +208,7 @@ const PackLifecycleConsole = () => {
       {activeTab === 'validation' && (
         <>
           <PackLifecycleSummary summary={validationSummary} validationLabel={validationSummary.validationLabel} />
-          <PackValidation embedded />
+          <PackValidation embedded onValidationComplete={fetchPackStatus} />
 
           {latestValidationPassed && (
             <div style={{ textAlign: 'right', marginTop: '20px', paddingBottom: '20px' }}>

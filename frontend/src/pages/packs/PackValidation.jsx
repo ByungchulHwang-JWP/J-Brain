@@ -56,7 +56,7 @@ const textareaStyle = {
   resize: 'vertical',
 };
 
-const PackValidation = ({ embedded = false }) => {
+const PackValidation = ({ embedded = false, onValidationComplete }) => {
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
@@ -257,6 +257,9 @@ const PackValidation = ({ embedded = false }) => {
         setMessage(`Pack 검증 완료: ${result.status} (${result.summary?.passed_count ?? 0}/${totalQuestions})${seededMessage}`);
       }
       await fetchAll();
+      if (onValidationComplete) {
+        onValidationComplete(result);
+      }
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.detail || 'Pack 검증 실패');
