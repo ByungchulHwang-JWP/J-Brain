@@ -58,7 +58,7 @@ const PackValidationStage = ({ projectId, stage, summary }) => {
     const details = latestResult?.results || latestResult?.validation_result?.results || [];
     return Array.isArray(details) ? details.filter((item) => item.passed === false).slice(0, 5) : [];
   }, [latestResult]);
-  const packValidationPath = `/admin/packs/validation?projectId=${encodeURIComponent(projectId)}`;
+  const packValidationPath = `/admin/packs?projectId=${encodeURIComponent(projectId)}&tab=validation`;
 
   const workCards = [
     {
@@ -117,7 +117,7 @@ const PackValidationStage = ({ projectId, stage, summary }) => {
         { title: 'Fail 질문 보강', description: '실패 질문은 Intent Example 또는 Action 연결을 보완합니다.' },
         { title: 'Repository 이력 확인', description: '승인 전 Pack 상태와 검증 이력을 함께 확인합니다.' },
       ],
-      secondaryAction: { label: 'Pack Repository 열기', onClick: () => navigate('/admin/packs/repository') },
+      secondaryAction: { label: 'Release & Deploy 열기', onClick: () => navigate('/admin/packs?tab=repository') },
     },
   };
 

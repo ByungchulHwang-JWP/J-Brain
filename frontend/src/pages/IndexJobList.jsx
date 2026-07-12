@@ -5,7 +5,7 @@ import axios from 'axios';
 import useProjects from '../hooks/useProjects';
 import { Skeleton } from '../components/common/Loader';
 
-const IndexJobList = () => {
+const IndexJobList = ({ embedded = false }) => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,13 +41,15 @@ const IndexJobList = () => {
   };
 
   return (
-    <div className="inner">
-      <div className="breadcrumb">
-        <span>지식 관리</span> {'>'} <span>벡터화 작업 현황</span>
-      </div>
-      
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 700 }}>벡터화 작업(IndexJob) 현황</h2>
+    <div className={embedded ? '' : 'inner'}>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>지식 관리</span> {'>'} <span>벡터화 작업 현황</span>
+        </div>
+      )}
+
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: embedded ? undefined : '12px 0 20px', margin: '0' }}>
+        {embedded ? <h3>벡터화 작업 현황</h3> : <h2 style={{ fontWeight: 700 }}>벡터화 작업(IndexJob) 현황</h2>}
         <button className="btn-primary" onClick={() => navigate('/admin/jobs/new')}>+ 수동 작업 실행</button>
       </div>
 

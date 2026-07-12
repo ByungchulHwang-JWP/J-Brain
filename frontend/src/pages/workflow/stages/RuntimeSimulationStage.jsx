@@ -49,7 +49,7 @@ const RuntimeSimulationStage = ({ projectId, stage, summary }) => {
 
   const openRuntimeQA = () => {
     localStorage.setItem('jbrain-workflow-project-id', projectId);
-    navigate('/admin/runtime/qa', { state: { projectId } });
+    navigate('/admin/runtime?tab=chat', { state: { projectId } });
   };
 
   const testScenarios = [
@@ -223,7 +223,7 @@ const RuntimeSimulationStage = ({ projectId, stage, summary }) => {
               {loading ? (
                 <tr><td colSpan="5">Runtime Pack 정보를 불러오는 중입니다.</td></tr>
               ) : packRows.length === 0 ? (
-                <tr><td colSpan="5">Import된 Runtime Pack이 없습니다. 기본 파일 Pack으로 QA를 진행할 수 있습니다.</td></tr>
+                <tr><td colSpan="5">반입된 Runtime Pack이 없습니다. 기본 파일 Pack으로 QA를 진행할 수 있습니다.</td></tr>
               ) : packRows.map((pack) => (
                 <tr key={`${pack.id}-${pack.version}`}>
                   <td><div className="name mono">{pack.id}</div></td>
@@ -267,8 +267,8 @@ const RuntimeSimulationStage = ({ projectId, stage, summary }) => {
         </div>
         <div className="workflow-action-buttons">
           <button className="btn-primary" type="button" onClick={openRuntimeQA}>챗봇 대화 테스트</button>
-          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime/intent-match')}>Intent 매칭 테스트</button>
-          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime/widget-preview')}>고객 위젯 미리보기</button>
+          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime?tab=intent-match')}>Intent 매칭 테스트</button>
+          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime?tab=widget-preview')}>고객 위젯 미리보기</button>
         </div>
       </div>
 

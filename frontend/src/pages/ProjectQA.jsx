@@ -68,7 +68,7 @@ const getPackModeLabel = (mode) => {
   return 'Runtime Resolver';
 };
 
-const ProjectQA = () => {
+const ProjectQA = ({ embedded = false }) => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -353,19 +353,19 @@ const ProjectQA = () => {
     : 0;
 
   return (
-    <div className="inner runtime-qa-page">
+    <div className={embedded ? 'runtime-qa-page' : 'inner runtime-qa-page'}>
       {/* 헤더 영역 */}
       <div className="runtime-qa-header">
         <div>
           <div className="runtime-qa-eyebrow">Runtime 테스트</div>
-          <h2>Intent Runtime 대화 테스트</h2>
+          {embedded ? <h3>챗봇 대화 테스트</h3> : <h2>Runtime 대화 테스트</h2>}
           <p>선택한 Pack 기준으로 Intent 매칭, Action 실행, FAQ/Source 근거를 함께 검증합니다.</p>
         </div>
         <div className="runtime-qa-controls">
           <button
             className="btn-secondary"
             type="button"
-            onClick={() => navigate('/admin/packs/repository')}
+            onClick={() => navigate('/admin/packs?tab=repository')}
           >
             <Archive size={16} />
             Pack Repository

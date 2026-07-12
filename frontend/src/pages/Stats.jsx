@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Spinner } from '../components/common/Loader';
+import { useProjectContext } from '../context/ProjectContext';
 
-const Stats = () => {
+const Stats = ({ embedded = false, mode = 'system' }) => {
+  const { selectedProjectId } = useProjectContext();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,13 +26,44 @@ const Stats = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <div className="inner" style={{ padding: '60px', textAlign: 'center' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16, color: 'var(--color-text-muted)'}}>통계 데이터를 불러오는 중입니다...</p></div>;
-  if (!stats) return <div className="inner" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>데이터를 불러올 수 없습니다.</div>;
+  const wrapperClassName = embedded ? '' : 'inner';
+  const title = mode === 'operations' ? '운영 사용 통계' : '사용 통계 (Statistics)';
+  const eyebrow = mode === 'operations' ? '운영 인사이트' : '대시보드';
+  const description = mode === 'operations'
+    ? '선택 프로젝트의 Runtime 사용량, 요청 추이, 도메인별 사용 비중을 운영 관점에서 확인합니다.'
+    : '';
 
-  const maxVal = Math.max(...stats.weekly_trend);
+  const visibleStats = mode === 'operations' && selectedProjectId && stats
+    ? {
+        ...stats,
+        domain_share: (stats.domain_share || []).filter((item) => item.name === selectedProjectId),
+        details: (stats.details || []).filter((item) => item.domain === selectedProjectId),
+      }
+    : stats;
+
+  if (visibleStats && mode === 'operations' && selectedProjectId) {
+    if (!visibleStats.domain_share.length) {
+      visibleStats.domain_share = [{ name: selectedProjectId, value: 100, color: '#888888' }];
+    }
+    if (!visibleStats.details.length) {
+      visibleStats.details = [{
+        domain: selectedProjectId,
+        total_req: '0건',
+        avg_time: '-',
+        token_in: 0,
+        token_out: 0,
+        cost: '$0.0',
+      }];
+    }
+  }
+
+  if (loading) return <div className={wrapperClassName} style={{ padding: embedded ? '40px 0' : '60px', textAlign: 'center' }}><Spinner size={32} color="var(--color-primary)" /><p style={{marginTop: 16, color: 'var(--color-text-muted)'}}>통계 데이터를 불러오는 중입니다...</p></div>;
+  if (!visibleStats) return <div className={wrapperClassName} style={{ padding: embedded ? '24px 0' : '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>데이터를 불러올 수 없습니다.</div>;
+
+  const maxVal = Math.max(...visibleStats.weekly_trend, 1);
 
   let currentAngle = 0;
-  const gradientParts = stats.domain_share.map(d => {
+  const gradientParts = visibleStats.domain_share.map(d => {
     const angle = (d.value / 100) * 360;
     const part = `${d.color} ${currentAngle}deg ${currentAngle + angle}deg`;
     currentAngle += angle;
@@ -38,20 +71,33 @@ const Stats = () => {
   }).join(', ');
 
   return (
-    <div className="inner" style={{ paddingBottom: '60px' }}>
-      <div className="breadcrumb">
-        <span>대시보드</span> {'>'} <span>사용 통계</span>
-      </div>
-      <div className="page-header" style={{ padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 700 }}>사용 통계 (Statistics)</h2>
-      </div>
+    <div className={wrapperClassName} style={{ paddingBottom: embedded ? 0 : '60px' }}>
+      {!embedded && (
+        <>
+          <div className="breadcrumb">
+            <span>{eyebrow}</span> {'>'} <span>사용 통계</span>
+          </div>
+          <div className="page-header" style={{ padding: '12px 0 20px', margin: '0' }}>
+            <h2 style={{ fontWeight: 700 }}>{title}</h2>
+            {description && <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>{description}</p>}
+          </div>
+        </>
+      )}
+      {embedded && (
+        <div className="console-embedded-toolbar">
+          <div>
+            <h3>운영 지표</h3>
+            <p>{description || '시스템 사용 통계를 확인합니다.'}</p>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: '20px', marginBottom: '24px' }}>
         {/* 주간 트렌드 바 차트 */}
         <div className="panel" style={{ flex: 1 }}>
           <h3 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 600, color: 'var(--color-text-main)' }}>주간 검색 요청 트렌드</h3>
           <div style={{ display: 'flex', alignItems: 'flex-end', height: '200px', gap: '12px', borderBottom: '1px solid var(--color-border)', paddingBottom: '8px' }}>
-            {stats.weekly_trend.map((val, idx) => (
+            {visibleStats.weekly_trend.map((val, idx) => (
               <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
                 <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{val}</span>
                 <div style={{ width: '100%', background: 'var(--color-primary)', height: `${(val/maxVal)*100}%`, borderRadius: '4px 4px 0 0', opacity: 0.8 }}></div>
@@ -69,7 +115,7 @@ const Stats = () => {
               <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--color-bg-surface)' }}></div>
             </div>
             <div style={{ marginLeft: '32px', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: 'var(--color-text-sub)' }}>
-              {stats.domain_share.map((d, i) => (
+              {visibleStats.domain_share.map((d, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ display: 'inline-block', width: '12px', height: '12px', background: d.color, borderRadius: '3px', flexShrink: 0 }}></span>
                   {d.name} ({d.value}%)
@@ -97,7 +143,7 @@ const Stats = () => {
             </tr>
           </thead>
           <tbody>
-            {stats.details.map((row, i) => (
+            {visibleStats.details.map((row, i) => (
               <tr key={i}>
                 <td style={{ fontWeight: 600, color: 'var(--color-text-main)' }}>{row.domain}</td>
                 <td style={{ color: 'var(--color-text-sub)' }}>{row.total_req}</td>

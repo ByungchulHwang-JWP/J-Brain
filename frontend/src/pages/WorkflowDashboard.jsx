@@ -131,8 +131,8 @@ const WorkflowDashboard = () => {
         status: hasPackDraft ? 'done' : hasIntents ? 'attention' : 'pending',
         metric: hasPackDraft ? `Draft Intent ${summary.packCounts.intents || 0}건` : 'Pack Draft 대기',
         body: 'DB에 정리된 Intent/Entity/Action/Source Scope를 Pack 초안으로 만들고 검증합니다.',
-        primary: { label: 'Pack Builder', path: '/admin/packs/builder' },
-        secondary: { label: 'Pack 검증', path: '/admin/packs/validation' },
+        primary: { label: 'Pack Builder', path: '/admin/packs?tab=build' },
+        secondary: { label: 'Pack 검증', path: '/admin/packs?tab=validation' },
       },
       {
         no: '06',
@@ -140,8 +140,8 @@ const WorkflowDashboard = () => {
         status: hasPackDraft ? 'attention' : 'pending',
         metric: '파일 Pack 기준 검증',
         body: '검증된 Pack으로 챗봇 Runtime, Intent 매칭, Action 실행 결과를 확인합니다.',
-        primary: { label: '챗봇 대화 테스트', path: '/admin/runtime/qa' },
-        secondary: { label: '운영 모니터링', path: '/admin/operations/realtime' },
+        primary: { label: '챗봇 대화 테스트', path: '/admin/runtime?tab=chat' },
+        secondary: { label: '운영 모니터링', path: '/admin/operations?tab=realtime' },
       },
     ];
   }, [projectId, projects.length, summary]);

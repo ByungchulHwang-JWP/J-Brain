@@ -57,7 +57,7 @@ const generateActionId = (projectId, actionType = 'NAVIGATE') => {
   return `ACT-${normalizedProjectId}-${actionType}-${Date.now().toString().slice(-6)}`;
 };
 
-const ActionList = () => {
+const ActionList = ({ embedded = false }) => {
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const projectId = selectedProjectId;
   const [items, setItems] = useState([]);
@@ -245,17 +245,21 @@ const ActionList = () => {
   const showSqlFields = form.action_type === 'QUERY';
 
   return (
-    <div className="inner">
-      <div className="breadcrumb">
-        <span>Intent Factory</span> {'>'} <span>Action 관리</span>
-      </div>
+    <div className={embedded ? '' : 'inner'}>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>Intent Factory</span> {'>'} <span>Action 관리</span>
+        </div>
+      )}
 
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: '12px 0 20px', margin: 0 }}>
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: embedded ? undefined : '12px 0 20px', margin: 0 }}>
         <div>
-          <h2 style={{ fontWeight: 700 }}>Action 관리</h2>
-          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
-            Intent가 실행할 화면 이동, 문서 검색, 정형 조회, 안내 Action을 등록하고 Pack Export에 반영합니다.
-          </p>
+          {embedded ? <h3>Action 관리</h3> : <h2 style={{ fontWeight: 700 }}>Action 관리</h2>}
+          {!embedded && (
+            <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
+              Intent가 실행할 화면 이동, 문서 검색, 정형 조회, 안내 Action을 등록하고 Pack Export에 반영합니다.
+            </p>
+          )}
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>

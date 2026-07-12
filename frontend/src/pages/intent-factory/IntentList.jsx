@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProjectContext } from '../../context/ProjectContext';
 import { archiveIntent, importIntentPack, listIntents } from '../../api/intentFactory';
 
-const IntentList = () => {
+const IntentList = ({ embedded = false }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
@@ -121,16 +121,20 @@ const IntentList = () => {
   };
 
   return (
-    <div className="inner">
-      <div className="breadcrumb">
-        <span>Intent Factory</span> {'>'} <span>Intent 관리</span>
-      </div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: 0 }}>
+    <div className={embedded ? '' : 'inner'}>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>Intent Factory</span> {'>'} <span>Intent 관리</span>
+        </div>
+      )}
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: embedded ? undefined : '12px 0 20px', margin: 0 }}>
         <div>
-          <h2 style={{ fontWeight: 700 }}>Intent 관리</h2>
-          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
-            프로젝트별 Intent를 DB로 관리합니다. Pack Import는 기존 파일 Pack을 DB로 가져오는 기능이며, Source 기반 자동 생성은 AI Copilot 단계에서 별도로 제공합니다.
-          </p>
+          {embedded ? <h3>Intent 관리</h3> : <h2 style={{ fontWeight: 700 }}>Intent 관리</h2>}
+          {!embedded && (
+            <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
+              프로젝트별 Intent를 DB로 관리합니다. Pack Import는 기존 파일 Pack을 DB로 가져오는 기능이며, Source 기반 자동 생성은 AI Copilot 단계에서 별도로 제공합니다.
+            </p>
+          )}
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}>

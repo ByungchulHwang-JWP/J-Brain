@@ -5,7 +5,7 @@ import { listFaqCandidates } from '../../api/intentFactory';
 
 const getAccessToken = () => localStorage.getItem('ai_access_token');
 
-const ImprovementRequests = () => {
+const ImprovementRequests = ({ embedded = false }) => {
   const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState('');
   const [items, setItems] = useState([]);
@@ -52,11 +52,11 @@ const ImprovementRequests = () => {
   }), [items]);
 
   return (
-    <div className="inner operations-page">
+    <div className={embedded ? 'operations-page' : 'inner operations-page'}>
       <div className="operations-header">
         <div>
           <div className="operations-eyebrow">운영 및 개선</div>
-          <h2>개선 요청 관리</h2>
+          {embedded ? <h3>개선 요청</h3> : <h2>개선 요청 관리</h2>}
           <p>미응답 분석에서 전환된 FAQ 후보와 Pack 개선 요청을 관리합니다.</p>
         </div>
         <div className="operations-controls">

@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import AdminLayout from './components/Layout/AdminLayout';
+import DeprecatedRouteRedirect from './components/common/DeprecatedRouteRedirect';
 import { ProjectProvider } from './context/ProjectContext';
 
 // 기존 페이지 연동
@@ -29,25 +30,13 @@ import LogList from './pages/LogList';
 import UserList from './pages/UserList';
 import PermissionMap from './pages/PermissionMap';
 import ShellPage from './components/common/ShellPage';
-import IntentList from './pages/intent-factory/IntentList';
 import IntentDetail from './pages/intent-factory/IntentDetail';
-import EntityList from './pages/intent-factory/EntityList';
-import FaqList from './pages/intent-factory/FaqList';
-import ActionList from './pages/intent-factory/ActionList';
-import LlmAssist from './pages/intent-factory/LlmAssist';
 import CandidateReview from './pages/intent-factory/CandidateReview';
-import PackBuilder from './pages/packs/PackBuilder';
-import PackValidation from './pages/packs/PackValidation';
-import PackRepository from './pages/packs/PackRepository';
-import PackVersions from './pages/packs/PackVersions';
-import PackDeployment from './pages/packs/PackDeployment';
-import ActionTest from './pages/runtime/ActionTest';
-import IntentMatchTest from './pages/runtime/IntentMatchTest';
-import WidgetPreview from './pages/runtime/WidgetPreview';
-import RealtimeMonitoring from './pages/operations/RealtimeMonitoring';
-import UnansweredAnalysis from './pages/operations/UnansweredAnalysis';
-import ImprovementRequests from './pages/operations/ImprovementRequests';
-import PackImprovementHistory from './pages/operations/PackImprovementHistory';
+import IntentStudio from './pages/intent-factory/IntentStudio';
+import PackLifecycleConsole from './pages/packs/PackLifecycleConsole';
+import RuntimeSimulationConsole from './pages/runtime/RuntimeSimulationConsole';
+import OperationsIntelligenceConsole from './pages/operations/OperationsIntelligenceConsole';
+import KnowledgeCenter from './pages/knowledge/KnowledgeCenter';
 
 // 향후 개발할 빈 페이지들 렌더링용 임시 컴포넌트
 const Placeholder = ({ title }) => (
@@ -94,10 +83,11 @@ const App = () => {
         <Route path="sources/new" element={<SourceNew />} />
         <Route path="sources/:id" element={<SourceDetail />} />
         <Route path="sources/:id/preview" element={<SourcePreview />} />
-        <Route path="knowledge/sources" element={<SourceList />} />
+        <Route path="knowledge" element={<KnowledgeCenter />} />
+        <Route path="knowledge/sources" element={<DeprecatedRouteRedirect to="/admin/knowledge?tab=sources" />} />
         <Route path="knowledge/sources/new" element={<SourceNew />} />
-        <Route path="knowledge/jobs" element={<IndexJobList />} />
-        <Route path="knowledge/search-test" element={<RetrievalTest />} />
+        <Route path="knowledge/jobs" element={<DeprecatedRouteRedirect to="/admin/knowledge?tab=jobs" />} />
+        <Route path="knowledge/search-test" element={<DeprecatedRouteRedirect to="/admin/knowledge?tab=search-test" />} />
         <Route path="knowledge/preview" element={<ShellPage title="문서 Preview" eyebrow="지식 자료 관리" description="Source 상세 화면에서 문서 Chunk, Entity, Relation, Evidence Preview를 확인합니다." />} />
         
         {/* 인덱싱 작업 관리 */}
@@ -113,35 +103,39 @@ const App = () => {
         <Route path="logs" element={<LogList />} />
 
         {/* Intent Factory */}
-        <Route path="intent-factory/intents" element={<IntentList />} />
+        <Route path="intent-factory" element={<IntentStudio />} />
+        <Route path="intent-factory/intents" element={<DeprecatedRouteRedirect to="/admin/intent-factory?tab=intents" />} />
         <Route path="intent-factory/intents/new" element={<IntentDetail mode="new" />} />
         <Route path="intent-factory/intents/:intentId" element={<IntentDetail mode="edit" />} />
-        <Route path="intent-factory/entities" element={<EntityList />} />
-        <Route path="intent-factory/synonyms" element={<EntityList mode="synonyms" />} />
-        <Route path="intent-factory/faqs" element={<FaqList />} />
-        <Route path="intent-factory/actions" element={<ActionList />} />
-        <Route path="intent-factory/llm-assist" element={<LlmAssist />} />
+        <Route path="intent-factory/entities" element={<DeprecatedRouteRedirect to="/admin/intent-factory?tab=entities" />} />
+        <Route path="intent-factory/synonyms" element={<DeprecatedRouteRedirect to="/admin/intent-factory?tab=entities" />} />
+        <Route path="intent-factory/faqs" element={<DeprecatedRouteRedirect to="/admin/intent-factory?tab=faqs" />} />
+        <Route path="intent-factory/actions" element={<DeprecatedRouteRedirect to="/admin/intent-factory?tab=actions" />} />
+        <Route path="intent-factory/llm-assist" element={<DeprecatedRouteRedirect to="/admin/intent-factory?tab=llm-assist" />} />
         <Route path="intent-factory/candidates/:projectId" element={<CandidateReview />} />
 
         {/* Pack 제작/배포 */}
-        <Route path="packs/builder" element={<PackBuilder />} />
-        <Route path="packs/validation" element={<PackValidation />} />
-        <Route path="packs/repository" element={<PackRepository />} />
-        <Route path="packs/versions" element={<PackVersions />} />
-        <Route path="packs/deployment" element={<PackDeployment />} />
+        <Route path="packs" element={<PackLifecycleConsole />} />
+        <Route path="packs/builder" element={<DeprecatedRouteRedirect to="/admin/packs?tab=build" />} />
+        <Route path="packs/validation" element={<DeprecatedRouteRedirect to="/admin/packs?tab=validation" />} />
+        <Route path="packs/repository" element={<DeprecatedRouteRedirect to="/admin/packs?tab=repository" />} />
+        <Route path="packs/versions" element={<DeprecatedRouteRedirect to="/admin/packs?tab=repository" />} />
+        <Route path="packs/deployment" element={<DeprecatedRouteRedirect to="/admin/packs?tab=repository" />} />
 
         {/* Runtime 테스트 */}
-        <Route path="runtime/qa" element={<ProjectQA />} />
-        <Route path="runtime/intent-match" element={<IntentMatchTest />} />
-        <Route path="runtime/action-test" element={<ActionTest />} />
-        <Route path="runtime/widget-preview" element={<WidgetPreview />} />
+        <Route path="runtime" element={<RuntimeSimulationConsole />} />
+        <Route path="runtime/qa" element={<DeprecatedRouteRedirect to="/admin/runtime?tab=chat" />} />
+        <Route path="runtime/intent-match" element={<DeprecatedRouteRedirect to="/admin/runtime?tab=intent-match" />} />
+        <Route path="runtime/action-test" element={<DeprecatedRouteRedirect to="/admin/runtime?tab=action-route" />} />
+        <Route path="runtime/widget-preview" element={<DeprecatedRouteRedirect to="/admin/runtime?tab=widget-preview" />} />
 
         {/* 운영 및 개선 */}
-        <Route path="operations/realtime" element={<RealtimeMonitoring />} />
-        <Route path="operations/stats" element={<Stats />} />
-        <Route path="operations/unanswered" element={<UnansweredAnalysis />} />
-        <Route path="operations/improvement-requests" element={<ImprovementRequests />} />
-        <Route path="operations/pack-history" element={<PackImprovementHistory />} />
+        <Route path="operations" element={<OperationsIntelligenceConsole />} />
+        <Route path="operations/realtime" element={<DeprecatedRouteRedirect to="/admin/operations?tab=realtime" />} />
+        <Route path="operations/stats" element={<DeprecatedRouteRedirect to="/admin/operations?tab=metrics" />} />
+        <Route path="operations/unanswered" element={<DeprecatedRouteRedirect to="/admin/operations?tab=unanswered" />} />
+        <Route path="operations/improvement-requests" element={<DeprecatedRouteRedirect to="/admin/operations?tab=improvements" />} />
+        <Route path="operations/pack-history" element={<DeprecatedRouteRedirect to="/admin/operations?tab=pack-history" />} />
         
         {/* 권한 관리 */}
         <Route path="users" element={<UserList />} />

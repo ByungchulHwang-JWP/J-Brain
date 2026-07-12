@@ -35,7 +35,7 @@ const statusTone = {
   rejected: 'red',
 };
 
-const LlmAssist = () => {
+const LlmAssist = ({ embedded = false }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
@@ -255,18 +255,22 @@ const LlmAssist = () => {
   };
 
   return (
-    <div className="inner">
+    <div className={embedded ? '' : 'inner'}>
       {running && <OverlayLoader title="LLM 초안 생성 중..." description="문서를 분석하여 Intent와 질문을 생성하고 있습니다." />}
-      <div className="breadcrumb">
-        <span>Intent Factory</span> {'>'} <span>LLM 지원 도구</span>
-      </div>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>Intent Factory</span> {'>'} <span>LLM 지원 도구</span>
+        </div>
+      )}
 
-      <div className="page-header" style={{ padding: '12px 0 20px', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ padding: embedded ? undefined : '12px 0 20px', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h2 style={{ fontWeight: 600 }}>LLM 지원 도구</h2>
-          <p style={{ margin: '8px 0 0', color: 'var(--color-text-sub)', fontSize: '14px' }}>
-            외부망에서 Intent/Entity/FAQ 후보를 생성하고 전문가 검수로 확정하는 지원 도구입니다.
-          </p>
+          {embedded ? <h3>LLM 지원 도구</h3> : <h2 style={{ fontWeight: 600 }}>LLM 지원 도구</h2>}
+          {!embedded && (
+            <p style={{ margin: '8px 0 0', color: 'var(--color-text-sub)', fontSize: '14px' }}>
+              외부망에서 Intent/Entity/FAQ 후보를 생성하고 전문가 검수로 확정하는 지원 도구입니다.
+            </p>
+          )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '14px', color: 'var(--color-text-sub)' }}>대상 프로젝트:</span>

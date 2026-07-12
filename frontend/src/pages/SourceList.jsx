@@ -6,7 +6,7 @@ import axios from 'axios';
 import useProjects from '../hooks/useProjects';
 import { UploadCloud, X } from 'lucide-react';
 
-const SourceList = () => {
+const SourceList = ({ embedded = false }) => {
   const navigate = useNavigate();
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,13 +112,15 @@ const SourceList = () => {
   };
 
   return (
-    <div className="inner">
-      <div className="breadcrumb">
-        <span>Source 관리</span> {'>'} <span>Source 목록</span>
-      </div>
-      
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 600 }}>Source 목록 (지식 문서)</h2>
+    <div className={embedded ? '' : 'inner'}>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>Source 관리</span> {'>'} <span>Source 목록</span>
+        </div>
+      )}
+
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: embedded ? undefined : '12px 0 20px', margin: '0' }}>
+        {embedded ? <h3>Source 목록</h3> : <h2 style={{ fontWeight: 600 }}>Source 목록 (지식 문서)</h2>}
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="btn-secondary" onClick={handleDelete}>선택 삭제</button>
           <button className="btn-secondary" onClick={() => navigate('/admin/jobs/new')}>선택 항목 인덱싱 실행</button>

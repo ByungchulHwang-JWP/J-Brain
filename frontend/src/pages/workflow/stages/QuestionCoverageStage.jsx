@@ -119,7 +119,7 @@ const QuestionCoverageStage = ({ projectId, stage, summary }) => {
       ],
       secondaryAction: {
         label: '검증 질문 관리',
-        onClick: () => navigate('/admin/packs/validation'),
+        onClick: () => navigate('/admin/packs?tab=validation'),
       },
     },
   };

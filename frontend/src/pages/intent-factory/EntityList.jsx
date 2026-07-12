@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useProjectContext } from '../../context/ProjectContext';
 import { archiveEntity, createEntity, getEntity, listEntities, updateEntity } from '../../api/intentFactory';
 
-const EntityList = ({ mode = 'entities' }) => {
+const EntityList = ({ mode = 'entities', embedded = false }) => {
   const isSynonym = mode === 'synonyms';
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const projectId = selectedProjectId;
@@ -189,14 +189,16 @@ const EntityList = ({ mode = 'entities' }) => {
   };
 
   return (
-    <div className="inner">
-      <div className="breadcrumb">
-        <span>Intent Factory</span> {'>'} <span>{isSynonym ? 'Synonym 관리' : 'Entity 관리'}</span>
-      </div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: 0 }}>
+    <div className={embedded ? '' : 'inner'}>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>Intent Factory</span> {'>'} <span>{isSynonym ? 'Synonym 관리' : 'Entity 관리'}</span>
+        </div>
+      )}
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: embedded ? undefined : '12px 0 20px', margin: 0 }}>
         <div>
-          <h2 style={{ fontWeight: 700 }}>{isSynonym ? 'Synonym 관리' : 'Entity 관리'}</h2>
-          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>Entity 정의와 canonical value, 동의어 사전을 DB에 저장합니다.</p>
+          {embedded ? <h3>{isSynonym ? 'Synonym 관리' : 'Entity 관리'}</h3> : <h2 style={{ fontWeight: 700 }}>{isSynonym ? 'Synonym 관리' : 'Entity 관리'}</h2>}
+          {!embedded && <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>Entity 정의와 canonical value, 동의어 사전을 DB에 저장합니다.</p>}
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>

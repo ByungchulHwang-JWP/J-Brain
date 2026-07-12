@@ -15,7 +15,7 @@ const FORM_INPUT = {
   outline: 'none',
 };
 
-const RetrievalTest = () => {
+const RetrievalTest = ({ embedded = false }) => {
   const [query, setQuery] = useState('');
   const { projects } = useProjects();
   const [domain, setDomain] = useState('');
@@ -153,13 +153,22 @@ const RetrievalTest = () => {
   });
 
   return (
-    <div className="inner" style={{ paddingBottom: '60px' }}>
-      <div className="breadcrumb">
-        <span>테스트/프롬프트</span> {'>'} <span>챗봇 테스트</span>
-      </div>
-      <div className="page-header" style={{ padding: '12px 0 20px', margin: '0' }}>
-        <h2 style={{ fontWeight: 700 }}>GraphRAG 검색 테스트</h2>
-      </div>
+    <div className={embedded ? '' : 'inner'} style={{ paddingBottom: '60px' }}>
+      {!embedded && (
+        <>
+          <div className="breadcrumb">
+            <span>테스트/프롬프트</span> {'>'} <span>챗봇 테스트</span>
+          </div>
+          <div className="page-header" style={{ padding: '12px 0 20px', margin: '0' }}>
+            <h2 style={{ fontWeight: 700 }}>GraphRAG 검색 테스트</h2>
+          </div>
+        </>
+      )}
+      {embedded && (
+        <div className="console-embedded-toolbar">
+          <h3>GraphRAG 검색 테스트</h3>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: '24px' }}>
         {/* 좌측: 검색 조건 + 이력 */}

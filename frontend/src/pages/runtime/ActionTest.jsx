@@ -66,7 +66,7 @@ const buildActionSummary = (data) => {
   };
 };
 
-const ActionTest = () => {
+const ActionTest = ({ embedded = false }) => {
   const navigate = useNavigate();
   const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
   const [activePack, setActivePack] = useState(null);
@@ -161,11 +161,11 @@ const ActionTest = () => {
   };
 
   return (
-    <div className="inner intent-match-page">
+    <div className={embedded ? 'intent-match-page' : 'inner intent-match-page'}>
       <section className="intent-match-header">
         <div>
           <div className="runtime-qa-eyebrow">Runtime 테스트</div>
-          <h2>Action 실행 테스트</h2>
+          {embedded ? <h3>Action 실행 테스트</h3> : <h2>Action 실행 테스트</h2>}
           <p>
             사용자 질문이 Intent로 매칭된 뒤 Action Router가 어떤 실행 카드로 변환하는지 확인합니다.
           </p>
@@ -175,7 +175,7 @@ const ActionTest = () => {
             <RotateCcw size={16} />
             초기화
           </button>
-          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime/intent-match')}>
+          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime?tab=intent-match')}>
             Intent 매칭 테스트
             <ArrowRight size={16} />
           </button>

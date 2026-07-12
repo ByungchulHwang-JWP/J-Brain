@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useProjectContext } from '../../context/ProjectContext';
 import { createPackExport, getPackDraft, getPackExportDownloadUrl, listPackExports } from '../../api/intentFactory';
 
-const PackBuilder = () => {
+const PackBuilder = ({ embedded = false }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
@@ -98,25 +98,45 @@ const PackBuilder = () => {
   const validation = exportResult?.validation;
 
   return (
-    <div className="inner">
+    <div className={embedded ? '' : 'inner'}>
       {exporting && <OverlayLoader title="Pack 빌드 중..." description="인텐트 및 액션을 패키징하고 있습니다." />}
-      <div className="breadcrumb">
-        <span>Pack 제작/배포</span> {'>'} <span>Pack Builder</span>
-      </div>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: 0 }}>
-        <div>
-          <h2 style={{ fontWeight: 700 }}>Pack Builder</h2>
-          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>DB에 저장된 Intent, Entity, Action 연결, Source Scope로 Pack JSON 초안을 생성합니다.</p>
+      {!embedded && (
+        <>
+          <div className="breadcrumb">
+            <span>Pack 제작/배포</span> {'>'} <span>Pack Builder</span>
+          </div>
+          <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: 0 }}>
+            <div>
+              <h2 style={{ fontWeight: 700 }}>Pack Builder</h2>
+              <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>DB에 저장된 Intent, Entity, Action 연결, Source Scope로 Pack JSON 초안을 생성합니다.</p>
+            </div>
+            <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+                {projects.length === 0 && <option value="">프로젝트 없음</option>}
+                {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
+              </select>
+              <button className="btn-primary" onClick={loadDraft} disabled={loading || !projectId}>{loading ? '생성 중...' : 'Draft 생성'}</button>
+              <button className="btn-secondary" onClick={handleExport} disabled={exporting || !draft || !projectId}>{exporting ? '빌드 중...' : 'Pack 빌드'}</button>
+            </div>
+          </div>
+        </>
+      )}
+      {embedded && (
+        <div className="console-embedded-toolbar">
+          <div>
+            <h3>Build / Export</h3>
+            <p>DB에 저장된 Intent, Entity, Action 연결, Source Scope로 Pack JSON 초안을 생성합니다.</p>
+          </div>
+          <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+              {projects.length === 0 && <option value="">프로젝트 없음</option>}
+              {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
+            </select>
+            <button className="btn-primary" onClick={loadDraft} disabled={loading || !projectId}>{loading ? '생성 중...' : 'Draft 생성'}</button>
+            <button className="btn-secondary" onClick={handleExport} disabled={exporting || !draft || !projectId}>{exporting ? '빌드 중...' : 'Pack 빌드'}</button>
+          </div>
         </div>
-        <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value="">프로젝트 없음</option>}
-            {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
-          </select>
-          <button className="btn-primary" onClick={loadDraft} disabled={loading || !projectId}>{loading ? '생성 중...' : 'Draft 생성'}</button>
-          <button className="btn-secondary" onClick={handleExport} disabled={exporting || !draft || !projectId}>{exporting ? '빌드 중...' : 'Pack 빌드'}</button>
-        </div>
-      </div>
+      )}
 
       <div className="responsive-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px', marginBottom: '18px' }}>
         {[

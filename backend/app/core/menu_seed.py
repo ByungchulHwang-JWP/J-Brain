@@ -41,6 +41,15 @@ CONSOLIDATED_MENU_TARGETS: dict[str, str] = {
     "/admin/operations/unanswered": "/admin/operations?tab=unanswered",
     "/admin/operations/improvement-requests": "/admin/operations?tab=improvements",
     "/admin/operations/pack-history": "/admin/operations?tab=pack-history",
+    "/admin/knowledge/sources": "/admin/knowledge?tab=sources",
+    "/admin/knowledge/jobs": "/admin/knowledge?tab=jobs",
+    "/admin/knowledge/search-test": "/admin/knowledge?tab=search-test",
+    "/admin/intent-factory/intents": "/admin/intent-factory?tab=intents",
+    "/admin/intent-factory/entities": "/admin/intent-factory?tab=entities",
+    "/admin/intent-factory/synonyms": "/admin/intent-factory?tab=entities",
+    "/admin/intent-factory/faqs": "/admin/intent-factory?tab=faqs",
+    "/admin/intent-factory/actions": "/admin/intent-factory?tab=actions",
+    "/admin/intent-factory/llm-assist": "/admin/intent-factory?tab=llm-assist",
 }
 
 
@@ -70,17 +79,11 @@ INTENT_FACTORY_MENU_ITEMS: list[dict[str, Any]] = [
     {"id": 1160, "parent_id": 1000, "menu_name": "6. 배포 및 운영 개선", "url": "/admin/workflow/projects/:projectId/stages/6", "sort_order": 26, "icon_code": None, "scope": "project"},
     {"id": 2010, "parent_id": 2000, "menu_name": "운영 현황", "url": "/admin/dashboard", "sort_order": 41, "icon_code": None, "scope": "system"},
     {"id": 2020, "parent_id": 2000, "menu_name": "프로젝트 관리", "url": "/admin/projects", "sort_order": 42, "icon_code": None, "scope": "system"},
-    {"id": 2030, "parent_id": 2000, "menu_name": "Source 관리", "url": "/admin/knowledge/sources", "sort_order": 43, "icon_code": None, "scope": "project"},
-    {"id": 2040, "parent_id": 2000, "menu_name": "벡터화 작업 현황", "url": "/admin/knowledge/jobs", "sort_order": 44, "icon_code": None, "scope": "project"},
-    {"id": 2050, "parent_id": 2000, "menu_name": "검색 테스트", "url": "/admin/knowledge/search-test", "sort_order": 45, "icon_code": None, "scope": "project"},
-    {"id": 2060, "parent_id": 2000, "menu_name": "Intent 관리", "url": "/admin/intent-factory/intents", "sort_order": 46, "icon_code": None, "scope": "project"},
-    {"id": 2070, "parent_id": 2000, "menu_name": "Entity/Synonym 관리", "url": "/admin/intent-factory/entities", "sort_order": 47, "icon_code": None, "scope": "project"},
-    {"id": 2080, "parent_id": 2000, "menu_name": "FAQ 관리", "url": "/admin/intent-factory/faqs", "sort_order": 48, "icon_code": None, "scope": "project"},
-    {"id": 2090, "parent_id": 2000, "menu_name": "Action 관리", "url": "/admin/intent-factory/actions", "sort_order": 49, "icon_code": None, "scope": "project"},
-    {"id": 2100, "parent_id": 2000, "menu_name": "LLM 지원 도구", "url": "/admin/intent-factory/llm-assist", "sort_order": 50, "icon_code": None, "scope": "project"},
-    {"id": 2110, "parent_id": 2000, "menu_name": "Pack Lifecycle Console", "url": "/admin/packs", "sort_order": 51, "icon_code": None, "scope": "project"},
-    {"id": 3010, "parent_id": 3000, "menu_name": "Runtime Simulation Console", "url": "/admin/runtime", "sort_order": 61, "icon_code": None, "scope": "project"},
-    {"id": 3040, "parent_id": 3000, "menu_name": "Operations Intelligence", "url": "/admin/operations", "sort_order": 64, "icon_code": None, "scope": "project"},
+    {"id": 2030, "parent_id": 2000, "menu_name": "지식 센터", "url": "/admin/knowledge", "sort_order": 43, "icon_code": None, "scope": "project"},
+    {"id": 2060, "parent_id": 2000, "menu_name": "의도 설계 스튜디오", "url": "/admin/intent-factory", "sort_order": 46, "icon_code": None, "scope": "project"},
+    {"id": 2110, "parent_id": 2000, "menu_name": "Pack 생명주기 콘솔", "url": "/admin/packs", "sort_order": 51, "icon_code": None, "scope": "project"},
+    {"id": 3010, "parent_id": 3000, "menu_name": "Runtime 시뮬레이션", "url": "/admin/runtime", "sort_order": 61, "icon_code": None, "scope": "project"},
+    {"id": 3040, "parent_id": 3000, "menu_name": "운영 인사이트", "url": "/admin/operations", "sort_order": 64, "icon_code": None, "scope": "project"},
     {"id": 4010, "parent_id": 4000, "menu_name": "사용자 관리", "url": "/admin/users", "sort_order": 81, "icon_code": None, "scope": "system"},
     {"id": 4020, "parent_id": 4000, "menu_name": "권한 관리", "url": "/admin/permissions", "sort_order": 82, "icon_code": None, "scope": "system"},
     {"id": 4030, "parent_id": 4000, "menu_name": "시스템 설정", "url": "/admin/system/settings", "sort_order": 83, "icon_code": None, "scope": "system"},
@@ -141,6 +144,18 @@ async def seed_intent_factory_menus(
                 """
             ),
             item,
+        )
+
+    for legacy_url in CONSOLIDATED_MENU_TARGETS:
+        await db.execute(
+            text(
+                """
+                UPDATE graphrag.sys_menus
+                SET is_active = false
+                WHERE url = :legacy_url
+                """
+            ),
+            {"legacy_url": legacy_url},
         )
 
     for row in build_role_menu_rows(role_id):

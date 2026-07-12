@@ -102,7 +102,7 @@ const PackBuildStage = ({ projectId, stage, summary }) => {
         { title: 'Draft 구조 확인', description: 'Runtime이 읽을 표준 Pack 구조로 변환 가능한지 점검합니다.' },
         { title: 'Export 전 검증', description: '필수 파일을 만들 수 있는 최소 조건을 확인합니다.' },
       ],
-      secondaryAction: { label: 'Pack Builder 열기', onClick: () => navigate('/admin/packs/builder') },
+      secondaryAction: { label: 'Pack Builder 열기', onClick: () => navigate('/admin/packs?tab=build') },
     },
     export: {
       eyebrow: '5단계 Pack 검증/빌드',
@@ -113,7 +113,7 @@ const PackBuildStage = ({ projectId, stage, summary }) => {
         { title: 'ZIP 패키징', description: 'Runtime Pack Store에 반입할 수 있는 Service-Pack ZIP을 만듭니다.' },
         { title: 'Export 이력 저장', description: '생성 시점, 버전, 포함 건수, 검증 상태를 Repository에 남깁니다.' },
       ],
-      secondaryAction: { label: 'Export 생성 화면 열기', onClick: () => navigate('/admin/packs/builder') },
+      secondaryAction: { label: 'Export 생성 화면 열기', onClick: () => navigate('/admin/packs?tab=build') },
     },
     validation: {
       eyebrow: '5단계 Pack 검증/빌드',
@@ -124,7 +124,7 @@ const PackBuildStage = ({ projectId, stage, summary }) => {
         { title: '질문 검증 연계', description: 'Validation Question 결과와 함께 승인 가능성을 판단합니다.' },
         { title: '오류 보완', description: '필수 파일 누락이나 스키마 오류가 있으면 Draft 단계로 되돌립니다.' },
       ],
-      secondaryAction: { label: 'Pack 검증 열기', onClick: () => navigate('/admin/packs/validation') },
+      secondaryAction: { label: 'Pack 검증 열기', onClick: () => navigate('/admin/packs?tab=validation') },
     },
     repository: {
       eyebrow: '5단계 Pack 검증/빌드',
@@ -135,7 +135,7 @@ const PackBuildStage = ({ projectId, stage, summary }) => {
         { title: '반입 대상 결정', description: '검증된 Export만 Runtime Pack Store로 Import합니다.' },
         { title: '배포 추적', description: 'Import, 승인, 활성화, Rollback까지 같은 Repository에서 추적합니다.' },
       ],
-      secondaryAction: { label: 'Pack Repository 열기', onClick: () => navigate('/admin/packs/repository') },
+      secondaryAction: { label: 'Release & Deploy 열기', onClick: () => navigate('/admin/packs?tab=repository') },
     },
   };
 
@@ -262,7 +262,7 @@ const PackBuildStage = ({ projectId, stage, summary }) => {
             <h3>최근 Export ZIP 이력</h3>
             <p>Pack Builder에서 생성된 최신 Export 이력입니다.</p>
           </div>
-          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/packs/repository')}>Repository 열기</button>
+          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/packs?tab=repository')}>Repository 열기</button>
         </div>
         <table>
           <thead><tr><th>Export ID</th><th>Pack</th><th>Status</th><th>Counts</th><th>Created</th></tr></thead>

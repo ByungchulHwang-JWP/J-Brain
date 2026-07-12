@@ -64,7 +64,7 @@ const buildRuntimeSummary = (data) => {
   };
 };
 
-const IntentMatchTest = () => {
+const IntentMatchTest = ({ embedded = false }) => {
   const navigate = useNavigate();
   const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
   const [activePack, setActivePack] = useState(null);
@@ -159,11 +159,11 @@ const IntentMatchTest = () => {
   };
 
   return (
-    <div className="inner intent-match-page">
+    <div className={embedded ? 'intent-match-page' : 'inner intent-match-page'}>
       <section className="intent-match-header">
         <div>
           <div className="runtime-qa-eyebrow">Runtime 테스트</div>
-          <h2>Intent 매칭 테스트</h2>
+          {embedded ? <h3>Intent 매칭 테스트</h3> : <h2>Intent 매칭 테스트</h2>}
           <p>
             Runtime Resolver 기준으로 사용자 질문이 어떤 Intent, Action, 근거 후보에 연결되는지 확인합니다.
           </p>
@@ -173,7 +173,7 @@ const IntentMatchTest = () => {
             <RotateCcw size={16} />
             초기화
           </button>
-          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/qa')}>
+          <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime?tab=chat')}>
             Runtime QA
             <ArrowRight size={16} />
           </button>

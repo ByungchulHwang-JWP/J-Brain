@@ -98,7 +98,7 @@ const OpsImprovementStage = ({ projectId, stage, summary }) => {
         { title: 'FAQ/Intent 후보 전환', description: '반복되는 질문은 FAQ 또는 Intent 보강 대상으로 등록합니다.' },
         { title: '우선순위 결정', description: '발생 빈도와 업무 중요도 기준으로 다음 Draft에 반영할 항목을 고릅니다.' },
       ],
-      secondaryAction: { label: '미응답 분석 열기', onClick: () => navigate('/admin/operations/unanswered') },
+      secondaryAction: { label: '미응답 분석 열기', onClick: () => navigate('/admin/operations?tab=unanswered') },
     },
     requests: {
       eyebrow: '6단계 배포 및 운영 개선',
@@ -109,7 +109,7 @@ const OpsImprovementStage = ({ projectId, stage, summary }) => {
         { title: '검토 상태 관리', description: '신규, 검토 중, 완료 상태로 운영 피드백 처리를 추적합니다.' },
         { title: 'Pack 반영 연결', description: '다음 Draft Pack에서 어떤 항목으로 반영할지 연결합니다.' },
       ],
-      secondaryAction: { label: '개선 요청 관리 열기', onClick: () => navigate('/admin/operations/improvement-requests') },
+      secondaryAction: { label: '개선 요청 관리 열기', onClick: () => navigate('/admin/operations?tab=improvements') },
     },
     stats: {
       eyebrow: '6단계 배포 및 운영 개선',
@@ -120,7 +120,7 @@ const OpsImprovementStage = ({ projectId, stage, summary }) => {
         { title: '실패율 추적', description: 'Very Low, fallback, 검증 실패 비율을 추적합니다.' },
         { title: '개선 효과 확인', description: '새 Pack 반영 후 응답률과 신뢰도 변화를 비교합니다.' },
       ],
-      secondaryAction: { label: '사용 통계 열기', onClick: () => navigate('/admin/operations/stats') },
+      secondaryAction: { label: '사용 통계 열기', onClick: () => navigate('/admin/operations?tab=metrics') },
     },
     nextDraft: {
       eyebrow: '6단계 배포 및 운영 개선',

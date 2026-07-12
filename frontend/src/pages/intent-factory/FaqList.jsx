@@ -47,7 +47,7 @@ const generateFaqId = (projectId) => {
   return `FAQ-${normalizedProjectId}-${Date.now().toString().slice(-6)}`;
 };
 
-const FaqList = () => {
+const FaqList = ({ embedded = false }) => {
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const projectId = selectedProjectId;
   const [items, setItems] = useState([]);
@@ -219,17 +219,21 @@ const FaqList = () => {
   };
 
   return (
-    <div className="inner">
-      <div className="breadcrumb">
-        <span>Intent Factory</span> {'>'} <span>FAQ 관리</span>
-      </div>
+    <div className={embedded ? '' : 'inner'}>
+      {!embedded && (
+        <div className="breadcrumb">
+          <span>Intent Factory</span> {'>'} <span>FAQ 관리</span>
+        </div>
+      )}
 
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: '12px 0 20px', margin: 0 }}>
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: embedded ? undefined : '12px 0 20px', margin: 0 }}>
         <div>
-          <h2 style={{ fontWeight: 700 }}>FAQ 관리</h2>
-          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
-            자주 묻는 질문과 승인된 답변을 관리하고 Pack의 FAQ 지식으로 반영합니다.
-          </p>
+          {embedded ? <h3>FAQ 관리</h3> : <h2 style={{ fontWeight: 700 }}>FAQ 관리</h2>}
+          {!embedded && (
+            <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
+              자주 묻는 질문과 승인된 답변을 관리하고 Pack의 FAQ 지식으로 반영합니다.
+            </p>
+          )}
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>

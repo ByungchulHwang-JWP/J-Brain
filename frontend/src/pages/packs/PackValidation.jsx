@@ -56,7 +56,7 @@ const textareaStyle = {
   resize: 'vertical',
 };
 
-const PackValidation = () => {
+const PackValidation = ({ embedded = false }) => {
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
@@ -267,26 +267,45 @@ const PackValidation = () => {
   };
 
   return (
-    <div className="inner">
-      <div className="breadcrumb">
-        <span>Pack 제작/배포</span> {'>'} <span>Pack 검증</span>
-      </div>
+    <div className={embedded ? '' : 'inner'}>
+      {!embedded && (
+        <>
+          <div className="breadcrumb">
+            <span>Pack 제작/배포</span> {'>'} <span>Pack 검증</span>
+          </div>
 
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: '12px 0 20px', margin: 0 }}>
-        <div>
-          <h2 style={{ fontWeight: 700 }}>Pack 검증</h2>
-          <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
-            검증 질문과 기대 Intent/Action을 관리하고, 선택한 Pack의 Pass/Fail 결과를 저장합니다.
-          </p>
+          <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: '12px 0 20px', margin: 0 }}>
+            <div>
+              <h2 style={{ fontWeight: 700 }}>Pack 검증</h2>
+              <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
+                검증 질문과 기대 Intent/Action을 관리하고, 선택한 Pack의 Pass/Fail 결과를 저장합니다.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+                {projects.length === 0 && <option value="">프로젝트 없음</option>}
+                {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
+              </select>
+              <button className="btn-secondary" onClick={fetchAll} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
+            </div>
+          </div>
+        </>
+      )}
+      {embedded && (
+        <div className="console-embedded-toolbar">
+          <div>
+            <h3>Validation</h3>
+            <p>검증 질문과 기대 Intent/Action을 관리하고 선택한 Pack의 Pass/Fail 결과를 저장합니다.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+              {projects.length === 0 && <option value="">프로젝트 없음</option>}
+              {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
+            </select>
+            <button className="btn-secondary" onClick={fetchAll} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
-            {projects.length === 0 && <option value="">프로젝트 없음</option>}
-            {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
-          </select>
-          <button className="btn-secondary" onClick={fetchAll} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
-        </div>
-      </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px', marginBottom: '18px' }}>
         {stats.map(([label, value]) => (
@@ -313,7 +332,7 @@ const PackValidation = () => {
             <label>
               <span className="modal-label">Runtime Pack</span>
               <select value={targetPackKey} onChange={(e) => setTargetPackKey(e.target.value)} style={fieldStyle}>
-                {runtimePacks.length === 0 && <option value="">Import된 Runtime Pack 없음</option>}
+                {runtimePacks.length === 0 && <option value="">반입된 Runtime Pack 없음</option>}
                 {runtimePacks.map((pack) => (
                   <option key={`${pack.pack_id}-${pack.pack_version}`} value={`${pack.pack_id}::${pack.pack_version}`}>
                     {pack.pack_id} v{pack.pack_version} / {pack.status}

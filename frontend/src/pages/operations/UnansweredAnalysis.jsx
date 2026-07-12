@@ -19,7 +19,7 @@ const severityLabel = {
   low: '낮음',
 };
 
-const UnansweredAnalysis = () => {
+const UnansweredAnalysis = ({ embedded = false }) => {
   const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState('');
   const [items, setItems] = useState([]);
@@ -120,11 +120,11 @@ const UnansweredAnalysis = () => {
   };
 
   return (
-    <div className="inner operations-page">
+    <div className={embedded ? 'operations-page' : 'inner operations-page'}>
       <div className="operations-header">
         <div>
           <div className="operations-eyebrow">운영 및 개선</div>
-          <h2>미응답 분석</h2>
+          {embedded ? <h3>미응답 분석</h3> : <h2>미응답 분석</h2>}
           <p>Runtime에서 fallback 또는 낮은 신뢰도로 기록된 질문을 분석하고 개선 후보로 전환합니다.</p>
         </div>
         <div className="operations-controls">
@@ -262,7 +262,7 @@ const UnansweredAnalysis = () => {
             <span key={key}>{label} <strong>{groupedCounts[key] || 0}</strong></span>
           ))}
         </div>
-        <button className="btn-secondary" type="button" onClick={() => window.location.assign('/admin/operations/improvement-requests')}>
+        <button className="btn-secondary" type="button" onClick={() => window.location.assign('/admin/operations?tab=improvements')}>
           개선 요청 관리로 이동 <ArrowRight size={15} />
         </button>
       </div>

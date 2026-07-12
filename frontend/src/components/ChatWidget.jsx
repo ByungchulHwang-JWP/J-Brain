@@ -1,41 +1,87 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, X, ArrowUp, ChevronDown, User, Bot, Maximize2, Minimize2 } from 'lucide-react';
+import { useProjectContext } from '../context/ProjectContext';
+import { getActivePack } from '../api/intentFactory';
 
 const ChatWidget = () => {
   const navigate = useNavigate();
+  const {
+    projects,
+    selectedProject,
+    selectedProjectId,
+    setSelectedProjectId,
+    refreshProjects,
+  } = useProjectContext();
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // 전체 화면 모드 토글
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [domain, setDomain] = useState('');
-  const [domains, setDomains] = useState([]);
+  const [activePack, setActivePack] = useState(null);
+  const [activePackLoading, setActivePackLoading] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // 프로젝트(도메인) 목록 동적 조회
+  const domains = useMemo(
+    () => projects
+      .map(p => ({ id: p.id || p.project_id || p.domain, name: p.name || p.id || p.project_id || p.domain }))
+      .filter((p) => p.id),
+    [projects]
+  );
+  const selectedProjectName = selectedProject?.name || domains.find((item) => item.id === domain)?.name || domain || '프로젝트 미선택';
+  const activePackLabel = activePack?.pack_id
+    ? `${activePack.pack_id} v${activePack.pack_version}`
+    : activePackLoading
+      ? 'Active Pack 확인 중'
+      : 'Active Pack 없음';
+
   useEffect(() => {
-    const fetchDomains = async () => {
-      try {
-        const token = localStorage.getItem('ai_access_token');
-        if (!token) return;
-        const res = await axios.get('/api/v1/projects', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.data && res.data.length > 0) {
-          const fetchedDomains = res.data.map(p => ({ id: p.id, name: p.name || p.id }));
-          setDomains(fetchedDomains);
-          setDomain(fetchedDomains[0].id);
-        }
-      } catch (err) {
-        console.error('Failed to load projects', err);
-      }
+    refreshProjects();
+  }, [refreshProjects]);
+
+  useEffect(() => {
+    if (selectedProjectId && selectedProjectId !== domain) {
+      setDomain(selectedProjectId);
+      return;
+    }
+    if (!selectedProjectId && !domain && domains[0]?.id) {
+      setDomain(domains[0].id);
+      setSelectedProjectId(domains[0].id);
+    }
+  }, [domain, domains, selectedProjectId, setSelectedProjectId]);
+
+  useEffect(() => {
+    if (!domain) {
+      setActivePack(null);
+      return;
+    }
+
+    let cancelled = false;
+    setActivePackLoading(true);
+    getActivePack(domain)
+      .then((data) => {
+        if (!cancelled) setActivePack(data);
+      })
+      .catch((err) => {
+        console.error('Failed to load active pack', err);
+        if (!cancelled) setActivePack(null);
+      })
+      .finally(() => {
+        if (!cancelled) setActivePackLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
     };
-    fetchDomains();
-  }, []);
+  }, [domain]);
+
+  const handleProjectChange = (projectId) => {
+    setDomain(projectId);
+    setSelectedProjectId(projectId);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -46,7 +92,7 @@ const ChatWidget = () => {
   }, [messages, isOpen]);
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !domain) return;
 
     const userQuery = inputValue;
     setInputValue('');
@@ -200,7 +246,7 @@ const ChatWidget = () => {
                 <div style={{ position: 'relative', marginTop: '2px' }}>
                   <select 
                     value={domain} 
-                    onChange={(e) => setDomain(e.target.value)}
+                    onChange={(e) => handleProjectChange(e.target.value)}
                     style={{
                       background: 'transparent', color: 'var(--color-text-sub)', border: 'none', outline: 'none',
                       fontSize: '12px', cursor: 'pointer', appearance: 'none', paddingRight: '12px'
@@ -210,6 +256,31 @@ const ChatWidget = () => {
                   </select>
                   <ChevronDown size={12} strokeWidth={1.5} style={{ position: 'absolute', right: 0, top: '3px', pointerEvents: 'none', color: 'var(--color-text-muted)' }} />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin/packs?tab=repository')}
+                  title="Pack Lifecycle Console 열기"
+                  style={{
+                    marginTop: '7px',
+                    padding: '6px 8px',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '8px',
+                    background: 'var(--color-bg-elevated)',
+                    color: 'var(--color-text-sub)',
+                    cursor: 'pointer',
+                    display: 'grid',
+                    gap: '3px',
+                    textAlign: 'left',
+                    maxWidth: isExpanded ? '420px' : '260px'
+                  }}
+                >
+                  <span style={{ fontSize: '11px', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    Project: <strong style={{ color: 'var(--color-text-main)' }}>{selectedProjectName}</strong>
+                  </span>
+                  <span style={{ fontSize: '11px', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    Pack: <strong style={{ color: activePack?.pack_id ? 'var(--color-success-text)' : 'var(--color-text-muted)' }}>{activePackLabel}</strong>
+                  </span>
+                </button>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '4px' }}>
@@ -236,7 +307,7 @@ const ChatWidget = () => {
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '280px' }}>
                   {domains.map(d => (
-                    <button key={d.id} onClick={() => setDomain(d.id)} style={{ padding: '12px 16px', background: domain === d.id ? 'var(--color-primary-subtle)' : 'transparent', color: 'var(--color-text-main)', border: '1px solid', borderColor: domain === d.id ? 'var(--color-primary)' : 'var(--color-border)', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'all 0.2s', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <button key={d.id} onClick={() => handleProjectChange(d.id)} style={{ padding: '12px 16px', background: domain === d.id ? 'var(--color-primary-subtle)' : 'transparent', color: 'var(--color-text-main)', border: '1px solid', borderColor: domain === d.id ? 'var(--color-primary)' : 'var(--color-border)', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'all 0.2s', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span>{d.name} Project Query</span>
                       <span>{domain === d.id ? '✓' : '→'}</span>
                     </button>
@@ -382,7 +453,7 @@ const ChatWidget = () => {
                   onKeyDown={handleKeyDown}
                   onCompositionStart={() => isComposingRef.current = true}
                   onCompositionEnd={() => { isComposingRef.current = false; }}
-                  placeholder="Ask anything..."
+                  placeholder={domain ? 'Ask anything...' : '프로젝트를 먼저 선택해 주세요.'}
                   rows={1}
                   style={{
                     width: '100%', border: 'none', background: 'transparent', resize: 'none',
@@ -402,7 +473,7 @@ const ChatWidget = () => {
               </div>
               <button 
                 onClick={handleSend}
-                disabled={!inputValue.trim() || loading}
+                disabled={!inputValue.trim() || loading || !domain}
                 style={{
                   background: inputValue.trim() && !loading ? '#007bff' : 'var(--color-bg-elevated)',
                   color: inputValue.trim() && !loading ? '#fff' : 'var(--color-text-muted)',

@@ -307,7 +307,7 @@ const WorkflowDashboardV2 = () => {
         <button
           className="btn-primary"
           type="button"
-          onClick={() => navigate(canBuildPack ? '/admin/packs/builder' : currentStageUrl)}
+          onClick={() => navigate(canBuildPack ? '/admin/packs?tab=build' : currentStageUrl)}
         >
           {canBuildPack ? 'Pack Build로 이동' : `${currentPhase?.stage || 1}단계 ${currentPhase?.name || '현재 단계'} 열기`}
         </button>

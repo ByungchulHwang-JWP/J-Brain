@@ -522,7 +522,7 @@ const ActionConnectionStage = ({ projectId, stage, summary }) => {
                 현재 단계에서는 Action 정의가 Runtime 실행 가능한 형태인지 우선 진단합니다. 실제 사용자 질문 기반 실행은 Runtime 시뮬레이션 단계에서 확인합니다.
               </div>
               <div className="workflow-drawer-actions">
-                <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime/action-test')}>상세 실행 테스트</button>
+                <button className="btn-secondary" type="button" onClick={() => navigate('/admin/runtime?tab=action-route')}>상세 실행 테스트</button>
                 <button className="btn-primary" type="submit">테스트 실행</button>
               </div>
             </form>
