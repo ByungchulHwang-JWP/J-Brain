@@ -730,6 +730,10 @@ tbody tr:hover { background: var(--color-primary-subtle); }
 .btn-table:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-subtle); }
 .btn-table.primary { color: var(--color-primary); border-color: var(--color-primary); background: var(--color-primary-subtle); }
 .btn-table.primary:hover { background: var(--color-primary); color: #fff; }
+.btn-table.danger { color: var(--color-danger); border-color: var(--color-danger); background: var(--color-danger-subtle); }
+.btn-table.danger:hover { background: var(--color-danger); color: #fff; }
+.btn-table.success { color: var(--color-success); border-color: var(--color-success); background: rgba(16, 185, 129, 0.1); }
+.btn-table.success:hover { background: var(--color-success); color: #fff; }
 .btn-table:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -6313,7 +6317,7 @@ input::placeholder { color: var(--color-input-placeholder); }
 }
 
 .pack-runtime-col-pack {
-  width: 26%;
+  width: 25%;
 }
 
 .pack-runtime-col-status,
@@ -6322,15 +6326,15 @@ input::placeholder { color: var(--color-input-placeholder); }
 }
 
 .pack-runtime-col-next {
-  width: 24%;
+  width: 23%;
 }
 
 .pack-runtime-col-owner {
-  width: 12%;
+  width: 10%;
 }
 
 .pack-runtime-col-actions {
-  width: 20%;
+  width: 24%;
 }
 
 .pack-lifecycle-pack-cell {

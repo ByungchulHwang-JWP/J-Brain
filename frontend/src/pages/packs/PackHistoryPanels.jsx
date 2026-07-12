@@ -48,7 +48,7 @@ const PackHistoryPanels = ({
                     <a className="btn-table pack-action-button" href={getPackExportDownloadUrl(projectId, item.export_id)} target="_blank" rel="noreferrer" title="ZIP 다운로드">
                       <Download size={13} /> ZIP
                     </a>
-                    <button className="btn-primary pack-action-button" onClick={() => onImport(item.export_id)} disabled={Boolean(operationKey)}>
+                    <button className="btn-table primary pack-action-button" onClick={() => onImport(item.export_id)} disabled={Boolean(operationKey)}>
                       {operationKey === `import:${item.export_id}` ? '반입 중...' : 'Runtime Store 반입'}
                     </button>
                   </div>
