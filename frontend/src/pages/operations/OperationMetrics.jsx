@@ -34,22 +34,7 @@ const OperationMetrics = ({ embedded = false }) => {
       const res = await axios.get(`/api/v1/projects/${projectId}/operations/metrics?days=${days}`, {
         headers: { Authorization: `Bearer ${getAccessToken()}` }
       });
-      // 데이터가 없으면 임시 모킹 데이터 제공
       let metrics = res.data.metrics || [];
-      if (metrics.length === 0) {
-        metrics = Array.from({ length: days }).map((_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - (days - i - 1));
-          return {
-            date: d.toISOString().split('T')[0],
-            total_requests: Math.floor(Math.random() * 50) + 10,
-            fallback_count: Math.floor(Math.random() * 10),
-            avg_confidence: 0.7 + (Math.random() * 0.2),
-            avg_response_time_ms: 200 + (Math.random() * 100),
-          };
-        });
-      }
-      
       const formattedData = metrics.map(m => ({
         ...m,
         intent_match_rate: m.total_requests > 0 ? ((m.total_requests - m.fallback_count) / m.total_requests * 100).toFixed(1) : 0,
