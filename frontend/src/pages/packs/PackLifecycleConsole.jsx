@@ -86,6 +86,15 @@ const PackLifecycleConsole = () => {
     setSearchParams(next, { replace: true });
   };
 
+  const handleBuildComplete = (result) => {
+    // 빌드가 완료되면 변경사항 플래그를 초기화하고 자동으로 다음 스텝(Validation)으로 이동
+    setHasUnexportedChanges(false);
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', 'validation');
+    next.delete('step');
+    setSearchParams(next, { replace: true });
+  };
+
   return (
     <div className="inner pack-lifecycle-shell">
       <div className="breadcrumb">
@@ -126,7 +135,7 @@ const PackLifecycleConsole = () => {
       {activeTab === 'build' && (
         <>
           <PackLifecycleSummary summary={tabSummary.build} validationLabel="Build 단계" />
-          <PackBuilder embedded />
+          <PackBuilder embedded onBuildComplete={handleBuildComplete} />
         </>
       )}
       {activeTab === 'validation' && (

@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useProjectContext } from '../../context/ProjectContext';
 import { createPackExport, getPackDraft, getPackExportDownloadUrl, listPackExports } from '../../api/intentFactory';
 
-const PackBuilder = ({ embedded = false }) => {
+const PackBuilder = ({ embedded = false, onBuildComplete }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
@@ -85,6 +85,9 @@ const PackBuilder = ({ embedded = false }) => {
       });
       setExportResult(result);
       setMessage(`Pack 빌드 완료: ${result.pack_id} v${result.pack_version}`);
+      if (onBuildComplete) {
+        onBuildComplete(result);
+      }
     } catch (err) {
       console.error(err);
       setExportResult(null);
