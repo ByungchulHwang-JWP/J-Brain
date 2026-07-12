@@ -222,7 +222,7 @@ async def get_project_pack_status(
         COALESCE((SELECT MAX(updated_at) FROM graphrag.entity_synonyms WHERE project_id = :project_id), '1970-01-01'::timestamp),
         COALESCE((SELECT MAX(updated_at) FROM graphrag.intent_faqs WHERE project_id = :project_id), '1970-01-01'::timestamp)
       ) > COALESCE(
-        (SELECT MAX(created_at) FROM graphrag.intent_pack_exports WHERE project_id = :project_id AND status = 'completed'),
+        (SELECT MAX(created_at) FROM graphrag.intent_pack_exports WHERE project_id = :project_id AND status IN ('validated', 'completed')),
         '1970-01-01'::timestamp
       ) AS has_unexported_changes;
     """
