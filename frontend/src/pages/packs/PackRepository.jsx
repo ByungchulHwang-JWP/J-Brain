@@ -1,6 +1,6 @@
 import { Spinner } from '../../components/common/Loader';
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import { useProjectContext } from '../../context/ProjectContext';
 import {
@@ -31,6 +31,7 @@ const fieldStyle = {
 
 const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
   const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
   const projectId = routeProjectId || selectedProjectId;
@@ -128,6 +129,10 @@ const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
       const result = await importPackExport(projectId, exportId);
       await fetchAll();
       setMessage(`Runtime Store 반입 완료: ${result.pack_id} v${result.pack_version}. 아직 챗봇에는 적용되지 않았습니다.`);
+      setTimeout(() => {
+        const el = document.getElementById('runtime-store-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
     } catch (err) {
       console.error(err);
       setMessage('Runtime Store 반입 실패: ' + (err.response?.data?.detail || err.message));
@@ -377,7 +382,7 @@ const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
         } : null}
       />
 
-      <div style={{ marginTop: '32px', marginBottom: '8px' }}>
+      <div id="runtime-store-section" style={{ marginTop: '32px', marginBottom: '8px' }}>
         <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-primary)' }}>2. 운영 승인 및 챗봇 배포 (Runtime Store)</h3>
         <p style={{ fontSize: '13px', color: 'var(--color-text-sub)', marginTop: '4px' }}>
           위에서 반입된 패키지를 확인하고 <strong>[운영 승인]</strong> 후 <strong>[챗봇에 적용]</strong> 하세요.
@@ -399,6 +404,19 @@ const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
           onPageSizeChange: setRuntimePageSize,
         } : null}
       />
+
+      {activePack?.pack_id && (
+        <div style={{ textAlign: 'right', marginTop: '24px', paddingBottom: '24px' }}>
+          <button
+            className="btn-primary"
+            style={{ fontSize: '15px', padding: '12px 24px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+            onClick={() => navigate(`/admin/runtime${projectId ? `?project=${projectId}` : ''}`)}
+          >
+            다음 단계 (Runtime 테스트) 진행하기
+            <span style={{ fontSize: '18px' }}>➔</span>
+          </button>
+        </div>
+      )}
 
       <ConfirmModal
         open={Boolean(pendingOperation && pendingOperation.type !== 'reject')}

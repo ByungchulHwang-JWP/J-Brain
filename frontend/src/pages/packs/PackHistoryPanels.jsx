@@ -14,7 +14,7 @@ const PackHistoryPanels = ({
   auditPaginationProps,
 }) => (
   <div className="pack-lifecycle-history">
-    <details className="pack-lifecycle-panel">
+    <details className="pack-lifecycle-panel" open>
       <summary>Release Export ZIP 이력</summary>
       <div className="pack-lifecycle-history-body">
         <div className="pack-lifecycle-history-actions">
@@ -48,7 +48,7 @@ const PackHistoryPanels = ({
                     <a className="btn-table pack-action-button" href={getPackExportDownloadUrl(projectId, item.export_id)} target="_blank" rel="noreferrer" title="ZIP 다운로드">
                       <Download size={13} /> ZIP
                     </a>
-                    <button className="btn-table pack-action-button" onClick={() => onImport(item.export_id)} disabled={Boolean(operationKey)}>
+                    <button className="btn-primary pack-action-button" onClick={() => onImport(item.export_id)} disabled={Boolean(operationKey)}>
                       {operationKey === `import:${item.export_id}` ? '반입 중...' : 'Runtime Store 반입'}
                     </button>
                   </div>

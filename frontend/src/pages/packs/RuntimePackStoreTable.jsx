@@ -66,13 +66,26 @@ const RuntimePackStoreTable = ({
               </td>
               <td>
                 <div className="pack-repository-action-cell">
-                  <button className="btn-table pack-action-button" onClick={() => onApprove(pack)} disabled={!state.allowedActions.approve || Boolean(operationKey)}>
+                  <button
+                    className={state.allowedActions.approve ? "btn-primary pack-action-button" : "btn-table pack-action-button"}
+                    onClick={() => onApprove(pack)}
+                    disabled={!state.allowedActions.approve || Boolean(operationKey)}
+                  >
                     {operationKey === `approve:${operationId}` ? '승인 중...' : '운영 승인'}
                   </button>
-                  <button className="btn-table pack-action-button" onClick={() => onReject(pack)} disabled={!state.allowedActions.reject || Boolean(operationKey)}>
+                  <button
+                    className={state.allowedActions.reject ? "btn-danger pack-action-button" : "btn-table pack-action-button"}
+                    onClick={() => onReject(pack)}
+                    disabled={!state.allowedActions.reject || Boolean(operationKey)}
+                  >
                     {operationKey === `reject:${operationId}` ? '반려 중...' : '반려'}
                   </button>
-                  <button className="btn-table pack-action-button" onClick={() => onActivate(pack)} disabled={!state.allowedActions.activate || Boolean(operationKey)}>
+                  <button
+                    className={state.allowedActions.activate ? "btn-primary pack-action-button" : "btn-table pack-action-button"}
+                    style={state.allowedActions.activate ? { backgroundColor: 'var(--color-success)', borderColor: 'var(--color-success)' } : {}}
+                    onClick={() => onActivate(pack)}
+                    disabled={!state.allowedActions.activate || Boolean(operationKey)}
+                  >
                     {operationKey === `activate:${operationId}` ? '적용 중...' : '챗봇에 적용'}
                   </button>
                 </div>
