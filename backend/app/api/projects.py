@@ -210,10 +210,17 @@ async def get_project_pack_status(
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
-    현재 프로젝트의 Intent/Entity 등 설계 데이터가 
-    마지막으로 Export된 패키지 생성일보다 최신인지(변경사항이 있는지) 확인합니다.
+    프로젝트의 Pack 생명주기 종합 상태를 반환합니다.
+    - has_unexported_changes: 설계 데이터 변경 후 미빌드 여부
+    - latest_export: 가장 최근 빌드(Export) 정보
+    - total_exports: 전체 빌드 횟수
+    - active_pack: 현재 챗봇 적용 중인 Pack
+    - latest_validation: 가장 최근 검증 결과
+    - has_runtime_packs: Runtime Store에 반입된 Pack 존재 여부
+    - has_approved_packs: 승인된 Pack 존재 여부
     """
-    sql = """
+    # 1) 미반영 변경사항 확인
+    changes_sql = """
     SELECT
       GREATEST(
         COALESCE((SELECT MAX(updated_at) FROM graphrag.intent_definitions WHERE project_id = :project_id), '1970-01-01'::timestamp),
@@ -226,12 +233,93 @@ async def get_project_pack_status(
         '1970-01-01'::timestamp
       ) AS has_unexported_changes;
     """
-    result = await db.execute(text(sql), {"project_id": project_id})
-    row = result.fetchone()
-    has_changes = row.has_unexported_changes if row else False
-    
-    # 만약 GREATEST 쪽이 1970-01-01이라면 변경사항 없음(데이터가 아예 없음)
-    if not has_changes:
-        return {"has_unexported_changes": False}
-        
-    return {"has_unexported_changes": has_changes}
+    changes_result = await db.execute(text(changes_sql), {"project_id": project_id})
+    changes_row = changes_result.fetchone()
+    has_changes = changes_row.has_unexported_changes if changes_row else False
+
+    # 2) 최신 Export 정보 + 전체 건수
+    export_sql = """
+    SELECT export_id, pack_id, pack_version, status, counts, created_at
+    FROM graphrag.intent_pack_exports
+    WHERE project_id = :project_id
+    ORDER BY created_at DESC
+    LIMIT 1;
+    """
+    export_result = await db.execute(text(export_sql), {"project_id": project_id})
+    export_row = export_result.fetchone()
+
+    count_sql = """
+    SELECT COUNT(*) AS total FROM graphrag.intent_pack_exports WHERE project_id = :project_id;
+    """
+    count_result = await db.execute(text(count_sql), {"project_id": project_id})
+    total_exports = count_result.scalar() or 0
+
+    latest_export = None
+    if export_row:
+        mapping = dict(export_row._mapping)
+        latest_export = {
+            "export_id": mapping["export_id"],
+            "pack_id": mapping["pack_id"],
+            "pack_version": mapping["pack_version"],
+            "status": mapping["status"],
+            "counts": mapping.get("counts"),
+            "created_at": str(mapping["created_at"]) if mapping.get("created_at") else None,
+        }
+
+    # 3) 현재 적용 중인 Pack
+    active_sql = """
+    SELECT pack_id, pack_version, previous_pack_id, previous_pack_version
+    FROM graphrag.active_pack_config
+    WHERE project_id = :project_id
+    LIMIT 1;
+    """
+    active_result = await db.execute(text(active_sql), {"project_id": project_id})
+    active_row = active_result.fetchone()
+    active_pack = None
+    if active_row:
+        am = dict(active_row._mapping)
+        active_pack = {
+            "pack_id": am["pack_id"],
+            "pack_version": am["pack_version"],
+            "previous_pack_id": am.get("previous_pack_id"),
+            "previous_pack_version": am.get("previous_pack_version"),
+        }
+
+    # 4) 최신 Validation 결과
+    val_sql = """
+    SELECT status, pack_id, pack_version, created_at
+    FROM graphrag.pack_validation_results
+    WHERE project_id = :project_id
+    ORDER BY created_at DESC
+    LIMIT 1;
+    """
+    val_result = await db.execute(text(val_sql), {"project_id": project_id})
+    val_row = val_result.fetchone()
+    latest_validation = None
+    if val_row:
+        vm = dict(val_row._mapping)
+        latest_validation = {
+            "status": vm["status"],
+            "pack_id": vm.get("pack_id"),
+            "pack_version": vm.get("pack_version"),
+            "created_at": str(vm["created_at"]) if vm.get("created_at") else None,
+        }
+
+    # 5) Runtime Pack 존재 여부 / 승인 Pack 존재 여부
+    runtime_sql = """
+    SELECT
+      EXISTS(SELECT 1 FROM graphrag.runtime_pack_store WHERE project_id = :project_id) AS has_runtime_packs,
+      EXISTS(SELECT 1 FROM graphrag.runtime_pack_store WHERE project_id = :project_id AND status = 'approved') AS has_approved_packs;
+    """
+    runtime_result = await db.execute(text(runtime_sql), {"project_id": project_id})
+    runtime_row = runtime_result.fetchone()
+
+    return {
+        "has_unexported_changes": bool(has_changes),
+        "latest_export": latest_export,
+        "total_exports": total_exports,
+        "active_pack": active_pack,
+        "latest_validation": latest_validation,
+        "has_runtime_packs": runtime_row.has_runtime_packs if runtime_row else False,
+        "has_approved_packs": runtime_row.has_approved_packs if runtime_row else False,
+    }

@@ -7,7 +7,7 @@ import PackValidation from './PackValidation';
 import PackRepository from './PackRepository';
 import PackLifecycleStepper from './PackLifecycleStepper';
 import PackLifecycleSummary from './PackLifecycleSummary';
-import { getCompletedStepIds } from './packLifecycleModel';
+import { getCompletedStepIdsFromStatus } from './packLifecycleModel';
 
 const tabToStep = {
   build: 'build',
@@ -15,19 +15,9 @@ const tabToStep = {
   repository: 'runtime-import',
 };
 
-const tabSummary = {
-  build: {
-    nextActionLabel: 'Pack Build 실행',
-    activeLabel: 'Repository 단계에서 확인',
-    rollbackLabel: 'Repository 단계에서 확인',
-    currentStepId: 'build',
-  },
-  validation: {
-    nextActionLabel: 'Validation 실행 및 통과 확인',
-    activeLabel: 'Repository 단계에서 확인',
-    rollbackLabel: 'Repository 단계에서 확인',
-    currentStepId: 'validation',
-  },
+const formatPackLabel = (pack) => {
+  if (!pack?.pack_id) return '미지정';
+  return `${pack.pack_id} v${pack.pack_version}`;
 };
 
 const PackLifecycleConsole = () => {
@@ -39,29 +29,33 @@ const PackLifecycleConsole = () => {
 
   const [repositorySummary, setRepositorySummary] = useState(null);
   const [hasUnexportedChanges, setHasUnexportedChanges] = useState(false);
+  const [packStatus, setPackStatus] = useState(null);
+
+  const fetchPackStatus = async () => {
+    if (!projectId) return;
+    try {
+      const res = await axios.get(`/api/v1/projects/${encodeURIComponent(projectId)}/pack-status`);
+      const data = res.data;
+      setPackStatus(data);
+      if (data?.has_unexported_changes) {
+        setHasUnexportedChanges(true);
+        if (!searchParams.has('tab') || searchParams.get('tab') !== 'build') {
+          const next = new URLSearchParams(searchParams);
+          next.set('tab', 'build');
+          next.delete('step');
+          setSearchParams(next, { replace: true });
+        }
+      } else {
+        setHasUnexportedChanges(false);
+      }
+    } catch (err) {
+      console.error('Failed to fetch pack status', err);
+    }
+  };
 
   useEffect(() => {
-    if (!projectId) return;
-    const fetchStatus = async () => {
-      try {
-        const res = await axios.get(`/api/v1/projects/${encodeURIComponent(projectId)}/pack-status`);
-        if (res.data?.has_unexported_changes) {
-          setHasUnexportedChanges(true);
-          if (!searchParams.has('tab') || searchParams.get('tab') !== 'build') {
-            const next = new URLSearchParams(searchParams);
-            next.set('tab', 'build');
-            next.delete('step');
-            setSearchParams(next, { replace: true });
-          }
-        } else {
-          setHasUnexportedChanges(false);
-        }
-      } catch (err) {
-        console.error('Failed to fetch pack status', err);
-      }
-    };
-    fetchStatus();
-  }, [projectId, searchParams]);
+    fetchPackStatus();
+  }, [projectId]);
 
   const hasExplicitNavigation = searchParams.has('tab') || searchParams.has('step');
   const activeTab = searchParams.get('tab') || (hasUnexportedChanges ? 'build' : 'repository');
@@ -87,10 +81,68 @@ const PackLifecycleConsole = () => {
   };
 
   const handleBuildComplete = (result) => {
-    // 빌드가 완료되면 미반영 플래그를 초기화합니다. 
-    // 결과(JSON 등)를 확인할 수 있도록 바로 화면을 전환하지 않고 사용자가 직접 이동하게 합니다.
     setHasUnexportedChanges(false);
+    fetchPackStatus();
   };
+
+  // -- 동적 Summary 생성 --
+  const activePackLabel = packStatus?.active_pack ? formatPackLabel(packStatus.active_pack) : '미지정';
+  const rollbackLabel = packStatus?.active_pack?.previous_pack_id
+    ? `${packStatus.active_pack.previous_pack_id} v${packStatus.active_pack.previous_pack_version}`
+    : '없음';
+
+  const buildSummary = (() => {
+    let nextActionLabel = 'Pack Build 실행';
+    let validationLabel = '빌드 이력 없음';
+
+    if (hasUnexportedChanges) {
+      nextActionLabel = '최신 변경사항 반영 빌드 필요';
+    } else if (packStatus?.latest_export) {
+      nextActionLabel = `빌드 완료 — Validation 진행`;
+    }
+
+    if (packStatus?.latest_export) {
+      validationLabel = `v${packStatus.latest_export.pack_version} / ${packStatus.latest_export.status}`;
+    }
+
+    return {
+      nextActionLabel,
+      activeLabel: activePackLabel,
+      rollbackLabel,
+      currentStepId: 'build',
+      validationLabel,
+    };
+  })();
+
+  const validationSummary = (() => {
+    let nextActionLabel = '검증 실행 필요';
+    let validationLabel = '검증 이력 없음';
+
+    if (packStatus?.latest_validation?.status === 'passed') {
+      nextActionLabel = 'Validation 통과 — Repository 이동';
+    } else if (packStatus?.latest_validation) {
+      nextActionLabel = `최근 검증: ${packStatus.latest_validation.status}`;
+    }
+
+    if (packStatus?.latest_validation) {
+      validationLabel = `${packStatus.latest_validation.status} / v${packStatus.latest_validation.pack_version}`;
+    }
+
+    return {
+      nextActionLabel,
+      activeLabel: activePackLabel,
+      rollbackLabel,
+      currentStepId: 'validation',
+      validationLabel,
+    };
+  })();
+
+  const latestValidationPassed = packStatus?.latest_validation?.status === 'passed';
+
+  // -- 스텝퍼 완료 상태 계산 --
+  const completedStepIds = packStatus
+    ? getCompletedStepIdsFromStatus(packStatus)
+    : [];
 
   return (
     <div className="inner pack-lifecycle-shell">
@@ -106,7 +158,7 @@ const PackLifecycleConsole = () => {
 
       <PackLifecycleStepper
         currentStepId={currentStepId}
-        completedStepIds={getCompletedStepIds(currentStepId)}
+        completedStepIds={completedStepIds}
         onStepSelect={selectStep}
       />
 
@@ -131,7 +183,7 @@ const PackLifecycleConsole = () => {
 
       {activeTab === 'build' && (
         <>
-          <PackLifecycleSummary summary={tabSummary.build} validationLabel="Build 단계" />
+          <PackLifecycleSummary summary={buildSummary} validationLabel={buildSummary.validationLabel} />
           <PackBuilder embedded onBuildComplete={handleBuildComplete} />
           
           {!hasUnexportedChanges && (
@@ -155,8 +207,26 @@ const PackLifecycleConsole = () => {
       )}
       {activeTab === 'validation' && (
         <>
-          <PackLifecycleSummary summary={tabSummary.validation} validationLabel="Validation 단계" />
+          <PackLifecycleSummary summary={validationSummary} validationLabel={validationSummary.validationLabel} />
           <PackValidation embedded />
+
+          {latestValidationPassed && (
+            <div style={{ textAlign: 'right', marginTop: '20px', paddingBottom: '20px' }}>
+              <button
+                className="btn-primary"
+                style={{ fontSize: '15px', padding: '12px 24px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set('tab', 'repository');
+                  next.set('step', 'runtime-import');
+                  setSearchParams(next, { replace: true });
+                }}
+              >
+                다음 단계 (Release & Deploy) 진행하기
+                <span style={{ fontSize: '18px' }}>➔</span>
+              </button>
+            </div>
+          )}
         </>
       )}
       {activeTab === 'repository' && (

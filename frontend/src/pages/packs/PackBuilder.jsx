@@ -1,6 +1,7 @@
 import { OverlayLoader } from '../../components/common/Loader';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Download } from 'lucide-react';
 import { useProjectContext } from '../../context/ProjectContext';
 import { createPackExport, getPackDraft, getPackExportDownloadUrl, listPackExports } from '../../api/intentFactory';
 
@@ -11,6 +12,7 @@ const PackBuilder = ({ embedded = false, onBuildComplete }) => {
   const projectId = routeProjectId || selectedProjectId;
   const [draft, setDraft] = useState(null);
   const [exportResult, setExportResult] = useState(null);
+  const [exportHistory, setExportHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [message, setMessage] = useState('');
@@ -58,7 +60,17 @@ const PackBuilder = ({ embedded = false, onBuildComplete }) => {
     }
   };
 
-  useEffect(() => { loadDraft(); }, [projectId]);
+  const loadExportHistory = async () => {
+    if (!projectId) return;
+    try {
+      const data = await listPackExports(projectId);
+      setExportHistory(data.items || []);
+    } catch (err) {
+      console.error('Export history load failed', err);
+    }
+  };
+
+  useEffect(() => { loadDraft(); loadExportHistory(); }, [projectId]);
 
   const handleExport = async () => {
     if (!projectId) {
@@ -85,6 +97,7 @@ const PackBuilder = ({ embedded = false, onBuildComplete }) => {
       });
       setExportResult(result);
       setMessage(`Pack 빌드 완료: ${result.pack_id} v${result.pack_version}`);
+      await loadExportHistory();
       if (onBuildComplete) {
         onBuildComplete(result);
       }
@@ -199,12 +212,55 @@ const PackBuilder = ({ embedded = false, onBuildComplete }) => {
         </div>
       )}
 
-      <div className="table-area" style={{ padding: '18px' }}>
-        {message && <div style={{ marginBottom: '12px', color: 'var(--color-text-sub)' }}>{message}</div>}
-        <pre style={{ margin: 0, padding: '16px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-elevated)', color: 'var(--color-text-main)', overflow: 'auto', maxHeight: '620px', fontSize: '12px', lineHeight: 1.55 }}>
-          {draft ? JSON.stringify(draft, null, 2) : 'Pack Draft가 없습니다.'}
-        </pre>
-      </div>
+      {exportHistory.length > 0 && (
+        <details className="pack-lifecycle-panel" style={{ marginBottom: '18px' }} open>
+          <summary>빌드 이력 (최근 {Math.min(exportHistory.length, 5)}건 / 전체 {exportHistory.length}건)</summary>
+          <div className="pack-lifecycle-history-body">
+            <table>
+              <thead>
+                <tr>
+                  <th>Export ID</th>
+                  <th>Pack 버전</th>
+                  <th>상태</th>
+                  <th>Intent</th>
+                  <th>Entity</th>
+                  <th>FAQ</th>
+                  <th>생성일</th>
+                  <th>다운로드</th>
+                </tr>
+              </thead>
+              <tbody>
+                {exportHistory.slice(0, 5).map((item) => (
+                  <tr key={item.export_id} style={exportResult?.export_id === item.export_id ? { background: 'rgba(59,130,246,0.08)' } : {}}>
+                    <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{item.export_id}</td>
+                    <td><strong>v{item.pack_version}</strong></td>
+                    <td><span className={`badge ${item.status === 'validated' ? 'active' : 'warning'}`}>{item.status}</span></td>
+                    <td>{item.counts?.intents ?? '-'}</td>
+                    <td>{item.counts?.entities ?? '-'}</td>
+                    <td>{item.counts?.faqs ?? '-'}</td>
+                    <td style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>{item.created_at ? new Date(item.created_at).toLocaleString('ko-KR') : '-'}</td>
+                    <td>
+                      <a className="btn-table pack-action-button" href={getPackExportDownloadUrl(projectId, item.export_id)} target="_blank" rel="noreferrer" title="ZIP 다운로드">
+                        <Download size={13} /> ZIP
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      )}
+
+      <details className="pack-lifecycle-panel">
+        <summary>Pack Draft JSON</summary>
+        <div className="pack-lifecycle-history-body">
+          {message && <div style={{ marginBottom: '12px', color: 'var(--color-text-sub)' }}>{message}</div>}
+          <pre style={{ margin: 0, padding: '16px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-elevated)', color: 'var(--color-text-main)', overflow: 'auto', maxHeight: '620px', fontSize: '12px', lineHeight: 1.55 }}>
+            {draft ? JSON.stringify(draft, null, 2) : 'Pack Draft가 없습니다.'}
+          </pre>
+        </div>
+      </details>
     </div>
   );
 };

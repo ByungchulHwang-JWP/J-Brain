@@ -138,3 +138,44 @@ export const getCompletedStepIds = (currentStepId) => {
   if (currentIndex <= 0) return [];
   return PACK_LIFECYCLE_STEPS.slice(0, currentIndex).map((step) => step.id);
 };
+
+/**
+ * pack-status API 응답 데이터를 기반으로 각 스텝의 실제 완료 여부를 판단합니다.
+ * 기존 getCompletedStepIds는 인덱스 기반 추정이었지만, 이 함수는 DB 데이터 기반으로 정확히 판단합니다.
+ */
+export const getCompletedStepIdsFromStatus = (statusData) => {
+  if (!statusData) return [];
+  const completed = [];
+
+  // build: 최소 1건 이상의 Export가 있고 미반영 변경사항이 없을 때
+  if (statusData.latest_export && !statusData.has_unexported_changes) {
+    completed.push('build');
+  }
+
+  // validation: 최근 검증이 통과(passed)되었을 때
+  if (statusData.latest_validation?.status === 'passed') {
+    completed.push('validation');
+  }
+
+  // release: Export가 1건 이상 존재 (ZIP 산출물이 생성됨)
+  if (statusData.total_exports > 0) {
+    completed.push('release');
+  }
+
+  // runtime-import: Runtime Pack Store에 반입된 Pack이 있을 때
+  if (statusData.has_runtime_packs) {
+    completed.push('runtime-import');
+  }
+
+  // approval: 승인된 Pack이 있을 때
+  if (statusData.has_approved_packs) {
+    completed.push('approval');
+  }
+
+  // activate: Active Pack이 존재할 때
+  if (statusData.active_pack?.pack_id) {
+    completed.push('activate');
+  }
+
+  return completed;
+};
