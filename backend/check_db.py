@@ -1,17 +1,20 @@
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
-from app.core.config import settings
+from app.database import get_db, engine
+from sqlalchemy.ext.asyncio import AsyncSession
 
 async def main():
-    engine = create_async_engine(settings.async_database_url)
     async with engine.connect() as conn:
-        for table in ['intent_definitions', 'intent_examples', 'intent_actions', 'intent_entities', 'entity_synonyms', 'intent_faqs', 'intent_pack_exports', 'projects']:
-            res = await conn.execute(text(f"SELECT column_name FROM information_schema.columns WHERE table_schema='graphrag' AND table_name='{table}'"))
-            cols = [r[0] for r in res.fetchall()]
-            if cols:
-                print(f"{table}: {cols}")
-            else:
-                print(f"{table}: NOT FOUND")
+        result = await conn.execute(text("SELECT status, pack_id, pack_version, created_at FROM graphrag.pack_validation_results ORDER BY created_at DESC LIMIT 5;"))
+        rows = result.fetchall()
+        print("Validation Results:")
+        for row in rows:
+            print(row)
+            
+        print("\nExports:")
+        result2 = await conn.execute(text("SELECT export_id, status, pack_version FROM graphrag.intent_pack_exports ORDER BY created_at DESC LIMIT 5;"))
+        for row in result2.fetchall():
+            print(row)
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

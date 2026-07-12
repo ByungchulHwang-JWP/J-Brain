@@ -269,7 +269,7 @@ async def get_project_pack_status(
     # 3) 현재 적용 중인 Pack
     active_sql = """
     SELECT pack_id, pack_version, previous_pack_id, previous_pack_version
-    FROM graphrag.active_pack_config
+    FROM graphrag.active_runtime_packs
     WHERE project_id = :project_id
     LIMIT 1;
     """
