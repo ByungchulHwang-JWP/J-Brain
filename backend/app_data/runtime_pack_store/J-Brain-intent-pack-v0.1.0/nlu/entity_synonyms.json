@@ -1,0 +1,82 @@
+[
+  {
+    "entity_type": "MENU",
+    "canonical_value": "FAQ Management",
+    "synonyms": [
+      "자주 묻는 질문 관리",
+      "FAQ 설정"
+    ],
+    "code": "FAQ_MANAGEMENT",
+    "is_active": true
+  },
+  {
+    "entity_type": "MENU",
+    "canonical_value": "Intent Management",
+    "synonyms": [
+      "의도 관리",
+      "인텐트 관리"
+    ],
+    "code": "INTENT_MANAGEMENT",
+    "is_active": true
+  },
+  {
+    "entity_type": "MENU",
+    "canonical_value": "Pack Builder",
+    "synonyms": [
+      "팩 생성기",
+      "팩 빌더"
+    ],
+    "code": "PACK_BUILDER",
+    "is_active": true
+  },
+  {
+    "entity_type": "MENU",
+    "canonical_value": "Source Management",
+    "synonyms": [
+      "소스 관리",
+      "문서 관리"
+    ],
+    "code": "SOURCE_MANAGEMENT",
+    "is_active": true
+  },
+  {
+    "entity_type": "ROLE",
+    "canonical_value": "Intent Designer",
+    "synonyms": [
+      "의도 설계자",
+      "인텐트 매니저"
+    ],
+    "code": "INTENT_DESIGNER",
+    "is_active": true
+  },
+  {
+    "entity_type": "ROLE",
+    "canonical_value": "Knowledge Manager",
+    "synonyms": [
+      "지식 운영자",
+      "지식 관리"
+    ],
+    "code": "KNOWLEDGE_MANAGER",
+    "is_active": true
+  },
+  {
+    "entity_type": "ROLE",
+    "canonical_value": "Project Manager",
+    "synonyms": [
+      "프로젝트 매니저",
+      "운영 PM"
+    ],
+    "code": "PROJECT_MANAGER",
+    "is_active": true
+  },
+  {
+    "entity_type": "ROLE",
+    "canonical_value": "System Admin",
+    "synonyms": [
+      "관리자",
+      "시스템 운영자"
+    ],
+    "code": "SYSTEM_ADMIN",
+    "is_active": true
+  }
+]

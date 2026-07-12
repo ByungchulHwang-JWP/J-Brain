@@ -1,0 +1,8 @@
+{
+  "pack_id": "J-Brain-intent-pack",
+  "pack_version": "0.1.2",
+  "service_id": "J-Brain",
+  "service_name": "J-Brain",
+  "target_environment": "closed_network",
+  "runtime_mode": "local_pack"
+}

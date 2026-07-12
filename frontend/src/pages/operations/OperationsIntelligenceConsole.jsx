@@ -1,5 +1,5 @@
 import ConsoleTabs from '../../components/common/ConsoleTabs';
-import Stats from '../Stats';
+import OperationMetrics from './OperationMetrics';
 import RealtimeMonitoring from './RealtimeMonitoring';
 import UnansweredAnalysis from './UnansweredAnalysis';
 import ImprovementRequests from './ImprovementRequests';
@@ -20,7 +20,7 @@ const OperationsIntelligenceConsole = () => (
       defaultTab="realtime"
       tabs={[
         { id: 'realtime', label: '실시간 모니터링', render: () => <RealtimeMonitoring embedded /> },
-        { id: 'metrics', label: '운영 지표', render: () => <Stats embedded mode="operations" /> },
+        { id: 'metrics', label: '운영 지표', render: () => <OperationMetrics embedded /> },
         { id: 'unanswered', label: '미응답 분석', render: () => <UnansweredAnalysis embedded /> },
         { id: 'improvements', label: '개선 요청', render: () => <ImprovementRequests embedded /> },
         { id: 'pack-history', label: 'Pack 개선 이력', render: () => <PackImprovementHistory embedded /> },

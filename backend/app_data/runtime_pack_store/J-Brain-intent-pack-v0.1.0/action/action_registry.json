@@ -1,0 +1,10 @@
+[
+  {
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "action_name": "J-Brain 검색",
+    "action_type": "SEARCH_DOC",
+    "description": null,
+    "execution_mode": "local",
+    "enabled": true
+  }
+]

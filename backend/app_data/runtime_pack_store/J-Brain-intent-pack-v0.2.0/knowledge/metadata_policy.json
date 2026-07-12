@@ -1,0 +1,5 @@
+{
+  "source_scopes": [],
+  "data_residency": "customer_internal_network",
+  "external_transfer": "pack_metadata_only"
+}

@@ -19,6 +19,11 @@ INTENT_FACTORY_TABLES = [
     "faq_candidates",
     "active_runtime_packs",
     "pack_operation_audit_logs",
+    "runtime_event_logs",
+    "operation_metrics",
+    "operation_improvement_requests",
+    "pack_improvement_links",
+    "project_operation_settings",
 ]
 
 
@@ -266,6 +271,83 @@ def build_create_table_sql() -> str:
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS graphrag.runtime_event_logs (
+        id BIGSERIAL PRIMARY KEY,
+        project_id VARCHAR(120) NOT NULL,
+        session_id VARCHAR(160),
+        question TEXT NOT NULL,
+        matched_intent_id VARCHAR(160),
+        action_id VARCHAR(160),
+        action_type VARCHAR(60),
+        confidence NUMERIC(4, 3),
+        confidence_label VARCHAR(40),
+        fallback_yn BOOLEAN NOT NULL DEFAULT FALSE,
+        response_status VARCHAR(40),
+        response_time_ms INTEGER,
+        active_pack_id VARCHAR(180),
+        active_pack_version VARCHAR(80),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS graphrag.operation_metrics (
+        id BIGSERIAL PRIMARY KEY,
+        project_id VARCHAR(120) NOT NULL,
+        metric_date DATE NOT NULL,
+        total_requests INTEGER NOT NULL DEFAULT 0,
+        intent_match_count INTEGER NOT NULL DEFAULT 0,
+        fallback_count INTEGER NOT NULL DEFAULT 0,
+        avg_confidence NUMERIC(4, 3) NOT NULL DEFAULT 0.0,
+        avg_response_time_ms INTEGER NOT NULL DEFAULT 0,
+        action_type_counts JSONB NOT NULL DEFAULT '{}'::jsonb,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (project_id, metric_date)
+    );
+
+    CREATE TABLE IF NOT EXISTS graphrag.operation_improvement_requests (
+        id BIGSERIAL PRIMARY KEY,
+        request_id VARCHAR(160) NOT NULL,
+        project_id VARCHAR(120) NOT NULL,
+        source_type VARCHAR(60),
+        source_log_id BIGINT,
+        request_type VARCHAR(60) NOT NULL,
+        title VARCHAR(240) NOT NULL,
+        description TEXT,
+        severity VARCHAR(40) NOT NULL DEFAULT 'medium',
+        status VARCHAR(40) NOT NULL DEFAULT 'new',
+        assigned_to BIGINT,
+        linked_intent_id VARCHAR(160),
+        linked_action_id VARCHAR(160),
+        linked_faq_id VARCHAR(160),
+        target_pack_version VARCHAR(80),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (project_id, request_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS graphrag.pack_improvement_links (
+        id BIGSERIAL PRIMARY KEY,
+        project_id VARCHAR(120) NOT NULL,
+        request_id VARCHAR(160) NOT NULL,
+        pack_id VARCHAR(180) NOT NULL,
+        pack_version VARCHAR(80) NOT NULL,
+        validation_result JSONB NOT NULL DEFAULT '{}'::jsonb,
+        deployed_yn BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (project_id, request_id, pack_id, pack_version)
+    );
+
+    CREATE TABLE IF NOT EXISTS graphrag.project_operation_settings (
+        id BIGSERIAL PRIMARY KEY,
+        project_id VARCHAR(120) NOT NULL,
+        low_confidence_threshold NUMERIC(4, 3) NOT NULL DEFAULT 0.650,
+        alert_email VARCHAR(240),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (project_id)
+    );
+
+
     CREATE INDEX IF NOT EXISTS idx_intent_definitions_project_status
         ON graphrag.intent_definitions(project_id, status);
 
@@ -307,6 +389,15 @@ def build_create_table_sql() -> str:
 
     CREATE INDEX IF NOT EXISTS idx_pack_operation_audit_logs_project_created
         ON graphrag.pack_operation_audit_logs(project_id, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_runtime_event_logs_project_created
+        ON graphrag.runtime_event_logs(project_id, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_operation_improvement_requests_project_status
+        ON graphrag.operation_improvement_requests(project_id, status);
+
+    CREATE INDEX IF NOT EXISTS idx_pack_improvement_links_project_pack
+        ON graphrag.pack_improvement_links(project_id, pack_id, pack_version);
     """
 
 

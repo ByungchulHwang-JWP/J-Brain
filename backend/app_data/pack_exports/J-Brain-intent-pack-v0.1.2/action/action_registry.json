@@ -1,0 +1,18 @@
+[
+  {
+    "action_id": "ACT_J_BRAIN_NAV_PERMISSIONS",
+    "action_name": "권한 관리 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "권한 관리 화면으로 사용자를 이동합니다.",
+    "execution_mode": "local",
+    "enabled": true
+  },
+  {
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "action_name": "J-Brain 검색",
+    "action_type": "SEARCH_DOC",
+    "description": null,
+    "execution_mode": "local",
+    "enabled": true
+  }
+]

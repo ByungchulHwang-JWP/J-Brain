@@ -1,0 +1,282 @@
+[
+  {
+    "example_id": "EX-INTENT_J_BRAIN_NAV_PERMISSIONS-01",
+    "intent_id": "INTENT_J_BRAIN_NAV_PERMISSIONS",
+    "text": "권한 관리 화면으로 가고 싶어",
+    "example": "권한 관리 화면으로 가고 싶어",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_NAV_PERMISSIONS-02",
+    "intent_id": "INTENT_J_BRAIN_NAV_PERMISSIONS",
+    "text": "권한 관리 화면으로 이동해줘",
+    "example": "권한 관리 화면으로 이동해줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_NAV_PERMISSIONS-03",
+    "intent_id": "INTENT_J_BRAIN_NAV_PERMISSIONS",
+    "text": "권한 관리 열어줘",
+    "example": "권한 관리 열어줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_NAV_PERMISSIONS-04",
+    "intent_id": "INTENT_J_BRAIN_NAV_PERMISSIONS",
+    "text": "권한 관리 메뉴로 이동",
+    "example": "권한 관리 메뉴로 이동",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_NAV_PERMISSIONS-05",
+    "intent_id": "INTENT_J_BRAIN_NAV_PERMISSIONS",
+    "text": "역할별 권한 관리 화면 보여줘",
+    "example": "역할별 권한 관리 화면 보여줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내",
+    "text": "J-Brain은 무엇인가요?",
+    "example": "J-Brain은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내",
+    "text": "J-Brain의 핵심 기능은 무엇인가요?",
+    "example": "J-Brain의 핵심 기능은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내",
+    "text": "이 시스템의 핵심 기능을 알려줘",
+    "example": "이 시스템의 핵심 기능을 알려줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내",
+    "text": "문서는 어디서 등록하나요?",
+    "example": "문서는 어디서 등록하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내",
+    "text": "Source 등록 방법 알려줘",
+    "example": "Source 등록 방법 알려줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내",
+    "text": "벡터화는 어디서 확인해?",
+    "example": "벡터화는 어디서 확인해?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내",
+    "text": "Intent Factory는 어떤 기능인가요?",
+    "example": "Intent Factory는 어떤 기능인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내",
+    "text": "Intent 설계 절차 설명해줘",
+    "example": "Intent 설계 절차 설명해줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내",
+    "text": "Intent Factory의 주요 기능은 무엇인가요?",
+    "example": "Intent Factory의 주요 기능은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "text": "Pack은 어떻게 만들어요?",
+    "example": "Pack은 어떻게 만들어요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "text": "ZIP Export는 어디서 하나요?",
+    "example": "ZIP Export는 어디서 하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "text": "고객망에 반입할 파일은 어떻게 생성해?",
+    "example": "고객망에 반입할 파일은 어떻게 생성해?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내-04",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "text": "새로운 Pack을 배포하고 활성화하는 절차를 알려줘",
+    "example": "새로운 Pack을 배포하고 활성화하는 절차를 알려줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내-05",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "text": "Pack 배포하고 활성화하는 방법 알려줘",
+    "example": "Pack 배포하고 활성화하는 방법 알려줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내-06",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "text": "Runtime Pack 승인 후 활성화 절차가 뭐야?",
+    "example": "Runtime Pack 승인 후 활성화 절차가 뭐야?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내",
+    "text": "Runtime QA는 무엇을 확인하는 화면인가요?",
+    "example": "Runtime QA는 무엇을 확인하는 화면인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내",
+    "text": "Runtime QA에서 어떤 기능을 사용할 수 있나요?",
+    "example": "Runtime QA에서 어떤 기능을 사용할 수 있나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내",
+    "text": "Runtime QA의 주요 목적은 무엇인가요?",
+    "example": "Runtime QA의 주요 목적은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동",
+    "text": "Source 관리 화면으로 이동해줘",
+    "example": "Source 관리 화면으로 이동해줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동",
+    "text": "Intent 관리 열어줘",
+    "example": "Intent 관리 열어줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동",
+    "text": "Pack Builder 화면으로 가줘",
+    "example": "Pack Builder 화면으로 가줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리",
+    "text": "이 질문은 왜 답을 못 하나요?",
+    "example": "이 질문은 왜 답을 못 하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리",
+    "text": "FAQ 후보로 등록해줘",
+    "example": "FAQ 후보로 등록해줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리",
+    "text": "이 답변을 개선 요청으로 남겨줘",
+    "example": "이 답변을 개선 요청으로 남겨줘",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용-01",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "text": "미응답 분석 메뉴는 주로 어떻게 활용하나요?",
+    "example": "미응답 분석 메뉴는 주로 어떻게 활용하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용-02",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "text": "미응답 질문을 어떻게 확인하나요?",
+    "example": "미응답 질문을 어떻게 확인하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용-03",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "text": "미응답 분석 결과를 어떻게 활용하나요?",
+    "example": "미응답 분석 결과를 어떻게 활용하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용-04",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "text": "J-Brain에서 미응답 분석 기능이 뭐야?",
+    "example": "J-Brain에서 미응답 분석 기능이 뭐야?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용-05",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "text": "미응답 분석 기능이 뭐야?",
+    "example": "미응답 분석 기능이 뭐야?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용-06",
+    "intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "text": "챗봇이 모르는 질문은 어디서 분석해?",
+    "example": "챗봇이 모르는 질문은 어디서 분석해?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  }
+]

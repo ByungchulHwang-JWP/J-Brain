@@ -1,0 +1,30 @@
+{
+  "pack_id": "J-Brain-intent-pack",
+  "pack_version": "0.2.0",
+  "project_id": "J-Brain",
+  "source": "intent_factory_db",
+  "created_at": "2026-07-12T00:14:25.802211+00:00",
+  "files": [
+    "manifest/pack_manifest.json",
+    "profile/service_profile.json",
+    "nlu/intents.json",
+    "nlu/intent_examples.json",
+    "nlu/entities.json",
+    "nlu/entity_synonyms.json",
+    "nlu/confidence_policy.json",
+    "action/action_registry.json",
+    "action/action_parameters.json",
+    "action/api_mappings.json",
+    "action/sql_templates.json",
+    "action/screen_routes.json",
+    "knowledge/faqs.json",
+    "knowledge/approved_documents.json",
+    "knowledge/metadata_policy.json",
+    "templates/response_templates.json",
+    "templates/card_templates.json",
+    "templates/fallback_templates.json",
+    "validation/validation_questions.json",
+    "validation/expected_results.json",
+    "validation/acceptance_criteria.json"
+  ]
+}

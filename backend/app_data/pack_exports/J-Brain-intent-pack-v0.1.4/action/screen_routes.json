@@ -1,0 +1,11 @@
+[
+  {
+    "route_id": "RTE-ACT_J_BRAIN_NAV_PERMISSIONS",
+    "action_id": "ACT_J_BRAIN_NAV_PERMISSIONS",
+    "menu_name": "권한 관리",
+    "route_type": "frontend",
+    "route_value": "/admin/permissions",
+    "required_role": "ROLE_ADMIN",
+    "status": "active"
+  }
+]

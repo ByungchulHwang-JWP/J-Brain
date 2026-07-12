@@ -21,7 +21,7 @@ app.add_middleware(
 async def health_check():
     return {"status": "ok", "message": "KT Net Zero AI Platform Backend is running"}
 
-from app.api import auth, projects, sources, sources_global, prompts, chat, jobs, dashboard, users, logs, stats, permissions, prompt_admin, intent_packs, intent_match, action_route, validation_runner, chat_runtime, intent_factory, intent_discovery, workflow
+from app.api import auth, projects, sources, sources_global, prompts, chat, jobs, dashboard, users, logs, stats, permissions, prompt_admin, intent_packs, intent_match, action_route, validation_runner, chat_runtime, intent_factory, intent_discovery, workflow, operations
 
 # 라우터 포함
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
@@ -45,3 +45,4 @@ app.include_router(validation_runner.router, prefix=f"{settings.API_V1_STR}/vali
 app.include_router(intent_factory.router, prefix=f"{settings.API_V1_STR}/intent-factory", tags=["intent_factory"])
 app.include_router(intent_discovery.router, prefix=f"{settings.API_V1_STR}/intent-discovery", tags=["intent_discovery"])
 app.include_router(workflow.router, prefix=f"{settings.API_V1_STR}/workflow", tags=["workflow"])
+app.include_router(operations.router, prefix=f"{settings.API_V1_STR}/projects", tags=["operations"])

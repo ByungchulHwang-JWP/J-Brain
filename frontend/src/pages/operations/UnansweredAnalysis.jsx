@@ -1,63 +1,54 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { ArrowRight, FileQuestion, RefreshCw, Send, ShieldAlert } from 'lucide-react';
 import Pagination from '../../components/common/Pagination';
-import { convertUnansweredToFaqCandidate, listUnansweredLogs } from '../../api/intentFactory';
+import ImprovementRequestDrawer from '../../components/operations/ImprovementRequestDrawer';
+import { useParams } from 'react-router-dom';
 
 const getAccessToken = () => localStorage.getItem('ai_access_token');
 
-const typeLabel = {
-  INTENT_OR_EXAMPLE: 'Intent/예문 보강',
-  ACTION_LINK: 'Action 연결',
-  EXAMPLE_COVERAGE: '예문/용어 보강',
-  FAQ_CANDIDATE: 'FAQ 후보',
-};
-
-const severityLabel = {
-  high: '높음',
-  medium: '중간',
-  low: '낮음',
-};
-
 const UnansweredAnalysis = ({ embedded = false }) => {
+  const { projectId: routeProjectId } = useParams();
   const [projects, setProjects] = useState([]);
-  const [projectId, setProjectId] = useState('');
+  const [projectId, setProjectId] = useState(routeProjectId || 'J-Brain');
   const [items, setItems] = useState([]);
-  const [counts, setCounts] = useState({ total: 0, open: 0, converted: 0 });
   const [selectedLogId, setSelectedLogId] = useState(null);
-  const [suggestedAnswer, setSuggestedAnswer] = useState('');
   const [loading, setLoading] = useState(true);
-  const [converting, setConverting] = useState(false);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerData, setDrawerData] = useState(null);
 
   useEffect(() => {
     axios.get('/api/v1/projects', {
       headers: { Authorization: `Bearer ${getAccessToken()}` },
     }).then((res) => {
       setProjects(res.data || []);
-      setProjectId((prev) => prev || res.data?.[0]?.id || 'J-Brain');
+      if (!routeProjectId && res.data?.[0]?.id) {
+        setProjectId(res.data[0].id);
+      }
     }).catch(() => {
-      setProjects([]);
-      setProjectId('J-Brain');
+      // Ignore
     });
-  }, []);
+  }, [routeProjectId]);
 
   const loadLogs = useCallback(async () => {
     if (!projectId) return;
     setLoading(true);
     setMessage('');
     try {
-      const data = await listUnansweredLogs(projectId);
-      setItems(data.items || []);
-      setCounts(data.counts || { total: 0, open: 0, converted: 0 });
-      setSelectedLogId((prev) => prev || data.items?.[0]?.log_id || null);
+      const res = await axios.get(`/api/v1/projects/${projectId}/operations/unanswered`, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+      });
+      const data = res.data.unanswered_logs || [];
+      setItems(data);
+      setSelectedLogId((prev) => prev || data[0]?.id || null);
     } catch (err) {
       console.error(err);
       setItems([]);
-      setCounts({ total: 0, open: 0, converted: 0 });
-      setMessage('미응답 로그를 불러오지 못했습니다. Runtime QA에서 fallback 질문을 먼저 실행해 주세요.');
+      setMessage('미응답 로그를 불러오지 못했습니다. 백엔드 연결을 확인해주세요.');
     } finally {
       setLoading(false);
     }
@@ -79,43 +70,40 @@ const UnansweredAnalysis = ({ embedded = false }) => {
   }, [items, currentPage, pageSize]);
 
   const selectedItem = useMemo(
-    () => items.find((item) => item.log_id === selectedLogId) || items[0],
+    () => items.find((item) => item.id === selectedLogId) || items[0],
     [items, selectedLogId],
   );
 
-  const groupedCounts = useMemo(() => (
-    items.reduce((acc, item) => {
-      const key = item.improvement_type || 'FAQ_CANDIDATE';
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {})
-  ), [items]);
+  const counts = useMemo(() => {
+    return {
+      total: items.length,
+      intentMissing: items.filter(i => i.suggested_cause === 'Intent 부재').length,
+      lowConfidence: items.filter(i => i.suggested_cause === 'Confidence 부족').length,
+      actionMissing: items.filter(i => i.suggested_cause === 'Action 미연결').length,
+    }
+  }, [items]);
 
-  const handleConvert = async () => {
-    if (!selectedItem || converting) return;
-    setConverting(true);
-    setMessage('');
+  const handleOpenDrawer = () => {
+    setDrawerData(selectedItem);
+    setDrawerOpen(true);
+  };
+
+  const handleSaveImprovement = async (formData) => {
     try {
-      const tags = [
-        selectedItem.improvement_type,
-        selectedItem.severity,
-      ].filter(Boolean);
-      await convertUnansweredToFaqCandidate(projectId, selectedItem.log_id, {
-        suggested_answer: suggestedAnswer || null,
-        tags,
+      await axios.post(`/api/v1/projects/${projectId}/operations/improvement-requests`, {
+        ...formData,
+        source_type: 'RUNTIME_LOG',
+        source_log_id: selectedItem?.id,
+        linked_intent_id: selectedItem?.matched_intent_id,
+        linked_action_id: selectedItem?.action_id
+      }, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
       });
-      setSuggestedAnswer('');
-      const successMsg = 'FAQ 후보로 전환했습니다. 개선 요청 관리 화면에서 후속 보완을 진행할 수 있습니다.';
-      setMessage(successMsg);
-      alert(successMsg);
-      await loadLogs();
+      alert('개선 요청이 성공적으로 생성되었습니다.');
+      // 선택적으로 해당 로그를 리스트에서 제거하거나 상태를 업데이트 할 수 있음
     } catch (err) {
       console.error(err);
-      const errorMsg = 'FAQ 후보 전환에 실패했습니다. 이미 전환되었거나 서버 상태를 확인해 주세요.';
-      setMessage(errorMsg);
-      alert(errorMsg);
-    } finally {
-      setConverting(false);
+      alert('개선 요청 생성에 실패했습니다.');
     }
   };
 
@@ -125,7 +113,7 @@ const UnansweredAnalysis = ({ embedded = false }) => {
         <div>
           <div className="operations-eyebrow">운영 및 개선</div>
           {embedded ? <h3>미응답 분석</h3> : <h2>미응답 분석</h2>}
-          <p>Runtime에서 fallback 또는 낮은 신뢰도로 기록된 질문을 분석하고 개선 후보로 전환합니다.</p>
+          <p>Runtime에서 fallback 또는 낮은 신뢰도로 기록된 질문을 분석하고 개선 요청으로 전환합니다.</p>
         </div>
         <div className="operations-controls">
           <select value={projectId} onChange={(e) => setProjectId(e.target.value)}>
@@ -143,9 +131,9 @@ const UnansweredAnalysis = ({ embedded = false }) => {
 
       <div className="operations-kpi-grid">
         <div className="panel operations-kpi"><span>전체 미응답</span><strong>{counts.total}</strong><small>로그 기준</small></div>
-        <div className="panel operations-kpi"><span>처리 대기</span><strong>{counts.open}</strong><small>개선 필요</small></div>
-        <div className="panel operations-kpi"><span>전환 완료</span><strong>{counts.converted}</strong><small>FAQ 후보 연결</small></div>
-        <div className="panel operations-kpi"><span>고위험</span><strong>{items.filter((item) => item.severity === 'high').length}</strong><small>Intent 보강 우선</small></div>
+        <div className="panel operations-kpi"><span>Intent 부재</span><strong>{counts.intentMissing}</strong><small>새 Intent/FAQ 필요</small></div>
+        <div className="panel operations-kpi"><span>Confidence 부족</span><strong>{counts.lowConfidence}</strong><small>예문 보강 필요</small></div>
+        <div className="panel operations-kpi"><span>Action 미연결</span><strong>{counts.actionMissing}</strong><small>Action 매핑 필요</small></div>
       </div>
 
       <div className="operations-grid">
@@ -167,17 +155,16 @@ const UnansweredAnalysis = ({ embedded = false }) => {
               <div className="operations-log-list">
                 {paginatedItems.map((item) => (
                   <button
-                    className={`operations-log-row ${selectedItem?.log_id === item.log_id ? 'active' : ''}`}
-                    key={item.log_id}
+                    className={`operations-log-row ${selectedItem?.id === item.id ? 'active' : ''}`}
+                    key={item.id}
                     type="button"
-                    onClick={() => setSelectedLogId(item.log_id)}
+                    onClick={() => setSelectedLogId(item.id)}
                   >
-                    <span className={`severity ${item.severity}`}>{severityLabel[item.severity] || item.severity}</span>
+                    <span className={`severity medium`}>{item.fallback_yn ? 'Fallback' : '저신뢰'}</span>
                     <div>
                       <strong>{item.question}</strong>
-                      <small>{item.log_id} · {typeLabel[item.improvement_type] || item.improvement_type} · {item.confidence_label}</small>
+                      <small>{item.suggested_cause} · Confidence: {item.confidence?.toFixed(2) || '-'}</small>
                     </div>
-                    <span className={`status ${item.status === 'open' ? 'open' : 'done'}`}>{item.status}</span>
                   </button>
                 ))}
               </div>
@@ -207,40 +194,29 @@ const UnansweredAnalysis = ({ embedded = false }) => {
           {selectedItem ? (
             <>
               <div className="operations-question-card">
-                <span>{selectedItem.log_id}</span>
                 <strong>{selectedItem.question}</strong>
-                <p>{selectedItem.reason}</p>
+                <p>{selectedItem.suggested_cause}</p>
               </div>
               <div className="operations-meta-grid">
-                <div><span>개선 유형</span><strong>{typeLabel[selectedItem.improvement_type] || selectedItem.improvement_type}</strong></div>
-                <div><span>신뢰도</span><strong>{selectedItem.confidence_label}</strong></div>
-                <div><span>Intent</span><strong>{selectedItem.intent_id || '-'}</strong></div>
+                <div><span>추천 개선방향</span><strong>{selectedItem.suggested_cause}</strong></div>
+                <div><span>신뢰도</span><strong>{selectedItem.confidence?.toFixed(2) || '-'}</strong></div>
+                <div><span>Intent</span><strong>{selectedItem.matched_intent_id || '-'}</strong></div>
                 <div><span>Action</span><strong>{selectedItem.action_id || '-'}</strong></div>
               </div>
-              <label className="operations-field">
-                <span>FAQ 후보 답변 초안</span>
-                <textarea
-                  rows={5}
-                  value={suggestedAnswer}
-                  onChange={(e) => setSuggestedAnswer(e.target.value)}
-                  placeholder="운영자가 확인한 답변 초안을 입력합니다. 비워두면 질문만 FAQ 후보로 등록됩니다."
-                />
-              </label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '20px' }}>
                 <button
                   className="btn-primary"
                   type="button"
-                  onClick={handleConvert}
-                  disabled={converting || selectedItem.status !== 'open'}
+                  onClick={handleOpenDrawer}
                 >
-                  <Send size={15} /> FAQ 후보로 전환
+                  <Send size={15} /> 개선 요청 생성
                 </button>
-                {selectedItem.intent_id && (
+                {selectedItem.matched_intent_id && (
                   <button
                     className="btn-secondary"
                     type="button"
                     onClick={() => {
-                      const url = `/admin/intent-factory/intents/${encodeURIComponent(selectedItem.intent_id)}?project=${encodeURIComponent(projectId)}`;
+                      const url = `/admin/intent-factory/intents/${encodeURIComponent(selectedItem.matched_intent_id)}?project=${encodeURIComponent(projectId)}`;
                       window.open(url, '_blank');
                     }}
                   >
@@ -255,17 +231,12 @@ const UnansweredAnalysis = ({ embedded = false }) => {
         </aside>
       </div>
 
-      <div className="panel operations-type-summary">
-        <h3>개선 유형별 분포</h3>
-        <div>
-          {Object.entries(typeLabel).map(([key, label]) => (
-            <span key={key}>{label} <strong>{groupedCounts[key] || 0}</strong></span>
-          ))}
-        </div>
-        <button className="btn-secondary" type="button" onClick={() => window.location.assign('/admin/operations?tab=improvements')}>
-          개선 요청 관리로 이동 <ArrowRight size={15} />
-        </button>
-      </div>
+      <ImprovementRequestDrawer 
+        isOpen={drawerOpen} 
+        onClose={() => setDrawerOpen(false)} 
+        logData={drawerData}
+        onSave={handleSaveImprovement}
+      />
     </div>
   );
 };

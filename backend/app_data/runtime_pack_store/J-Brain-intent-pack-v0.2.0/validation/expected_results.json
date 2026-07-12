@@ -1,0 +1,100 @@
+[
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_01_J_BRAIN_소개_안내",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_02_SOURCE_관리_안내",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_03_INTENT_FACTORY_사용_안내",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_05_RUNTIME_QA_안내",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_06_메뉴_이동",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_07_개선_요청_관리",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VQ-J-BRAIN-DEMO-UNANSWERED",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_08_미응답_분석_활용",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.6,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VQ-J-BRAIN-DEMO-NAV-PERMISSIONS",
+    "expected_intent_id": "INTENT_J_BRAIN_NAV_PERMISSIONS",
+    "expected_action_id": "ACT_J_BRAIN_NAV_PERMISSIONS",
+    "min_confidence_score": 0.6,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VQ-J-BRAIN-DEMO-PACK-ACTIVATE",
+    "expected_intent_id": "INTENT_J_BRAIN_SEARCH_DOC_04_PACK_BUILD_안내",
+    "expected_action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "min_confidence_score": 0.6,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VQ-J-BRAIN-DEMO-QUERY",
+    "expected_intent_id": "INTENT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "expected_action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "min_confidence_score": 0.6,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VQ-J-BRAIN-DEMO-API",
+    "expected_intent_id": "INTENT_J_BRAIN_API_DASHBOARD_STATS",
+    "expected_action_id": "ACT_J_BRAIN_API_DASHBOARD_STATS",
+    "min_confidence_score": 0.6,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VQ-J-BRAIN-DEMO-DOWNLOAD",
+    "expected_intent_id": "INTENT_J_BRAIN_DOWNLOAD_PACK",
+    "expected_action_id": "ACT_J_BRAIN_DOWNLOAD_PACK",
+    "min_confidence_score": 0.6,
+    "expected_entities": []
+  }
+]

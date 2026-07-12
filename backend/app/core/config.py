@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     
     # OpenAI (For LangGraph / Embeddings)
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = ""
 
     @property
     def async_database_url(self) -> str:
