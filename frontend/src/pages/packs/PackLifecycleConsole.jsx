@@ -12,7 +12,7 @@ import { getCompletedStepIdsFromStatus } from './packLifecycleModel';
 const tabToStep = {
   build: 'build',
   validation: 'validation',
-  repository: 'runtime-import',
+  repository: 'repository',
 };
 
 const formatPackLabel = (pack) => {
@@ -57,13 +57,8 @@ const PackLifecycleConsole = () => {
     fetchPackStatus();
   }, [projectId]);
 
-  const hasExplicitNavigation = searchParams.has('tab') || searchParams.has('step');
   const activeTab = searchParams.get('tab') || (hasUnexportedChanges ? 'build' : 'repository');
-  const selectedStep = searchParams.get('step');
-  const currentStepId = selectedStep
-    || (!hasExplicitNavigation && activeTab === 'repository' ? repositorySummary?.currentStepId : null)
-    || tabToStep[activeTab]
-    || 'runtime-import';
+  const currentStepId = tabToStep[activeTab] || 'repository';
 
   const selectStep = (step) => {
     if (step.targetPath) {
@@ -72,11 +67,6 @@ const PackLifecycleConsole = () => {
     }
     const next = new URLSearchParams(searchParams);
     next.set('tab', step.targetTab);
-    if (step.targetTab === 'repository') {
-      next.set('step', step.id);
-    } else {
-      next.delete('step');
-    }
     setSearchParams(next, { replace: true });
   };
 
@@ -218,7 +208,6 @@ const PackLifecycleConsole = () => {
                 onClick={() => {
                   const next = new URLSearchParams(searchParams);
                   next.set('tab', 'repository');
-                  next.set('step', 'runtime-import');
                   setSearchParams(next, { replace: true });
                 }}
               >

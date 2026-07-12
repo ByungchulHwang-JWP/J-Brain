@@ -313,7 +313,7 @@ const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
           <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0 20px', margin: 0 }}>
             <div>
               <h2 style={{ fontWeight: 700 }}>Release & Deploy</h2>
-              <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>Pack을 Runtime Store에 반입하고, 운영 승인 후 챗봇에 적용합니다.</p>
+              <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>1단계에서 빌드된 패키지를 챗봇 Runtime에 반입하고, 운영 승인 후 라이브 서버에 적용합니다.</p>
             </div>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
@@ -329,7 +329,7 @@ const PackRepository = ({ embedded = false, onLifecycleSummaryChange }) => {
         <div className="console-embedded-toolbar">
           <div>
             <h3>Release & Deploy</h3>
-            <p>Import는 반입, Approve는 운영 승인, Activate는 실제 챗봇 적용입니다.</p>
+            <p>1단계에서 빌드된 패키지를 챗봇 Runtime에 반입하고, 운영 승인 후 라이브 서버에 적용합니다.</p>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>

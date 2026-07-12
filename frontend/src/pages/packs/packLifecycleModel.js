@@ -1,10 +1,7 @@
 export const PACK_LIFECYCLE_STEPS = [
-  { id: 'build', label: 'Build / Pack 생성', description: 'Pack 구성 생성', targetTab: 'build' },
-  { id: 'validation', label: 'Validation / 품질 검증', description: '검증 질문 통과', targetTab: 'validation' },
-  { id: 'release', label: 'Release / 산출물 생성', description: 'Export ZIP 생성', targetTab: 'repository' },
-  { id: 'runtime-import', label: 'Runtime Store 반입', description: 'Store 적재 및 Loader 검증', targetTab: 'repository' },
-  { id: 'approval', label: '운영 승인', description: '승인 또는 반려', targetTab: 'repository' },
-  { id: 'activate', label: '챗봇 적용', description: '현재 적용 Pack 전환', targetTab: 'repository' },
+  { id: 'build', label: 'Build & Export', description: 'Pack 구성 생성', targetTab: 'build' },
+  { id: 'validation', label: 'Validation', description: '품질 검증 통과', targetTab: 'validation' },
+  { id: 'repository', label: 'Release & Deploy', description: '배포 및 운영 적용', targetTab: 'repository' },
   { id: 'runtime-test', label: 'Runtime 테스트', description: '위젯과 Simulation 확인', targetPath: '/admin/runtime?tab=chat' },
 ];
 
@@ -94,7 +91,7 @@ export const getPackLifecycleSummary = ({ exports = [], runtimePacks = [], activ
       activeLabel: formatPackLabel(activePack),
       rollbackLabel,
       nextActionLabel: `${formatPackLabel(approvedPendingPack)} 챗봇 적용`,
-      currentStepId: 'activate',
+      currentStepId: 'repository',
     };
   }
 
@@ -103,7 +100,7 @@ export const getPackLifecycleSummary = ({ exports = [], runtimePacks = [], activ
       activeLabel: formatPackLabel(activePack),
       rollbackLabel,
       nextActionLabel: `${formatPackLabel(importedPendingPack)} 운영 승인`,
-      currentStepId: 'approval',
+      currentStepId: 'repository',
     };
   }
 
@@ -121,7 +118,7 @@ export const getPackLifecycleSummary = ({ exports = [], runtimePacks = [], activ
       activeLabel: formatPackLabel(activePack),
       rollbackLabel,
       nextActionLabel: `${latestExport.pack_id} v${latestExport.pack_version} Runtime Store 반입`,
-      currentStepId: 'runtime-import',
+      currentStepId: 'repository',
     };
   }
 
@@ -157,24 +154,10 @@ export const getCompletedStepIdsFromStatus = (statusData) => {
     completed.push('validation');
   }
 
-  // release: Export가 1건 이상 존재 (ZIP 산출물이 생성됨)
-  if (statusData.total_exports > 0) {
-    completed.push('release');
-  }
-
-  // runtime-import: Runtime Pack Store에 반입된 Pack이 있을 때
-  if (statusData.has_runtime_packs) {
-    completed.push('runtime-import');
-  }
-
-  // approval: 승인된 Pack이 있을 때
-  if (statusData.has_approved_packs) {
-    completed.push('approval');
-  }
-
-  // activate: Active Pack이 존재할 때
+  // repository (Release & Deploy): Active Pack이 존재할 때
+  // (반입, 승인, 챗봇 적용까지 끝났음을 의미)
   if (statusData.active_pack?.pack_id) {
-    completed.push('activate');
+    completed.push('repository');
   }
 
   return completed;
