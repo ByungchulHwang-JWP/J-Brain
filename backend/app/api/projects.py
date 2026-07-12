@@ -202,3 +202,36 @@ async def create_project(
         "status": "active",
         "created_at": row.created_at.strftime("%Y-%m-%d") if row and row.created_at else datetime.now().strftime("%Y-%m-%d")
     }
+
+
+@router.get("/{project_id}/pack-status")
+async def get_project_pack_status(
+    project_id: str,
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """
+    현재 프로젝트의 Intent/Entity 등 설계 데이터가 
+    마지막으로 Export된 패키지 생성일보다 최신인지(변경사항이 있는지) 확인합니다.
+    """
+    sql = """
+    SELECT
+      GREATEST(
+        COALESCE((SELECT MAX(updated_at) FROM graphrag.intent_definitions WHERE project_id = :project_id), '1970-01-01'::timestamp),
+        COALESCE((SELECT MAX(updated_at) FROM graphrag.intent_examples WHERE project_id = :project_id), '1970-01-01'::timestamp),
+        COALESCE((SELECT MAX(updated_at) FROM graphrag.intent_entities WHERE project_id = :project_id), '1970-01-01'::timestamp),
+        COALESCE((SELECT MAX(updated_at) FROM graphrag.entity_synonyms WHERE project_id = :project_id), '1970-01-01'::timestamp),
+        COALESCE((SELECT MAX(updated_at) FROM graphrag.intent_faqs WHERE project_id = :project_id), '1970-01-01'::timestamp)
+      ) > COALESCE(
+        (SELECT MAX(created_at) FROM graphrag.intent_pack_exports WHERE project_id = :project_id AND status = 'completed'),
+        '1970-01-01'::timestamp
+      ) AS has_unexported_changes;
+    """
+    result = await db.execute(text(sql), {"project_id": project_id})
+    row = result.fetchone()
+    has_changes = row.has_unexported_changes if row else False
+    
+    # 만약 GREATEST 쪽이 1970-01-01이라면 변경사항 없음(데이터가 아예 없음)
+    if not has_changes:
+        return {"has_unexported_changes": False}
+        
+    return {"has_unexported_changes": has_changes}

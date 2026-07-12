@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import { useProjectContext } from '../../context/ProjectContext';
 import PackBuilder from './PackBuilder';
 import PackValidation from './PackValidation';
 import PackRepository from './PackRepository';
@@ -31,9 +33,38 @@ const tabSummary = {
 const PackLifecycleConsole = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { selectedProjectId } = useProjectContext();
+  const routeProjectId = searchParams.get('projectId') || searchParams.get('project');
+  const projectId = routeProjectId || selectedProjectId;
+
   const [repositorySummary, setRepositorySummary] = useState(null);
+  const [hasUnexportedChanges, setHasUnexportedChanges] = useState(false);
+
+  useEffect(() => {
+    if (!projectId) return;
+    const fetchStatus = async () => {
+      try {
+        const res = await axios.get(`/api/v1/projects/${encodeURIComponent(projectId)}/pack-status`);
+        if (res.data?.has_unexported_changes) {
+          setHasUnexportedChanges(true);
+          if (!searchParams.has('tab') || searchParams.get('tab') !== 'build') {
+            const next = new URLSearchParams(searchParams);
+            next.set('tab', 'build');
+            next.delete('step');
+            setSearchParams(next, { replace: true });
+          }
+        } else {
+          setHasUnexportedChanges(false);
+        }
+      } catch (err) {
+        console.error('Failed to fetch pack status', err);
+      }
+    };
+    fetchStatus();
+  }, [projectId, searchParams]);
+
   const hasExplicitNavigation = searchParams.has('tab') || searchParams.has('step');
-  const activeTab = searchParams.get('tab') || 'repository';
+  const activeTab = searchParams.get('tab') || (hasUnexportedChanges ? 'build' : 'repository');
   const selectedStep = searchParams.get('step');
   const currentStepId = selectedStep
     || (!hasExplicitNavigation && activeTab === 'repository' ? repositorySummary?.currentStepId : null)
@@ -72,6 +103,25 @@ const PackLifecycleConsole = () => {
         completedStepIds={getCompletedStepIds(currentStepId)}
         onStepSelect={selectStep}
       />
+
+      {hasUnexportedChanges && activeTab === 'build' && (
+        <div style={{
+          background: 'rgba(255, 171, 0, 0.1)',
+          border: '1px solid var(--color-warning)',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          margin: '0 0 20px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          color: 'var(--color-warning)'
+        }}>
+          <span style={{ fontSize: '18px' }}>⚠️</span>
+          <span style={{ fontSize: '14px', fontWeight: 600 }}>
+            Intent 설계에 미반영 변경 사항이 감지되었습니다. 최신 상태를 챗봇에 적용하려면 새로운 Pack을 빌드해 주세요.
+          </span>
+        </div>
+      )}
 
       {activeTab === 'build' && (
         <>
