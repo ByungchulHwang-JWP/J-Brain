@@ -1,40 +1,35 @@
 import React from 'react';
 import { ShieldCheck, AlertTriangle, Info, ChevronRight } from 'lucide-react';
+import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 
-const SparklineChart = ({ color, gradientId }) => (
-  <svg 
-    width="100%" 
-    height="100%" 
-    viewBox="0 0 300 100" 
-    preserveAspectRatio="none" 
-    style={{ position: 'absolute', right: 0, bottom: 0, width: '40%', height: '80%', zIndex: 0, opacity: 0.8 }}
-  >
-    <defs>
-      <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor={color} stopOpacity="0.2" />
-        <stop offset="100%" stopColor={color} stopOpacity="0" />
-      </linearGradient>
-    </defs>
-    <path 
-      d="M0 80 Q 30 70, 60 80 T 120 70 T 180 50 T 240 60 T 300 40 L 300 100 L 0 100 Z" 
-      fill={`url(#${gradientId})`} 
-    />
-    <path 
-      d="M0 80 Q 30 70, 60 80 T 120 70 T 180 50 T 240 60 T 300 40" 
-      fill="none" 
-      stroke={color} 
-      strokeWidth="2" 
-      strokeDasharray="4 4"
-    />
-    <circle cx="60" cy="80" r="3" fill={color} />
-    <circle cx="120" cy="70" r="3" fill={color} />
-    <circle cx="180" cy="50" r="3" fill={color} />
-    <circle cx="240" cy="60" r="3" fill={color} />
-    <circle cx="300" cy="40" r="3" fill={color} />
-  </svg>
-);
+const SparklineChart = ({ color, gradientId, data, dataKey }) => {
+  if (!data || data.length === 0) return null;
+  return (
+    <div style={{ position: 'absolute', right: 0, bottom: 0, width: '40%', height: '80%', zIndex: 0, opacity: 0.8 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+              <stop offset="100%" stopColor={color} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <YAxis hide domain={['dataMin', 'dataMax']} />
+          <Area 
+            type="monotone" 
+            dataKey={dataKey} 
+            stroke={color} 
+            fill={`url(#${gradientId})`} 
+            strokeWidth={2}
+            isAnimationActive={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
 
-const OperationHealthPanel = ({ type = 'health', title, statusBadge, description, metrics, onAction }) => {
+const OperationHealthPanel = ({ type = 'health', title, statusBadge, description, metrics, trend, onAction }) => {
   const isHealthy = type === 'health';
   
   const iconColor = isHealthy ? '#4caf50' : '#ff9800';
@@ -58,7 +53,12 @@ const OperationHealthPanel = ({ type = 'health', title, statusBadge, description
       }}
       onClick={!isHealthy ? onAction : undefined}
     >
-      <SparklineChart color={iconColor} gradientId={`sparkline-${type}`} />
+      <SparklineChart 
+        color={iconColor} 
+        gradientId={`sparkline-${type}`} 
+        data={trend} 
+        dataKey={type === 'health' ? 'errors' : 'requests'} 
+      />
       
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>

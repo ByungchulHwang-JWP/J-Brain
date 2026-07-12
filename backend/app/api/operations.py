@@ -38,6 +38,22 @@ async def get_realtime_operations(
     )
     kpi_row = kpi_res.fetchone()
     
+    trend_res = await db.execute(
+        text("""
+            SELECT 
+                TO_CHAR(created_at, 'YYYY-MM-DD HH24:00') as time_bucket,
+                COUNT(*) as req_count,
+                SUM(CASE WHEN response_status = 'error' THEN 1 ELSE 0 END) as err_count
+            FROM graphrag.runtime_event_logs
+            WHERE project_id = :pid
+              AND created_at >= NOW() - INTERVAL '12 hour'
+            GROUP BY time_bucket
+            ORDER BY time_bucket ASC
+        """),
+        {"pid": project_id}
+    )
+    trend_rows = trend_res.fetchall()
+    
     logs_res = await db.execute(
         text("""
             SELECT id, session_id, question, matched_intent_id, action_id, action_type,
@@ -64,6 +80,13 @@ async def get_realtime_operations(
             "avg_response_time": float(kpi_row.avg_response_time) if kpi_row and kpi_row.avg_response_time else 0,
             "error_count": kpi_row.error_count if kpi_row and kpi_row.error_count else 0,
         },
+        "trend": [
+            {
+                "time": r.time_bucket,
+                "requests": r.req_count,
+                "errors": r.err_count
+            } for r in trend_rows
+        ],
         "recent_logs": [
             {
                 "id": r.id,

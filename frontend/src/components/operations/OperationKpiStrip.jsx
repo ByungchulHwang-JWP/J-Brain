@@ -51,20 +51,36 @@ const KpiCard = ({ icon: Icon, iconBg, iconColor, title, value, unit, badge, tre
   </div>
 );
 
+import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
+
 const ProgressBar = ({ percent, color }) => (
   <div style={{ width: '40px', height: '4px', backgroundColor: 'var(--color-bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
-    <div style={{ width: `${percent}%`, height: '100%', backgroundColor: color, borderRadius: '2px' }} />
+    <div style={{ width: `${Math.min(100, Math.max(0, percent))}%`, height: '100%', backgroundColor: color, borderRadius: '2px' }} />
   </div>
 );
 
-const MiniChart = () => (
-  <svg width="40" height="16" viewBox="0 0 40 16" fill="none">
-    <path d="M0 16L4 12L8 14L12 8L16 10L20 4L24 6L28 2L32 6L36 0L40 4V16H0Z" fill="rgba(33, 150, 243, 0.15)" />
-    <path d="M0 16L4 12L8 14L12 8L16 10L20 4L24 6L28 2L32 6L36 0L40 4" stroke="#2196f3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+const MiniChart = ({ data }) => {
+  if (!data || data.length === 0) return null;
+  return (
+    <div style={{ width: '40px', height: '16px' }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data}>
+          <YAxis hide domain={['dataMin', 'dataMax']} />
+          <Area 
+            type="monotone" 
+            dataKey="requests" 
+            stroke="#2196f3" 
+            fill="rgba(33, 150, 243, 0.15)" 
+            strokeWidth={1.5}
+            isAnimationActive={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
 
-const OperationKpiStrip = ({ data }) => {
+const OperationKpiStrip = ({ data, trend }) => {
   if (!data) return null;
 
   return (
@@ -74,42 +90,42 @@ const OperationKpiStrip = ({ data }) => {
         title="Active Pack 버전" 
         value={data.active_pack}
         badge="최신"
-        trendText="배포일 2026.07.12 15:30"
+        trendText="현재 서비스 중인 모델 팩입니다."
       />
       <KpiCard 
         icon={MessageSquare} iconBg="rgba(33, 150, 243, 0.1)" iconColor="#2196f3"
         title="최근 1시간 요청 수" 
         value={data.requests_last_hour} unit="건"
-        trend="▲ 18.6%" trendColor="#2196f3" trendText="(vs 1시간 전)"
-        extra={<MiniChart />}
+        trendText="(최근 12시간 추이)"
+        extra={<MiniChart data={trend} />}
       />
       <KpiCard 
         icon={Target} iconBg="rgba(76, 175, 80, 0.1)" iconColor="#4caf50"
         title="Intent 매칭률" 
         value={data.intent_match_rate.toFixed(1)} unit="%"
-        trend="▲ 4.1%" trendColor="#4caf50" trendText="(vs 1시간 전)"
-        extra={<ProgressBar percent={82} color="#4caf50" />}
+        trendText="(안정권: 80% 이상)"
+        extra={<ProgressBar percent={data.intent_match_rate} color="#4caf50" />}
       />
       <KpiCard 
         icon={AlertTriangle} iconBg="rgba(244, 67, 54, 0.1)" iconColor="#f44336"
         title="Fallback 발생률" 
         value={data.fallback_rate.toFixed(1)} unit="%"
-        trend="▼ 4.1%" trendColor="#f44336" trendText="(vs 1시간 전)"
-        extra={<ProgressBar percent={17} color="#f44336" />}
+        trendText="(경고: 15% 이상)"
+        extra={<ProgressBar percent={data.fallback_rate} color="#f44336" />}
       />
       <KpiCard 
         icon={Activity} iconBg="rgba(156, 39, 176, 0.1)" iconColor="#9c27b0"
         title="평균 응답 시간" 
         value={Math.round(data.avg_response_time)} unit="ms"
-        trend="▼ 36ms" trendColor="#4caf50" trendText="(vs 1시간 전)"
-        extra={<ProgressBar percent={40} color="#9c27b0" />}
+        trendText="(적정: 500ms 미만)"
+        extra={<ProgressBar percent={Math.min((data.avg_response_time / 1000) * 100, 100)} color="#9c27b0" />}
       />
       <KpiCard 
         icon={Shield} iconBg="rgba(76, 175, 80, 0.1)" iconColor="#4caf50"
         title="오류 발생 수" 
         value={data.error_count} unit="건"
-        trend="—" trendColor="var(--color-text-muted)" trendText="(vs 1시간 전)"
-        extra={<ProgressBar percent={5} color="#e0e0e0" />}
+        trendText="(최근 1시간 통계)"
+        extra={<ProgressBar percent={data.error_count > 0 ? 100 : 0} color="#e0e0e0" />}
       />
     </div>
   );

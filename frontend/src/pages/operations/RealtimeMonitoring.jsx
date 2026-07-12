@@ -76,7 +76,7 @@ const RealtimeMonitoring = ({ embedded = false }) => {
 
   const content = (
     <>
-      <OperationKpiStrip data={data.kpi} />
+      <OperationKpiStrip data={data.kpi} trend={data.trend} />
       
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         <OperationHealthPanel 
@@ -89,6 +89,7 @@ const RealtimeMonitoring = ({ embedded = false }) => {
             { label: "연속 정상 시간", value: "7시간 28분" },
             { label: "최근 장애", value: `${data.kpi.error_count}건 (24시간)` }
           ]}
+          trend={data.trend}
           onAction={handleScrollToLogs}
         />
         <OperationHealthPanel 
@@ -101,6 +102,7 @@ const RealtimeMonitoring = ({ embedded = false }) => {
             { label: "임계 기준", value: "20% 미만" },
             { label: "권장 조치", value: data.kpi.fallback_rate >= 10 ? "미응답 분석" : "해당 없음", valueColor: data.kpi.fallback_rate >= 10 ? "#f44336" : "var(--color-text-main)" }
           ]}
+          trend={data.trend}
           onAction={handleNavigateToUnanswered}
         />
       </div>
