@@ -235,24 +235,6 @@ const OpsImprovementStage = ({ projectId, stage, summary }) => {
           </table>
         </div>
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>다음 개선 사이클</h3>
-              <p>운영 분석 결과를 다시 구축 워크플로우로 환류합니다.</p>
-            </div>
-            <RefreshCw size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>1</strong><span>미응답/불만 질문 분류</span></div>
-            <div><strong>2</strong><span>Intent/FAQ/Action 개선 위치 결정</span></div>
-            <div><strong>3</strong><span>새 Draft Pack 생성</span></div>
-            <div><strong>4</strong><span>검증 후 재배포</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/3`)}>
-            의도 설계 단계로 돌아가기 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       <div className="panel workflow-table-card">

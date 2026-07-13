@@ -251,6 +251,17 @@ const CandidateReview = ({ embedded = false }) => {
 
       {message && <div className="workflow-message">{message}</div>}
 
+      {!embedded && summary.unprocessed_sources_count > 0 && (
+        <div className="workflow-message" style={{ backgroundColor: '#eef2ff', color: '#312e81', border: '1px solid #c7d2fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <strong>알림:</strong> 분석되지 않은 새로운 지식 문서가 감지되었습니다. ({summary.unprocessed_sources_count}건)
+          </div>
+          <button className="btn-secondary" style={{ backgroundColor: '#fff', padding: '4px 12px', fontSize: '13px' }} type="button" onClick={() => handleRun('new')} disabled={running || !projectId}>
+            <Sparkles size={14} /> 신규 자료 자동 분석
+          </button>
+        </div>
+      )}
+
       {!embedded && latestRun && (
         <div className="workflow-inline-note">
           최근 분석 결과: {latestRun.scope === 'new' ? '신규 자료 분석' : '전체 재분석'}

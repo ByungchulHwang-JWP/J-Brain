@@ -235,24 +235,6 @@ const DeployActivateStage = ({ projectId, stage, summary }) => {
           </table>
         </div>
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>배포 정책</h3>
-              <p>폐쇄망 Runtime 운영을 위한 기본 통제 원칙입니다.</p>
-            </div>
-            <CheckCircle2 size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>{validatedExports.length}</strong><span>반입 가능 Export ZIP</span></div>
-            <div><strong>{approvedPacks.length}</strong><span>운영 승인 Pack</span></div>
-            <div><strong>{rejectedPacks.length}</strong><span>반려 Pack</span></div>
-            <div><strong>{rollbackReady ? 1 : 0}</strong><span>Rollback 후보</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/6?tab=12`)}>
-            운영 분석/개선 탭으로 이동 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       <div className="panel workflow-table-card">

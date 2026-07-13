@@ -236,24 +236,6 @@ const PackBuildStage = ({ projectId, stage, summary }) => {
           </table>
         </div>
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>Build 흐름</h3>
-              <p>운영자가 Pack을 생성할 때 따라야 하는 표준 절차입니다.</p>
-            </div>
-            <CheckCircle2 size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>1</strong><span>DB Draft 생성</span></div>
-            <div><strong>2</strong><span>필수 파일 검증</span></div>
-            <div><strong>3</strong><span>ZIP Export 생성</span></div>
-            <div><strong>4</strong><span>Repository 이력 확인</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/6?tab=11`)}>
-            6단계 배포/활성화 탭으로 이동 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       <div className="panel workflow-table-card">

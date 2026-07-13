@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import useProjects from '../hooks/useProjects';
+import { useProjectContext } from '../context/ProjectContext';
 import ActionCard from '../components/chat/ActionCard';
 import IntentDiagnostics from '../components/chat/IntentDiagnostics';
 
@@ -17,7 +17,7 @@ const FORM_INPUT = {
 
 const RetrievalTest = ({ embedded = false }) => {
   const [query, setQuery] = useState('');
-  const { projects } = useProjects();
+  const { projects, selectedProjectId } = useProjectContext();
   const [domain, setDomain] = useState('');
   const [strategy, setStrategy] = useState('ACTION_ROUTER');
   const [results, setResults] = useState([]);
@@ -25,12 +25,14 @@ const RetrievalTest = ({ embedded = false }) => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('answer');
 
-  // 프로젝트 로드 후 첫 번째 자동 선택
+  // 글로벌 프로젝트 선택 동기화
   useEffect(() => {
-    if (projects.length > 0 && !domain) {
+    if (selectedProjectId) {
+      setDomain(selectedProjectId);
+    } else if (projects.length > 0 && !domain) {
       setDomain(projects[0].id);
     }
-  }, [projects]);
+  }, [projects, selectedProjectId]);
 
   const handleSearch = async (e) => {
     e.preventDefault();

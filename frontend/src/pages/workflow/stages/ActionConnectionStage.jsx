@@ -371,24 +371,6 @@ const ActionConnectionStage = ({ projectId, stage, summary }) => {
           </div>
         </div>
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>Action 유형 분포</h3>
-              <p>Pack에 포함될 실행 방식을 유형별로 확인합니다.</p>
-            </div>
-            <CheckCircle2 size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>{navigateActions.length}</strong><span>화면 이동 Action</span></div>
-            <div><strong>{searchActions.length}</strong><span>문서 검색 Action</span></div>
-            <div><strong>{queryActions.length}</strong><span>API/정형 조회 Action</span></div>
-            <div><strong>{linkedIntents.length}</strong><span>연결된 Intent</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/5?tab=8`)}>
-            5단계 Pack 검증/빌드로 이동 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       {actionDrawerOpen && (

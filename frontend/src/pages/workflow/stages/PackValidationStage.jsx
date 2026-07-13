@@ -216,24 +216,6 @@ const PackValidationStage = ({ projectId, stage, summary }) => {
           </table>
         </div>
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>실패 항목 처리 흐름</h3>
-              <p>검증 실패는 Intent Example, Action 연결, Confidence 기준 중 하나를 보강해야 합니다.</p>
-            </div>
-            <ListChecks size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>1</strong><span>Fail 질문 확인</span></div>
-            <div><strong>2</strong><span>Intent/Example 보강</span></div>
-            <div><strong>3</strong><span>Action 연결 재확인</span></div>
-            <div><strong>4</strong><span>검증 재실행</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/5?tab=9`)}>
-            Runtime 시뮬레이션 탭으로 이동 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       <div className="panel workflow-table-card">

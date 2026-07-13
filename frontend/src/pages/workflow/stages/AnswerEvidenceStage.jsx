@@ -236,24 +236,6 @@ const AnswerEvidenceStage = ({ projectId, stage, summary }) => {
           </table>
         </div>
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>미응답 FAQ 후보</h3>
-              <p>미응답 질문은 FAQ 후보로 전환해 답변 근거를 지속적으로 보강합니다.</p>
-            </div>
-            <CheckCircle2 size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>1</strong><span>미응답 질문 수집</span></div>
-            <div><strong>2</strong><span>FAQ 후보 검토</span></div>
-            <div><strong>3</strong><span>승인된 FAQ 등록</span></div>
-            <div><strong>4</strong><span>Pack Export 반영</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/4`)}>
-            4단계 실행 연결로 이동 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       {!evidenceReady && (

@@ -190,6 +190,15 @@ async def api_apply_approved_discovery_candidates(
 @router.get("/projects/{project_id}/summary")
 async def api_get_discovery_summary(
     project_id: str,
+    db: AsyncSession = Depends(get_db),
     user_id: str = Depends(get_current_user_id),
 ) -> dict[str, Any]:
-    return {"project_id": project_id, "summary": default_candidate_store().summary(project_id)}
+    summary = default_candidate_store().summary(project_id)
+    
+    # Check unprocessed sources
+    sources = await _load_project_sources(db, project_id)
+    analyzed_source_ids = default_candidate_store().analyzed_source_ids(project_id)
+    unprocessed = [s for s in sources if s["id"] not in analyzed_source_ids]
+    summary["unprocessed_sources_count"] = len(unprocessed)
+    
+    return {"project_id": project_id, "summary": summary}

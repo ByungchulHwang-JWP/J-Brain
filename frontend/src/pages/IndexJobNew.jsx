@@ -2,21 +2,23 @@ import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import useProjects from '../hooks/useProjects';
+import { useProjectContext } from '../context/ProjectContext';
 
 const IndexJobNew = () => {
   const navigate = useNavigate();
   const [jobType, setJobType] = useState('FULL_INDEX');
-  const { projects } = useProjects();
+  const { projects, selectedProjectId } = useProjectContext();
   const [domain, setDomain] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 프로젝트 목록 로드 후 첫 번째 자동 선택
+  // 글로벌 프로젝트 선택 동기화
   useEffect(() => {
-    if (projects.length > 0 && !domain) {
+    if (selectedProjectId) {
+      setDomain(selectedProjectId);
+    } else if (projects.length > 0 && !domain) {
       setDomain(projects[0].id);
     }
-  }, [projects]);
+  }, [projects, selectedProjectId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

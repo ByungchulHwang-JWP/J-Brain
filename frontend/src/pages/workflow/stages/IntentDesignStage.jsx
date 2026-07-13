@@ -356,24 +356,6 @@ const IntentDesignStage = ({ projectId, stage, summary }) => {
         </div>
       </div>
 
-      <div className="panel workflow-stage-guide">
-        <div className="workflow-board-head">
-          <div>
-            <h3>다음 단계 연결</h3>
-            <p>Intent 구조가 잡히면 질문 커버리지에서 표현 다양성을 보강합니다.</p>
-          </div>
-          <PauseCircle size={18} />
-        </div>
-        <div className="workflow-guide-steps">
-          <div><strong>1</strong><span>등록 Intent 확인</span></div>
-          <div><strong>2</strong><span>병합 후보 정리</span></div>
-          <div><strong>3</strong><span>보류 항목 보강</span></div>
-          <div><strong>4</strong><span>질문 커버리지로 이동</span></div>
-        </div>
-        <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/3?tab=4`)}>
-          질문 커버리지 탭으로 이동 <ArrowRight size={16} />
-        </button>
-      </div>
 
       {drawerOpen && (
         <div className="workflow-drawer-overlay" role="presentation" onClick={closeIntentDrawer}>

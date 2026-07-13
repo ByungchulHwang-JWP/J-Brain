@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useProjects from '../hooks/useProjects';
 import { UploadCloud, X } from 'lucide-react';
+import { useProjectContext } from '../context/ProjectContext';
 
 const SourceList = ({ embedded = false }) => {
   const navigate = useNavigate();
@@ -15,16 +16,17 @@ const SourceList = ({ embedded = false }) => {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const { projects } = useProjects();
-
+  const { projects, selectedProjectId } = useProjectContext();
   const token = () => localStorage.getItem('ai_access_token');
 
-  // 프로젝트 로드 후 첫 번째 자동 선택
+  // 프로젝트 로드 후 자동 선택 (글로벌 선택 우선)
   useEffect(() => {
-    if (projects.length > 0 && !domainFilter) {
+    if (selectedProjectId) {
+      setDomainFilter(selectedProjectId);
+    } else if (projects.length > 0 && !domainFilter) {
       setDomainFilter(projects[0].id);
     }
-  }, [projects, domainFilter]);
+  }, [projects, selectedProjectId]);
 
   useEffect(() => {
     if (!domainFilter) return;

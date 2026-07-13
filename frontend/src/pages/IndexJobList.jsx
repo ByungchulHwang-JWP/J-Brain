@@ -2,22 +2,24 @@ import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import useProjects from '../hooks/useProjects';
+import { useProjectContext } from '../context/ProjectContext';
 import { Skeleton } from '../components/common/Loader';
 
 const IndexJobList = ({ embedded = false }) => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { projects } = useProjects();
+  const { projects, selectedProjectId } = useProjectContext();
   const [domain, setDomain] = useState('');
 
-  // 프로젝트 목록 로드 후 첫 번째 프로젝트 자동 선택
+  // 글로벌 프로젝트 선택 동기화
   useEffect(() => {
-    if (projects.length > 0 && !domain) {
+    if (selectedProjectId) {
+      setDomain(selectedProjectId);
+    } else if (projects.length > 0 && !domain) {
       setDomain(projects[0].id);
     }
-  }, [projects]);
+  }, [projects, selectedProjectId]);
 
   useEffect(() => {
     if (domain) fetchJobs();

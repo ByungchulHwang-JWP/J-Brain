@@ -237,24 +237,6 @@ const RuntimeSimulationStage = ({ projectId, stage, summary }) => {
           </table>
         </div>
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>QA 확인 포인트</h3>
-              <p>Runtime QA에서 필수로 확인해야 하는 진단 항목입니다.</p>
-            </div>
-            <ShieldCheck size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>1</strong><span>Top Intent 후보와 Confidence</span></div>
-            <div><strong>2</strong><span>Action Card와 Route/API 결과</span></div>
-            <div><strong>3</strong><span>FAQ/Source 근거 표시</span></div>
-            <div><strong>4</strong><span>미응답 후보 생성 여부</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/5?tab=10`)}>
-            Pack Build 탭으로 이동 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       <div className="panel workflow-stage-guide">

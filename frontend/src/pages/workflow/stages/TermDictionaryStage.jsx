@@ -173,24 +173,6 @@ const TermDictionaryStage = ({ projectId, stage, summary }) => {
         </div>
       </div>
 
-      <div className="panel workflow-stage-guide">
-        <div className="workflow-board-head">
-          <div>
-            <h3>다음 단계 연결</h3>
-            <p>용어 사전이 정리되면 FAQ와 Source를 답변 근거로 연결합니다.</p>
-          </div>
-          <CheckCircle2 size={18} />
-        </div>
-        <div className="workflow-guide-steps">
-          <div><strong>1</strong><span>Entity Type 정의</span></div>
-          <div><strong>2</strong><span>Canonical/Synonym 등록</span></div>
-          <div><strong>3</strong><span>검증 필요 값 표시</span></div>
-          <div><strong>4</strong><span>답변 근거로 이동</span></div>
-        </div>
-        <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/2?tab=6`)}>
-          답변 근거 탭으로 이동 <ArrowRight size={16} />
-        </button>
-      </div>
     </section>
   );
 };

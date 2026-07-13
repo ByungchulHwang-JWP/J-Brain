@@ -485,24 +485,6 @@ const KnowledgeStage = ({ projectId, stage, summary }) => {
           </div>
         )}
 
-        <div className="panel workflow-stage-guide">
-          <div className="workflow-board-head">
-            <div>
-              <h3>다음 단계 연결</h3>
-              <p>지식 준비가 끝나면 Intent 설계에서 질문 의도를 정의합니다.</p>
-            </div>
-            <FileText size={18} />
-          </div>
-          <div className="workflow-guide-steps">
-            <div><strong>1</strong><span>문서/FAQ 원천 등록</span></div>
-            <div><strong>2</strong><span>벡터화 상태 확인</span></div>
-            <div><strong>3</strong><span>검색 테스트 실행</span></div>
-            <div><strong>4</strong><span>의도 설계로 이동</span></div>
-          </div>
-          <button className="btn-primary" type="button" onClick={() => navigate(`/admin/workflow/projects/${encodeURIComponent(projectId)}/stages/3`)}>
-            3단계 의도 설계로 이동 <ArrowRight size={16} />
-          </button>
-        </div>
       </div>
 
       {activeDrawer && (

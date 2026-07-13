@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, X, ArrowUp, ChevronDown, User, Bot, Maximize2, Minimize2 } from 'lucide-react';
+import { MessageCircle, X, ArrowUp, ChevronDown, User, Bot, Maximize2, Minimize2, Loader2 } from 'lucide-react';
 import { useProjectContext } from '../context/ProjectContext';
 import { getActivePack } from '../api/intentFactory';
 
@@ -32,10 +32,10 @@ const ChatWidget = () => {
     [projects]
   );
   const selectedProjectName = selectedProject?.name || domains.find((item) => item.id === domain)?.name || domain || '프로젝트 미선택';
-  const activePackLabel = activePack?.pack_id
-    ? `${activePack.pack_id} v${activePack.pack_version}`
-    : activePackLoading
-      ? 'Active Pack 확인 중'
+  const activePackLabel = activePackLoading
+    ? <><Loader2 size={10} className="spin" style={{ display: 'inline-block', marginRight: '4px', verticalAlign: 'middle' }} />Active Pack 확인 중...</>
+    : activePack?.pack_id
+      ? `${activePack.pack_id} v${activePack.pack_version}`
       : 'Active Pack 없음';
 
   useEffect(() => {
@@ -60,6 +60,7 @@ const ChatWidget = () => {
     }
 
     let cancelled = false;
+    setActivePack(null); // Clear previous pack while loading
     setActivePackLoading(true);
     getActivePack(domain)
       .then((data) => {
@@ -76,7 +77,7 @@ const ChatWidget = () => {
     return () => {
       cancelled = true;
     };
-  }, [domain]);
+  }, [domain, isOpen]);
 
   const handleProjectChange = (projectId) => {
     setDomain(projectId);
@@ -419,13 +420,13 @@ const ChatWidget = () => {
                     )}
 
                     {msg.sender === 'bot' && msg.sources && msg.sources.length > 0 && (
-                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontWeight: 500 }}>SOURCES</div>
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--color-border)' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--color-text-sub)', marginBottom: '8px', fontWeight: 500 }}>SOURCES</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           {msg.sources.map((src, i) => (
-                            <div key={i} style={{ fontSize: '12px', background: 'rgba(255,255,255,0.05)', padding: '6px 10px', borderRadius: '6px', color: 'rgba(255,255,255,0.8)' }}>
+                            <div key={i} style={{ fontSize: '12px', background: 'var(--color-bg-elevated)', padding: '6px 10px', borderRadius: '6px', color: 'var(--color-text-main)' }}>
                               <span style={{ opacity: 0.5, marginRight: '6px' }}>📄</span>
-                              {src.file_name} <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>(#{src.chunk_index})</span>
+                              {src.file_name} <span style={{ color: 'var(--color-text-sub)', fontSize: '11px' }}>(#{src.chunk_index})</span>
                             </div>
                           ))}
                         </div>
