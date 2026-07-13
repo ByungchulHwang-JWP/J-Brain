@@ -130,6 +130,36 @@ const AdminLayout = () => {
     }
   };
 
+  const handleProjectChange = (projectId) => {
+    setSelectedProjectId(projectId);
+    if (!projectId) return;
+
+    const encodedProjectId = encodeURIComponent(projectId);
+    const { pathname, search } = location;
+
+    if (pathname === '/admin/workflow/projects') {
+      navigate(`/admin/workflow/projects/${encodedProjectId}${search}`);
+      return;
+    }
+
+    if (pathname.startsWith('/admin/workflow/projects/')) {
+      const nextPath = pathname.replace(
+        /^\/admin\/workflow\/projects\/[^/]+/,
+        `/admin/workflow/projects/${encodedProjectId}`
+      );
+      navigate(`${nextPath}${search}`);
+      return;
+    }
+
+    if (/^\/admin\/projects\/[^/]+/.test(pathname)) {
+      const nextPath = pathname.replace(
+        /^\/admin\/projects\/[^/]+/,
+        `/admin/projects/${encodedProjectId}`
+      );
+      navigate(`${nextPath}${search}`);
+    }
+  };
+
   const menuIcons = {
     'icon-dashboard': '📊',
     'icon-project': '🧭',
@@ -168,7 +198,7 @@ const AdminLayout = () => {
           <select
             aria-label="프로젝트 선택"
             value={selectedProjectId || ''}
-            onChange={(event) => setSelectedProjectId(event.target.value)}
+            onChange={(event) => handleProjectChange(event.target.value)}
             disabled={loadingProjects || projects.length === 0}
           >
             {projects.length === 0 ? (

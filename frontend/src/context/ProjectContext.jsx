@@ -68,7 +68,10 @@ export const ProjectProvider = ({ children }) => {
 
       return loadedProjects;
     } catch (err) {
-      console.error('프로젝트 목록 조회 실패:', err);
+      const status = err?.response?.status;
+      if (status !== 401 && status !== 403) {
+        console.error('프로젝트 목록 조회 실패:', err);
+      }
       setProjectLoadError(err);
       setProjects([]);
       return [];
@@ -78,8 +81,17 @@ export const ProjectProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    refreshProjects();
-  }, [location.pathname, refreshProjects]);
+    const hasToken = Boolean(localStorage.getItem('ai_access_token'));
+    if (!hasToken) {
+      setProjects([]);
+      setProjectLoadError(null);
+      return;
+    }
+
+    if (location.pathname.startsWith('/admin') && projects.length === 0 && !loadingProjects) {
+      refreshProjects();
+    }
+  }, [location.pathname, loadingProjects, projects.length, refreshProjects]);
 
   const selectedProject = useMemo(
     () => projects.find((project) => getProjectId(project) === selectedProjectId) || null,
