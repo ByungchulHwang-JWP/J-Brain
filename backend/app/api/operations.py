@@ -95,7 +95,7 @@ async def get_realtime_operations(
                 "matched_intent_id": r.matched_intent_id,
                 "action_id": r.action_id,
                 "action_type": r.action_type,
-                "confidence": float(r.confidence) if r.confidence else None,
+                "confidence": float(r.confidence) if r.confidence is not None else None,
                 "confidence_label": r.confidence_label,
                 "fallback_yn": r.fallback_yn,
                 "response_status": r.response_status,
@@ -139,13 +139,13 @@ async def get_unanswered_operations(
                 "matched_intent_id": r.matched_intent_id,
                 "action_id": r.action_id,
                 "action_type": r.action_type,
-                "confidence": float(r.confidence) if r.confidence else None,
+                "confidence": float(r.confidence) if r.confidence is not None else None,
                 "confidence_label": r.confidence_label,
                 "fallback_yn": r.fallback_yn,
                 "response_status": r.response_status,
                 "created_at": r.created_at.isoformat(),
                 "suggested_cause": "Intent 부재" if not r.matched_intent_id else (
-                                   "Confidence 부족" if r.confidence and float(r.confidence) < 0.7 else 
+                                   "Confidence 부족" if r.confidence is not None and float(r.confidence) < 0.7 else
                                    "Action 미연결" if not r.action_id else "기타")
             } for r in rows
         ]
@@ -280,23 +280,27 @@ async def get_operation_metrics(
     current_user: dict = Depends(get_current_user_role)
 ) -> dict:
     """
-    기간별 운영 지표 (배치성 데이터) 조회
+    기간별 Runtime 이벤트 기반 운영 지표 조회
     """
     res = await db.execute(
         text("""
-            SELECT metric_date, total_requests, intent_match_count, fallback_count,
-                   avg_confidence, avg_response_time_ms
-            FROM graphrag.operation_metrics
+            SELECT
+                DATE(created_at) AS metric_date,
+                COUNT(*) AS total_requests,
+                SUM(CASE WHEN matched_intent_id IS NOT NULL THEN 1 ELSE 0 END) AS intent_match_count,
+                SUM(CASE WHEN fallback_yn = true THEN 1 ELSE 0 END) AS fallback_count,
+                AVG(confidence) AS avg_confidence,
+                AVG(response_time_ms) AS avg_response_time_ms
+            FROM graphrag.runtime_event_logs
             WHERE project_id = :pid
-              AND metric_date >= CURRENT_DATE - INTERVAL '1 day' * :days
+              AND created_at >= CURRENT_DATE - INTERVAL '1 day' * :days
+            GROUP BY DATE(created_at)
             ORDER BY metric_date ASC
         """),
         {"pid": project_id, "days": days}
     )
     rows = res.fetchall()
     
-    # 만약 배치 데이터가 없다면 임시로 빈 배열을 반환하지만,
-    # 실제로는 0 값들로 채워진 최근 N일 데이터를 리턴하는 것이 프론트엔드 차트 렌더링에 좋음
     return {
         "metrics": [
             {
@@ -304,8 +308,8 @@ async def get_operation_metrics(
                 "total_requests": r.total_requests,
                 "intent_match_count": r.intent_match_count,
                 "fallback_count": r.fallback_count,
-                "avg_confidence": float(r.avg_confidence),
-                "avg_response_time_ms": r.avg_response_time_ms
+                "avg_confidence": float(r.avg_confidence) if r.avg_confidence is not None else None,
+                "avg_response_time_ms": float(r.avg_response_time_ms) if r.avg_response_time_ms is not None else None,
             } for r in rows
         ]
     }

@@ -21,6 +21,7 @@ const OperationMetrics = ({ embedded = false }) => {
       setMessage('프로젝트를 선택하면 운영 인사이트를 확인할 수 있습니다.');
       return;
     }
+    setData([]);
     setLoading(true);
     setMessage('');
     try {
@@ -36,6 +37,7 @@ const OperationMetrics = ({ embedded = false }) => {
       setData(formattedData);
     } catch (error) {
       console.error(error);
+      setData([]);
       setMessage('운영 지표를 불러오지 못했습니다.');
     } finally {
       setLoading(false);

@@ -44,18 +44,8 @@ const RealtimeMonitoring = ({ embedded = false }) => {
         setData(result);
       } catch (error) {
         console.error('Error fetching realtime data:', error);
-        // 오류 발생 시 기본값으로 세팅 (또는 에러 UI 처리)
-        setData({
-          kpi: {
-            active_pack: '-',
-            requests_last_hour: 0,
-            intent_match_rate: 0,
-            fallback_rate: 0,
-            avg_response_time: 0,
-            error_count: 0
-          },
-          recent_logs: []
-        });
+        setData(null);
+        setMessage('실시간 운영 상태를 불러오지 못했습니다.');
       } finally {
         setLoading(false);
       }

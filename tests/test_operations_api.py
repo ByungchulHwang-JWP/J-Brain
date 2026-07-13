@@ -1,4 +1,5 @@
 import pytest
+from datetime import date
 
 from app.api import operations
 from app.schemas.operations import ImprovementRequestCreate, ImprovementRequestUpdate
@@ -93,3 +94,47 @@ async def test_update_improvement_request_allows_status_change():
     assert db.params[0]["status"] == "reviewing"
     assert db.params[0]["pid"] == "KT-NetZero"
     assert db.params[0]["rid"] == "REQ-0001"
+
+
+@pytest.mark.anyio
+async def test_operation_metrics_aggregate_runtime_events_by_day():
+    db = RecordingDb([
+        FakeResult(rows=[
+            Row(
+                metric_date=date(2026, 7, 13),
+                total_requests=4,
+                intent_match_count=3,
+                fallback_count=1,
+                avg_confidence=0.0,
+                avg_response_time_ms=42.5,
+            )
+        ])
+    ])
+
+    result = await operations.get_operation_metrics(
+        "KT-NetZero",
+        days=7,
+        db=db,
+        current_user={"role": "admin"},
+    )
+
+    sql = db.statements[0]
+    assert "FROM graphrag.runtime_event_logs" in sql
+    assert "DATE(created_at) AS metric_date" in sql
+    assert "COUNT(*) AS total_requests" in sql
+    assert "matched_intent_id IS NOT NULL" in sql
+    assert "fallback_yn = true" in sql
+    assert "AVG(confidence) AS avg_confidence" in sql
+    assert "AVG(response_time_ms) AS avg_response_time_ms" in sql
+    assert "GROUP BY DATE(created_at)" in sql
+    assert db.params[0] == {"pid": "KT-NetZero", "days": 7}
+    assert result == {
+        "metrics": [{
+            "date": "2026-07-13",
+            "total_requests": 4,
+            "intent_match_count": 3,
+            "fallback_count": 1,
+            "avg_confidence": 0.0,
+            "avg_response_time_ms": 42.5,
+        }]
+    }

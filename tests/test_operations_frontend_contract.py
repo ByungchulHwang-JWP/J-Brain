@@ -33,3 +33,21 @@ def test_realtime_monitoring_does_not_use_route_project_param():
     source = read("frontend/src/pages/operations/RealtimeMonitoring.jsx")
     assert "useParams" not in source
     assert "/api/v1/projects/${projectId}/operations/realtime" in source
+
+
+def test_realtime_monitoring_clears_data_when_fetch_fails():
+    source = read("frontend/src/pages/operations/RealtimeMonitoring.jsx")
+    catch_block = source.split("} catch (error) {", 1)[1].split("} finally {", 1)[0]
+
+    assert "setData(null);" in catch_block
+    assert "setMessage('실시간 운영 상태를 불러오지 못했습니다.');" in catch_block
+    assert "active_pack: '-'" not in catch_block
+
+
+def test_operation_metrics_clears_data_before_and_after_fetch_failure():
+    source = read("frontend/src/pages/operations/OperationMetrics.jsx")
+    load_metrics = source.split("const loadMetrics = useCallback(async () => {", 1)[1].split("}, [days, projectId]);", 1)[0]
+    catch_block = load_metrics.split("} catch (error) {", 1)[1].split("} finally {", 1)[0]
+
+    assert "setData([]);" in load_metrics.split("try {", 1)[0]
+    assert "setData([]);" in catch_block
