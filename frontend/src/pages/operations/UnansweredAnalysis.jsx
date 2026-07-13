@@ -3,14 +3,13 @@ import axios from 'axios';
 import { ArrowRight, FileQuestion, RefreshCw, Send, ShieldAlert } from 'lucide-react';
 import Pagination from '../../components/common/Pagination';
 import ImprovementRequestDrawer from '../../components/operations/ImprovementRequestDrawer';
-import { useParams } from 'react-router-dom';
+import { useProjectContext } from '../../context/ProjectContext';
 
 const getAccessToken = () => localStorage.getItem('ai_access_token');
 
 const UnansweredAnalysis = ({ embedded = false }) => {
-  const { projectId: routeProjectId } = useParams();
-  const [projects, setProjects] = useState([]);
-  const [projectId, setProjectId] = useState(routeProjectId || 'J-Brain');
+  const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
+  const projectId = selectedProjectId;
   const [items, setItems] = useState([]);
   const [selectedLogId, setSelectedLogId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,21 +20,12 @@ const UnansweredAnalysis = ({ embedded = false }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerData, setDrawerData] = useState(null);
 
-  useEffect(() => {
-    axios.get('/api/v1/projects', {
-      headers: { Authorization: `Bearer ${getAccessToken()}` },
-    }).then((res) => {
-      setProjects(res.data || []);
-      if (!routeProjectId && res.data?.[0]?.id) {
-        setProjectId(res.data[0].id);
-      }
-    }).catch(() => {
-      // Ignore
-    });
-  }, [routeProjectId]);
-
   const loadLogs = useCallback(async () => {
-    if (!projectId) return;
+    if (!projectId) {
+      setLoading(false);
+      setMessage('프로젝트를 선택하면 운영 인사이트를 확인할 수 있습니다.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -116,9 +106,11 @@ const UnansweredAnalysis = ({ embedded = false }) => {
           <p>Runtime에서 fallback 또는 낮은 신뢰도로 기록된 질문을 분석하고 개선 요청으로 전환합니다.</p>
         </div>
         <div className="operations-controls">
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)}>
-            {projects.length === 0 ? <option value="J-Brain">J-Brain</option> : projects.map((project) => (
-              <option key={project.id} value={project.id}>{project.name} ({project.id})</option>
+          <select value={projectId || ''} onChange={(event) => setSelectedProjectId(event.target.value)} disabled={loadingProjects}>
+            {projects.map((project) => (
+              <option key={project.id || project.project_id} value={project.id || project.project_id}>
+                {project.name || project.project_name || project.id || project.project_id}
+              </option>
             ))}
           </select>
           <button className="btn-secondary" type="button" onClick={loadLogs}>

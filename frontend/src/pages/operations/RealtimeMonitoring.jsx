@@ -3,23 +3,34 @@ import ShellPage from '../../components/common/ShellPage';
 import OperationKpiStrip from '../../components/operations/OperationKpiStrip';
 import OperationHealthPanel from '../../components/operations/OperationHealthPanel';
 import RuntimeEventTable from '../../components/operations/RuntimeEventTable';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { useProjectContext } from '../../context/ProjectContext';
+
+const getAccessToken = () => localStorage.getItem('ai_access_token');
 
 const RealtimeMonitoring = ({ embedded = false }) => {
-  const { projectId } = useParams();
+  const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
+  const projectId = selectedProjectId;
   const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
 
   // 이 프로젝트에 적용된 상태값 fetch
   useEffect(() => {
     const fetchRealtimeData = async () => {
+      if (!projectId) {
+        setData(null);
+        setMessage('프로젝트를 선택하면 실시간 운영 상태를 확인할 수 있습니다.');
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setMessage('');
       try {
-        const token = localStorage.getItem('access_token');
-        const headers = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
+        const token = getAccessToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         const response = await fetch(`/api/v1/projects/${projectId}/operations/realtime`, {
           headers
@@ -57,10 +68,6 @@ const RealtimeMonitoring = ({ embedded = false }) => {
     return () => clearInterval(intervalId);
   }, [projectId]);
 
-  if (loading || !data) {
-    return <div style={{ padding: '20px' }}>Loading...</div>;
-  }
-
   const handleNavigateToUnanswered = () => {
     const next = new URLSearchParams(searchParams);
     next.set('tab', 'unanswered');
@@ -74,7 +81,9 @@ const RealtimeMonitoring = ({ embedded = false }) => {
     }
   };
 
-  const content = (
+  const content = loading ? (
+    <div style={{ padding: '20px' }}>Loading...</div>
+  ) : data ? (
     <>
       <OperationKpiStrip data={data.kpi} trend={data.trend} />
       
@@ -112,6 +121,18 @@ const RealtimeMonitoring = ({ embedded = false }) => {
         <RuntimeEventTable logs={data.recent_logs} />
       </div>
     </>
+  ) : (
+    <div className="workflow-message">{message}</div>
+  );
+
+  const projectSelector = (
+    <select value={projectId || ''} onChange={(event) => setSelectedProjectId(event.target.value)} disabled={loadingProjects}>
+      {projects.map((project) => (
+        <option key={project.id || project.project_id} value={project.id || project.project_id}>
+          {project.name || project.project_name || project.id || project.project_id}
+        </option>
+      ))}
+    </select>
   );
 
   if (embedded) {
@@ -122,6 +143,7 @@ const RealtimeMonitoring = ({ embedded = false }) => {
             <h3>실시간 모니터링</h3>
             <p>Runtime 요청, Intent 매칭, fallback 발생 현황을 운영자가 실시간으로 확인하는 화면입니다.</p>
           </div>
+          {projectSelector}
         </div>
         <div style={{ padding: '0 24px 24px' }}>
           {content}
@@ -137,6 +159,9 @@ const RealtimeMonitoring = ({ embedded = false }) => {
       description="Runtime 요청, Intent 매칭, fallback 발생 현황을 운영자가 실시간으로 확인하는 화면입니다."
     >
       <div style={{ padding: '24px' }}>
+        <div className="operations-controls" style={{ marginBottom: '20px' }}>
+          {projectSelector}
+        </div>
         {content}
       </div>
     </ShellPage>

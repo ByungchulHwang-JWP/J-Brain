@@ -2,14 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { CheckCircle2, ClipboardList, RefreshCw, Pencil } from 'lucide-react';
 import ImprovementRequestDrawer from '../../components/operations/ImprovementRequestDrawer';
-import { useParams } from 'react-router-dom';
+import { useProjectContext } from '../../context/ProjectContext';
 
 const getAccessToken = () => localStorage.getItem('ai_access_token');
 
 const ImprovementRequests = ({ embedded = false }) => {
-  const { projectId: routeProjectId } = useParams();
-  const [projects, setProjects] = useState([]);
-  const [projectId, setProjectId] = useState(routeProjectId || 'J-Brain');
+  const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
+  const projectId = selectedProjectId;
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -17,21 +16,12 @@ const ImprovementRequests = ({ embedded = false }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerData, setDrawerData] = useState(null);
 
-  useEffect(() => {
-    axios.get('/api/v1/projects', {
-      headers: { Authorization: `Bearer ${getAccessToken()}` },
-    }).then((res) => {
-      setProjects(res.data || []);
-      if (!routeProjectId && res.data?.[0]?.id) {
-        setProjectId(res.data[0].id);
-      }
-    }).catch(() => {
-      // Ignore
-    });
-  }, [routeProjectId]);
-
   const loadRequests = useCallback(async () => {
-    if (!projectId) return;
+    if (!projectId) {
+      setLoading(false);
+      setMessage('프로젝트를 선택하면 운영 인사이트를 확인할 수 있습니다.');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
@@ -73,9 +63,11 @@ const ImprovementRequests = ({ embedded = false }) => {
           <p>미응답 분석에서 발견된 다양한 개선 사항(FAQ/Intent/Action/Entity 보완)의 처리 상태를 관리합니다.</p>
         </div>
         <div className="operations-controls">
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)}>
-            {projects.length === 0 ? <option value="J-Brain">J-Brain</option> : projects.map((project) => (
-              <option key={project.id} value={project.id}>{project.name} ({project.id})</option>
+          <select value={projectId || ''} onChange={(event) => setSelectedProjectId(event.target.value)} disabled={loadingProjects}>
+            {projects.map((project) => (
+              <option key={project.id || project.project_id} value={project.id || project.project_id}>
+                {project.name || project.project_name || project.id || project.project_id}
+              </option>
             ))}
           </select>
           <button className="btn-secondary" type="button" onClick={loadRequests}>

@@ -1,35 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { RefreshCw } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useProjectContext } from '../../context/ProjectContext';
 
 const getAccessToken = () => localStorage.getItem('ai_access_token');
 
 const OperationMetrics = ({ embedded = false }) => {
-  const { projectId: routeProjectId } = useParams();
-  const [projects, setProjects] = useState([]);
-  const [projectId, setProjectId] = useState(routeProjectId || 'J-Brain');
+  const { projects, selectedProjectId, setSelectedProjectId, loadingProjects } = useProjectContext();
+  const projectId = selectedProjectId;
   const [days, setDays] = useState(30);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    axios.get('/api/v1/projects', {
-      headers: { Authorization: `Bearer ${getAccessToken()}` },
-    }).then((res) => {
-      setProjects(res.data || []);
-      if (!routeProjectId && res.data?.[0]?.id) {
-        setProjectId(res.data[0].id);
-      }
-    }).catch(() => {
-      // Ignore
-    });
-  }, [routeProjectId]);
-
-  const loadMetrics = async () => {
-    if (!projectId) return;
+  const loadMetrics = useCallback(async () => {
+    if (!projectId) {
+      setLoading(false);
+      setMessage('프로젝트를 선택하면 운영 인사이트를 확인할 수 있습니다.');
+      return;
+    }
     setLoading(true);
+    setMessage('');
     try {
       const res = await axios.get(`/api/v1/projects/${projectId}/operations/metrics?days=${days}`, {
         headers: { Authorization: `Bearer ${getAccessToken()}` }
@@ -43,21 +35,24 @@ const OperationMetrics = ({ embedded = false }) => {
       setData(formattedData);
     } catch (error) {
       console.error(error);
+      setMessage('운영 지표를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [days, projectId]);
 
   useEffect(() => {
     loadMetrics();
-  }, [projectId, days]);
+  }, [loadMetrics]);
 
   const content = (
     <div style={{ padding: embedded ? '0 24px 24px' : '24px' }}>
       <div className="operations-controls" style={{ marginBottom: '20px', display: 'flex', gap: '12px' }}>
-        <select value={projectId} onChange={(e) => setProjectId(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}>
-          {projects.length === 0 ? <option value="J-Brain">J-Brain</option> : projects.map((project) => (
-            <option key={project.id} value={project.id}>{project.name} ({project.id})</option>
+        <select value={projectId || ''} onChange={(event) => setSelectedProjectId(event.target.value)} disabled={loadingProjects} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}>
+          {projects.map((project) => (
+            <option key={project.id || project.project_id} value={project.id || project.project_id}>
+              {project.name || project.project_name || project.id || project.project_id}
+            </option>
           ))}
         </select>
         <select value={days} onChange={(e) => setDays(Number(e.target.value))} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}>
@@ -69,6 +64,8 @@ const OperationMetrics = ({ embedded = false }) => {
           <RefreshCw size={15} /> 새로고침
         </button>
       </div>
+
+      {message && <div className="workflow-message">{message}</div>}
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px' }}>Loading metrics...</div>
