@@ -226,7 +226,7 @@ const FaqList = ({ embedded = false }) => {
         </div>
       )}
 
-      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: embedded ? undefined : '12px 0 20px', margin: 0 }}>
+      <div className={embedded ? 'console-embedded-toolbar' : 'page-header'} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: embedded ? undefined : '12px 0 20px', margin: 0 }}>
         <div>
           {embedded ? <h3>FAQ 관리</h3> : <h2 style={{ fontWeight: 700 }}>FAQ 관리</h2>}
           {!embedded && (
@@ -236,12 +236,11 @@ const FaqList = ({ embedded = false }) => {
           )}
         </div>
         <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+          <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}>
             {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={() => loadFaqs(projectId)} disabled={loading}>{loading ? <><Spinner size={14} style={{marginRight: 6}} /> 새로고침</> : '새로고침'}</button>
-          <button className="btn-primary" onClick={handleNew} disabled={!projectId}>FAQ 등록</button>
+          <button className="btn-primary" onClick={handleNew} disabled={!projectId}>+ FAQ 등록</button>
         </div>
       </div>
 
@@ -260,18 +259,18 @@ const FaqList = ({ embedded = false }) => {
         </div>
       )}
 
-      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(620px, 1fr) minmax(420px, 0.8fr)', gap: '18px', alignItems: 'start' }}>
+      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(520px, 1fr) minmax(420px, 0.8fr)', gap: '18px', alignItems: 'start' }}>
         <div className="table-area" style={{ padding: '18px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', paddingBottom: '14px', borderBottom: '1px solid var(--color-border)', marginBottom: '14px' }}>
             <h3 style={{ margin: 0, fontSize: '16px' }}>FAQ 목록</h3>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: '1 1 360px', maxWidth: '520px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="FAQ ID, 질문, 답변, 태그 검색"
-                style={{ minWidth: '0', ...fieldStyle }}
+                placeholder="FAQ 제목, 질문 검색"
+                style={{ width: '320px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}
               />
-              <button type="button" className="btn-secondary" onClick={() => loadFaqs(projectId)}>검색</button>
+              <button className="btn-secondary" onClick={() => loadFaqs(projectId)} disabled={loading}>{loading ? '로딩 중...' : '새로고침'}</button>
             </div>
           </div>
           <table>

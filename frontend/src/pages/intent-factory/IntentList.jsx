@@ -136,15 +136,18 @@ const IntentList = ({ embedded = false }) => {
         ))}
       </div>
 
-      <div className="table-area">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '16px 18px', borderBottom: '1px solid var(--color-border)' }}>
-          <input
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="Intent ID, 이름, Category, Action 검색"
-            style={{ width: '360px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}
-          />
-          <button className="btn-secondary" onClick={() => fetchIntents(projectId)}>새로고침</button>
+      <div className="table-area" style={{ padding: '18px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', paddingBottom: '14px', borderBottom: '1px solid var(--color-border)', marginBottom: '14px' }}>
+          <h3 style={{ margin: 0, fontSize: '16px' }}>Intent 목록</h3>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="Intent ID, 이름, Category, Action 검색"
+              style={{ width: '320px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}
+            />
+            <button className="btn-secondary" onClick={() => fetchIntents(projectId)}>새로고침</button>
+          </div>
         </div>
         {message && <div style={{ padding: '12px 18px', color: 'var(--color-text-sub)', borderBottom: '1px solid var(--color-border)' }}>{message}</div>}
         <table>

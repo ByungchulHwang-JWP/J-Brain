@@ -200,20 +200,37 @@ const EntityList = ({ mode = 'entities', embedded = false }) => {
           {embedded ? <h3>{isSynonym ? 'Synonym 관리' : 'Entity 관리'}</h3> : <h2 style={{ fontWeight: 700 }}>{isSynonym ? 'Synonym 관리' : 'Entity 관리'}</h2>}
           {!embedded && <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>Entity 정의와 canonical value, 동의어 사전을 DB에 저장합니다.</p>}
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', ...fieldStyle }}>
+        <div className="responsive-toolbar" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <select value={projectId} onChange={(e) => setSelectedProjectId(e.target.value)} style={{ minWidth: '220px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }}>
             {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-primary" onClick={startCreate} disabled={!projectId}>+ Entity 등록</button>
+          <button className="btn-primary" onClick={startCreate} disabled={!projectId}>+ {isSynonym ? 'Synonym' : 'Entity'} 등록</button>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.1fr) minmax(360px, 0.9fr)', gap: '18px' }}>
-        <div className="table-area">
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '16px 18px', borderBottom: '1px solid var(--color-border)' }}>
-            <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Entity Type, 표시명, 설명 검색" style={{ width: '360px', ...fieldStyle }} />
-            <button className="btn-secondary" onClick={fetchEntities}>새로고침</button>
+      <div className="responsive-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px', marginBottom: '18px' }}>
+        {[
+          ['전체 항목', `${entities.length}건`],
+          ['ENUM 타입', `${entities.filter(e => e.value_type === 'ENUM').length}건`],
+          ['STRING 타입', `${entities.filter(e => e.value_type === 'STRING').length}건`],
+          ['동의어 포함', `${entities.filter(e => e.synonyms && Object.keys(e.synonyms).length > 0).length}건`]
+        ].map(([label, value]) => (
+          <div key={label} className="table-area" style={{ padding: '18px' }}>
+            <div style={{ color: 'var(--color-text-sub)', fontSize: '13px', marginBottom: '8px' }}>{label}</div>
+            <strong style={{ fontSize: '24px', color: 'var(--color-primary)' }}>{value}</strong>
+          </div>
+        ))}
+      </div>
+
+      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(520px, 1fr) minmax(420px, 0.8fr)', gap: '18px', alignItems: 'start' }}>
+        <div className="table-area" style={{ padding: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', paddingBottom: '14px', borderBottom: '1px solid var(--color-border)', marginBottom: '14px' }}>
+            <h3 style={{ margin: 0, fontSize: '16px' }}>{isSynonym ? 'Synonym 목록' : 'Entity 목록'}</h3>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Entity Type, 표시명, 설명 검색" style={{ width: '320px', padding: '10px 12px', border: '1px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-input-bg)', color: 'var(--color-text-main)' }} />
+              <button className="btn-secondary" onClick={fetchEntities}>새로고침</button>
+            </div>
           </div>
           {message && <div style={{ padding: '12px 18px', color: 'var(--color-text-sub)', borderBottom: '1px solid var(--color-border)' }}>{message}</div>}
           <table>
