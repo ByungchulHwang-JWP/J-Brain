@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { CheckCircle2, ClipboardList, RefreshCw, Pencil } from 'lucide-react';
-import ImprovementRequestDrawer from '../../components/operations/ImprovementRequestDrawer';
+import { CheckCircle2, ClipboardList, RefreshCw } from 'lucide-react';
 import { useProjectContext } from '../../context/ProjectContext';
 
 const getAccessToken = () => localStorage.getItem('ai_access_token');
@@ -13,9 +12,6 @@ const ImprovementRequests = ({ embedded = false }) => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerData, setDrawerData] = useState(null);
-
   const loadRequests = useCallback(async () => {
     if (!projectId) {
       setItems([]);
@@ -50,9 +46,19 @@ const ImprovementRequests = ({ embedded = false }) => {
     done: items.filter((item) => item.status === 'done' || item.status === 'deployed').length,
   }), [items]);
 
-  const handleEdit = (item) => {
-    // For editing, we reuse the drawer. You'd ideally have an Edit mode.
-    alert('상세 화면(또는 Edit Drawer)에서 상태를 변경하는 기능이 연결될 예정입니다.');
+  const handleStatusChange = async (item, status) => {
+    try {
+      await axios.patch(`/api/v1/projects/${projectId}/operations/improvement-requests/${item.request_id}`, {
+        status,
+      }, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+      });
+      setMessage('개선 요청 상태가 변경되었습니다.');
+      await loadRequests();
+    } catch (err) {
+      console.error(err);
+      setMessage('개선 요청 상태 변경에 실패했습니다.');
+    }
   };
 
   return (
@@ -134,9 +140,16 @@ const ImprovementRequests = ({ embedded = false }) => {
                     </span>
                   </td>
                   <td style={{ padding: '12px' }}>
-                    <button className="btn-icon" onClick={() => handleEdit(item)} title="수정/상태변경" style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#666' }}>
-                      <Pencil size={16} />
-                    </button>
+                    <select
+                      value={item.status}
+                      onChange={(event) => handleStatusChange(item, event.target.value)}
+                      aria-label={`${item.request_id} 상태 변경`}
+                    >
+                      <option value="new">new</option>
+                      <option value="reviewing">reviewing</option>
+                      <option value="done">done</option>
+                      <option value="deployed">deployed</option>
+                    </select>
                   </td>
                 </tr>
               ))}

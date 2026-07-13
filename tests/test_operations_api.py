@@ -1,7 +1,7 @@
 import pytest
 
 from app.api import operations
-from app.schemas.operations import ImprovementRequestCreate
+from app.schemas.operations import ImprovementRequestCreate, ImprovementRequestUpdate
 
 
 class Row:
@@ -75,3 +75,21 @@ async def test_pack_improvements_join_is_project_scoped():
     sql = db.statements[0]
     assert "r.project_id = l.project_id" in sql
     assert "WHERE l.project_id = :pid" in sql
+
+
+@pytest.mark.anyio
+async def test_update_improvement_request_allows_status_change():
+    db = RecordingDb([FakeResult(row=Row(id=9))])
+
+    result = await operations.update_improvement_request(
+        "KT-NetZero",
+        "REQ-0001",
+        ImprovementRequestUpdate(status="reviewing"),
+        db=db,
+        current_user={"role": "admin"},
+    )
+
+    assert result == {"message": "updated"}
+    assert db.params[0]["status"] == "reviewing"
+    assert db.params[0]["pid"] == "KT-NetZero"
+    assert db.params[0]["rid"] == "REQ-0001"

@@ -91,11 +91,12 @@ const UnansweredAnalysis = ({ embedded = false }) => {
       }, {
         headers: { Authorization: `Bearer ${getAccessToken()}` },
       });
-      alert('개선 요청이 성공적으로 생성되었습니다.');
-      // 선택적으로 해당 로그를 리스트에서 제거하거나 상태를 업데이트 할 수 있음
+      setMessage('개선 요청이 생성되었습니다.');
+      setDrawerOpen(false);
+      await loadLogs();
     } catch (err) {
       console.error(err);
-      alert('개선 요청 생성에 실패했습니다.');
+      setMessage('개선 요청 생성에 실패했습니다.');
     }
   };
 
