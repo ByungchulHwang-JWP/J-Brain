@@ -16,6 +16,7 @@ const OperationMetrics = ({ embedded = false }) => {
 
   const loadMetrics = useCallback(async () => {
     if (!projectId) {
+      setData([]);
       setLoading(false);
       setMessage('프로젝트를 선택하면 운영 인사이트를 확인할 수 있습니다.');
       return;
