@@ -90,8 +90,7 @@ router = APIRouter()
 def _default_pack_root() -> Path:
     return (
         Path(__file__).resolve().parents[3]
-        / "01.docs"
-        / "01.산출물_JBrain"
+        / "docs"
         / "200.프로젝트실행"
         / "250.구현"
         / "intent-packs"

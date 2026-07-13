@@ -4,7 +4,7 @@ import Pagination from '../../components/common/Pagination';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProjectContext } from '../../context/ProjectContext';
-import { archiveIntent, importIntentPack, listIntents } from '../../api/intentFactory';
+import { archiveIntent, listIntents } from '../../api/intentFactory';
 
 const IntentList = ({ embedded = false }) => {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ const IntentList = ({ embedded = false }) => {
   const [items, setItems] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -86,28 +85,6 @@ const IntentList = ({ embedded = false }) => {
     setSearchParams({ project: nextProjectId }, { replace: true });
   };
 
-  const handleImport = async () => {
-    if (!projectId) {
-      setMessage('프로젝트를 먼저 선택해 주세요.');
-      return;
-    }
-    setImporting(true);
-    setMessage('');
-    try {
-      const result = await importIntentPack(projectId, {
-        pack_id: 'netzero-intent-pack-v0.1.0',
-        pack_version: '0.1.0',
-        overwrite: false,
-      });
-      setMessage(`Pack Import 완료: ${result.imported}건 등록, ${result.skipped}건 건너뜀`);
-      await fetchIntents(projectId);
-    } catch (err) {
-      console.error(err);
-      setMessage('Pack Import에 실패했습니다: ' + (err.response?.data?.detail || err.message));
-    } finally {
-      setImporting(false);
-    }
-  };
 
   const handleArchive = async (intentId) => {
     if (!window.confirm(`${intentId} Intent를 보관 처리할까요?`)) return;
@@ -132,7 +109,7 @@ const IntentList = ({ embedded = false }) => {
           {embedded ? <h3>Intent 관리</h3> : <h2 style={{ fontWeight: 700 }}>Intent 관리</h2>}
           {!embedded && (
             <p style={{ marginTop: '8px', color: 'var(--color-text-sub)' }}>
-              프로젝트별 Intent를 DB로 관리합니다. Pack Import는 기존 파일 Pack을 DB로 가져오는 기능이며, Source 기반 자동 생성은 AI Copilot 단계에서 별도로 제공합니다.
+              프로젝트별 Intent를 DB로 관리합니다. Source 기반 자동 생성은 AI Copilot 단계에서 별도로 제공합니다.
             </p>
           )}
         </div>
@@ -141,7 +118,6 @@ const IntentList = ({ embedded = false }) => {
             {projects.length === 0 && <option value="">프로젝트 없음</option>}
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name} ({project.id})</option>)}
           </select>
-          <button className="btn-secondary" onClick={handleImport} disabled={importing || !projectId}>{importing ? 'Import 중...' : '파일 Pack Import'}</button>
           <button className="btn-primary" onClick={() => navigate(`/admin/intent-factory/intents/new?project=${encodeURIComponent(projectId)}`)} disabled={!projectId}>+ Intent 등록</button>
         </div>
       </div>
@@ -188,7 +164,7 @@ const IntentList = ({ embedded = false }) => {
             {loading ? (
               Array.from({ length: Math.min(pageSize, 5) }).map((_, idx) => (<tr key={idx}><td><Skeleton width="100px" /></td><td><Skeleton width="150px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="120px" /></td><td><Skeleton width="40px" /></td><td><Skeleton width="80px" /></td><td><Skeleton width="60px" /></td><td><Skeleton width="80px" /></td></tr>))
             ) : paginatedItems.length === 0 ? (
-              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>등록된 Intent가 없습니다. Intent 등록 또는 파일 Pack Import를 실행해 주세요.</td></tr>
+              <tr><td colSpan="8" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>등록된 Intent가 없습니다. Intent를 새로 등록해 주세요.</td></tr>
             ) : paginatedItems.map((item) => (
               <tr key={item.intent_id}>
                 <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{item.intent_id}</td>

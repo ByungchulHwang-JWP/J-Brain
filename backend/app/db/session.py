@@ -9,7 +9,7 @@ engine = create_async_engine(
     settings.async_database_url,
     pool_pre_ping=True,
     echo=False,
-    connect_args={"server_settings": {"search_path": "graphrag"}}
+    connect_args={"server_settings": {"search_path": "graphrag, public"}}
 )
 
 # 비동기 세션 팩토리 생성
