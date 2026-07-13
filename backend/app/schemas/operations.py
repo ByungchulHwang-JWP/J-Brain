@@ -52,8 +52,8 @@ class ImprovementRequestBase(BaseModel):
     target_pack_version: Optional[str] = None
 
 class ImprovementRequestCreate(ImprovementRequestBase):
-    request_id: str
-    project_id: str
+    request_id: Optional[str] = None
+    project_id: Optional[str] = None
 
 class ImprovementRequestUpdate(BaseModel):
     request_type: Optional[str] = None

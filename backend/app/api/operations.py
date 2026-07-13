@@ -122,7 +122,7 @@ async def get_unanswered_operations(
                    active_pack_id, active_pack_version, created_at
             FROM graphrag.runtime_event_logs
             WHERE project_id = :pid
-              AND (fallback_yn = true OR confidence < 0.7)
+              AND (fallback_yn = true OR COALESCE(confidence, 0) < 0.7)
             ORDER BY created_at DESC
             LIMIT 100
         """),
@@ -327,7 +327,9 @@ async def get_pack_improvements(
                    l.created_at,
                    r.title, r.request_type, r.severity
             FROM graphrag.pack_improvement_links l
-            JOIN graphrag.operation_improvement_requests r ON l.request_id = r.request_id
+            JOIN graphrag.operation_improvement_requests r
+             ON l.request_id = r.request_id
+             AND r.project_id = l.project_id
             WHERE l.project_id = :pid
             ORDER BY l.pack_version DESC, l.created_at DESC
         """),
@@ -361,4 +363,3 @@ async def get_pack_improvements(
             } for pv, items in pack_groups.items()
         ]
     }
-
