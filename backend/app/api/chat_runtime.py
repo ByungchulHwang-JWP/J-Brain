@@ -64,6 +64,7 @@ async def build_runtime_response(
     db: AsyncSession | None = None,
     top_k: int = 3,
     log_fallback: bool = True,
+    conversation_id: str | None = None,
 ) -> dict[str, Any]:
     started_at = time.perf_counter()
     matches = IntentMatcher(pack).match(question, top_k=top_k)
@@ -81,6 +82,7 @@ async def build_runtime_response(
 
     response = {
         "project_id": project_id,
+        "conversation_id": conversation_id,
         "pack_id": pack_id,
         "pack_version": pack_version,
         "runtime_mode": "intent_action",
@@ -198,6 +200,7 @@ async def chat_runtime(
         db=db,
         top_k=req.top_k,
         log_fallback=True,
+        conversation_id=req.conversation_id,
     )
     await db.commit()
     return response

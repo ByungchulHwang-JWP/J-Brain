@@ -51,3 +51,10 @@ def test_operation_metrics_clears_data_before_and_after_fetch_failure():
 
     assert "setData([]);" in load_metrics.split("try {", 1)[0]
     assert "setData([]);" in catch_block
+
+
+def test_operation_metrics_uses_intent_match_count_for_match_rate():
+    source = read("frontend/src/pages/operations/OperationMetrics.jsx")
+
+    assert "m.intent_match_count / m.total_requests" in source
+    assert "m.total_requests - m.fallback_count" not in source

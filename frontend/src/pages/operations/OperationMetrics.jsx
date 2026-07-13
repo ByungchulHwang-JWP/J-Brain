@@ -31,7 +31,7 @@ const OperationMetrics = ({ embedded = false }) => {
       let metrics = res.data.metrics || [];
       const formattedData = metrics.map(m => ({
         ...m,
-        intent_match_rate: m.total_requests > 0 ? ((m.total_requests - m.fallback_count) / m.total_requests * 100).toFixed(1) : 0,
+        intent_match_rate: m.total_requests > 0 ? (m.intent_match_count / m.total_requests * 100).toFixed(1) : 0,
         fallback_rate: m.total_requests > 0 ? (m.fallback_count / m.total_requests * 100).toFixed(1) : 0,
       }));
       setData(formattedData);
