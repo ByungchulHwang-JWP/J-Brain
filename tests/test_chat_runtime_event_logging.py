@@ -80,3 +80,41 @@ async def test_build_runtime_response_includes_conversation_id(monkeypatch):
     )
 
     assert response["conversation_id"] == "conv-1"
+
+
+@pytest.mark.anyio
+async def test_build_runtime_response_generates_and_logs_conversation_id(monkeypatch):
+    class StubMatcher:
+        def __init__(self, pack):
+            pass
+
+        def match(self, question, top_k):
+            return []
+
+    class StubRouter:
+        def __init__(self, pack, unanswered_logger, db):
+            pass
+
+        async def route(self, question, matches):
+            return {"type": "fallback_card", "message": "No match"}
+
+    class StubPack:
+        manifest = {"pack_id": "pack-1", "pack_version": "v1"}
+        profile = {}
+
+    db = RecordingDb()
+    monkeypatch.setattr("app.api.chat_runtime.IntentMatcher", StubMatcher)
+    monkeypatch.setattr("app.api.chat_runtime.ActionRouter", StubRouter)
+
+    response = await build_runtime_response(
+        "project-1",
+        "question",
+        StubPack(),
+        db=db,
+        conversation_id=None,
+        log_fallback=False,
+    )
+
+    assert response["conversation_id"]
+    assert response["conversation_id"].startswith("conv-")
+    assert db.params[0]["session_id"] == response["conversation_id"]

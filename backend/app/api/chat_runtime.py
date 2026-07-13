@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -66,6 +67,9 @@ async def build_runtime_response(
     log_fallback: bool = True,
     conversation_id: str | None = None,
 ) -> dict[str, Any]:
+    if not conversation_id or not conversation_id.strip():
+        conversation_id = f"conv-{uuid.uuid4()}"
+
     started_at = time.perf_counter()
     matches = IntentMatcher(pack).match(question, top_k=top_k)
     logger = (
