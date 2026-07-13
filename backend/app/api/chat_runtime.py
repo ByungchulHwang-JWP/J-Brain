@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -16,6 +17,7 @@ from app.db.session import AsyncSessionLocal, get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.pack_store_service import get_active_pack
 from app.services.pack_store_service import PACK_STORE_ROOT
+from app.services.runtime_event_log_service import record_runtime_event
 
 
 router = APIRouter()
@@ -63,6 +65,7 @@ async def build_runtime_response(
     top_k: int = 3,
     log_fallback: bool = True,
 ) -> dict[str, Any]:
+    started_at = time.perf_counter()
     matches = IntentMatcher(pack).match(question, top_k=top_k)
     logger = (
         BestEffortUnansweredLogger(UnansweredLogger(default_unanswered_log_path()), project_id)
@@ -132,6 +135,16 @@ async def build_runtime_response(
     if log_id:
         response["log_id"] = log_id
 
+    if db is not None:
+        response_time_ms = max(0, int((time.perf_counter() - started_at) * 1000))
+        await record_runtime_event(
+            db,
+            project_id=project_id,
+            question=question,
+            response=response,
+            response_time_ms=response_time_ms,
+        )
+
     return response
 
 
@@ -178,7 +191,7 @@ async def chat_runtime(
         except IntentPackValidationError:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    return await build_runtime_response(
+    response = await build_runtime_response(
         project_id,
         req.query,
         pack,
@@ -186,3 +199,5 @@ async def chat_runtime(
         top_k=req.top_k,
         log_fallback=True,
     )
+    await db.commit()
+    return response
