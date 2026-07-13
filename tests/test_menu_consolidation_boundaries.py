@@ -8,11 +8,11 @@ from app.core import menu_seed
 
 
 CONSOLIDATED_CONSOLES = {
-    "/admin/knowledge": "Knowledge Center",
-    "/admin/intent-factory": "Intent Studio",
-    "/admin/packs": "Pack Lifecycle Console",
-    "/admin/runtime": "Runtime Simulation Console",
-    "/admin/operations": "Operations Intelligence",
+    "/admin/knowledge": "지식 센터",
+    "/admin/intent-factory": "의도 설계 스튜디오",
+    "/admin/packs": "Pack 생명주기 콘솔",
+    "/admin/runtime": "Runtime 시뮬레이션",
+    "/admin/operations": "운영 인사이트",
 }
 
 LEGACY_LIST_ROUTES = {
