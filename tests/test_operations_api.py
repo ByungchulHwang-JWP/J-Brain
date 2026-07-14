@@ -9,6 +9,10 @@ class Row:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
+    @property
+    def _mapping(self):
+        return self.__dict__
+
 
 class FakeResult:
     def __init__(self, rows=None, row=None):
@@ -36,6 +40,66 @@ class RecordingDb:
 
     async def commit(self):
         self.committed = True
+
+
+@pytest.mark.anyio
+async def test_realtime_operations_uses_active_pack_not_recent_event_version():
+    db = RecordingDb([
+        FakeResult(row=Row(
+            project_id="KT-NetZero",
+            pack_id="KT-NetZero-intent-pack",
+            pack_version="0.1.0",
+            previous_pack_id=None,
+            previous_pack_version=None,
+            activated_at=None,
+            activated_by="admin",
+        )),
+        FakeResult(row=Row(
+            total_requests=0,
+            fallback_count=0,
+            avg_confidence=None,
+            error_count=0,
+            avg_response_time=None,
+        )),
+        FakeResult(rows=[]),
+        FakeResult(rows=[]),
+    ])
+
+    result = await operations.get_realtime_operations(
+        "KT-NetZero", db=db, current_user={"role": "admin"}
+    )
+
+    assert result["kpi"]["active_pack"] == "0.1.0"
+    assert result["kpi"]["active_pack_id"] == "KT-NetZero-intent-pack"
+    assert result["kpi"]["requests_last_hour"] == 0
+    assert "FROM graphrag.active_runtime_packs" in db.statements[0]
+    assert "MAX(active_pack_version)" not in db.statements[1]
+    assert db.params[0] == {"project_id": "KT-NetZero"}
+    assert db.params[1] == {"pid": "KT-NetZero"}
+
+
+@pytest.mark.anyio
+async def test_realtime_operations_uses_empty_state_when_no_active_pack():
+    db = RecordingDb([
+        FakeResult(row=None),
+        FakeResult(row=Row(
+            total_requests=0,
+            fallback_count=0,
+            avg_confidence=None,
+            error_count=0,
+            avg_response_time=None,
+        )),
+        FakeResult(rows=[]),
+        FakeResult(rows=[]),
+    ])
+
+    result = await operations.get_realtime_operations(
+        "KT-NetZero", db=db, current_user={"role": "admin"}
+    )
+
+    assert result["kpi"]["active_pack"] == "-"
+    assert result["kpi"]["active_pack_id"] is None
+    assert result["kpi"]["requests_last_hour"] == 0
 
 
 @pytest.mark.anyio

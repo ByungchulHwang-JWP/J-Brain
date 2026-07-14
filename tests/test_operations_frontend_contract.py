@@ -44,6 +44,13 @@ def test_realtime_monitoring_clears_data_when_fetch_fails():
     assert "active_pack: '-'" not in catch_block
 
 
+def test_active_pack_card_uses_realtime_api_kpi_value():
+    source = read("frontend/src/components/operations/OperationKpiStrip.jsx")
+
+    assert "value={data.active_pack}" in source
+    assert "recent_logs" not in source
+
+
 def test_operation_metrics_clears_data_before_and_after_fetch_failure():
     source = read("frontend/src/pages/operations/OperationMetrics.jsx")
     load_metrics = source.split("const loadMetrics = useCallback(async () => {", 1)[1].split("}, [days, projectId]);", 1)[0]

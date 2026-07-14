@@ -8,6 +8,7 @@ import uuid
 from app.db.session import get_db
 from app.api.deps import get_current_user_role
 from app.schemas.operations import ImprovementRequestCreate, ImprovementRequestUpdate
+from app.services.pack_store_service import get_active_pack
 
 
 router = APIRouter()
@@ -21,6 +22,8 @@ async def get_realtime_operations(
     """
     실시간 모니터링 데이터 (최근 1시간 통계 요약 및 최근 로그)
     """
+    active_pack = await get_active_pack(db, project_id)
+
     kpi_res = await db.execute(
         text("""
             SELECT 
@@ -28,8 +31,7 @@ async def get_realtime_operations(
                 SUM(CASE WHEN fallback_yn = true THEN 1 ELSE 0 END) as fallback_count,
                 AVG(confidence) as avg_confidence,
                 SUM(CASE WHEN response_status = 'error' THEN 1 ELSE 0 END) as error_count,
-                AVG(response_time_ms) as avg_response_time,
-                MAX(active_pack_version) as current_pack
+                AVG(response_time_ms) as avg_response_time
             FROM graphrag.runtime_event_logs
             WHERE project_id = :pid
               AND created_at >= NOW() - INTERVAL '1 hour'
@@ -73,7 +75,8 @@ async def get_realtime_operations(
     
     return {
         "kpi": {
-            "active_pack": kpi_row.current_pack if kpi_row and kpi_row.current_pack else "-",
+            "active_pack": active_pack.get("pack_version") if active_pack else "-",
+            "active_pack_id": active_pack.get("pack_id") if active_pack else None,
             "requests_last_hour": total,
             "intent_match_rate": ((total - fallback) / total * 100) if total > 0 else 0,
             "fallback_rate": (fallback / total * 100) if total > 0 else 0,
