@@ -200,7 +200,7 @@ async def run_pack_validation(
             text(
                 """
                 UPDATE graphrag.runtime_pack_store
-                SET status = :next_status,
+                SET status = CASE WHEN status = 'active' THEN 'active' ELSE :next_status END,
                     validation_result = CAST(:validation_result AS jsonb)
                 WHERE project_id = :project_id
                   AND pack_id = :pack_id

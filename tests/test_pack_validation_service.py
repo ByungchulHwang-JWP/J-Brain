@@ -28,6 +28,17 @@ class _RuntimePackDb:
         return _RuntimePackResult(self._store_path)
 
 
+class _ValidationRunDb:
+    def __init__(self):
+        self.executed = []
+
+    async def execute(self, statement, params=None):
+        self.executed.append((str(statement), params))
+
+    async def commit(self):
+        pass
+
+
 @pytest.fixture
 def anyio_backend():
     return "asyncio"
@@ -132,3 +143,57 @@ async def test_load_pack_for_validation_recovers_stale_runtime_pack_store_path(t
     )
 
     assert pack.root_dir == deployed_pack
+
+
+@pytest.mark.anyio
+async def test_run_pack_validation_preserves_active_runtime_pack_status_on_success(monkeypatch):
+    class _Pack:
+        validation = {}
+
+    class _PassingValidationRunner:
+        def __init__(self, _pack):
+            pass
+
+        async def run(self):
+            return {
+                "results": [
+                    {
+                        "question_id": "VAL-1",
+                        "score": 0.9,
+                        "top1_pass": True,
+                    }
+                ]
+            }
+
+    async def _load_pack(*_args):
+        return _Pack()
+
+    async def _load_questions(*_args):
+        return [{"question_id": "VAL-1", "min_confidence_score": 0.65}]
+
+    async def _write_audit_log(*_args, **_kwargs):
+        pass
+
+    monkeypatch.setattr(pack_validation_service, "_load_pack_for_validation", _load_pack)
+    monkeypatch.setattr(pack_validation_service, "_load_questions_for_pack", _load_questions)
+    monkeypatch.setattr(pack_validation_service, "ValidationRunner", _PassingValidationRunner)
+    monkeypatch.setattr(pack_validation_service, "_write_audit_log", _write_audit_log)
+    db = _ValidationRunDb()
+
+    await pack_validation_service.run_pack_validation(
+        db,
+        "KT-NetZero",
+        PackValidationRunPayload(
+            pack_id="KT-NetZero-intent-pack",
+            pack_version="0.1.0",
+            target_type="runtime_pack",
+        ),
+    )
+
+    runtime_pack_update, params = next(
+        (statement, params)
+        for statement, params in db.executed
+        if "UPDATE graphrag.runtime_pack_store" in statement
+    )
+    assert "SET status = CASE WHEN status = 'active' THEN 'active' ELSE :next_status END" in runtime_pack_update
+    assert params["next_status"] == "validated"
