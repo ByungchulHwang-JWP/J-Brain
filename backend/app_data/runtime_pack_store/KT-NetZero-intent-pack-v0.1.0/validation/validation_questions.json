@@ -1,0 +1,90 @@
+[
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERV",
+    "question": "탄소중립플랫폼에 대해 설명해 주세요.",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEM",
+    "question": "DPPA 시스템에 대해 알려주세요.",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBON",
+    "question": "데이터 기반 탄소 관리는 어떻게 이루어지나요?",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "question": "RE100이란 무엇인가요?",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSET",
+    "question": "KOC와 KCU의 차이는 무엇인가요?",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "question": "탄소중립플랫폼은 어떤 서비스를 제공하나요?",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEX",
+    "question": "탄소중립 달성을 위한 전체 프로세스를 설명해 주세요.",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATOR",
+    "question": "규제 대응은 어떻게 하나요?",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "pack_id": "KT-NetZero-db-draft",
+    "pack_version": "0.1-draft",
+    "status": "active",
+    "expected_entities": []
+  }
+]

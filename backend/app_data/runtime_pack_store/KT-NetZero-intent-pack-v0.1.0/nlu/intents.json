@@ -1,0 +1,74 @@
+[
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW",
+    "intent_name": "GetPlatformOverview",
+    "description": "사용자가 탄소중립플랫폼의 개요를 요청할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS",
+    "intent_name": "InquireSubSystems",
+    "description": "사용자가 하위 시스템에 대한 정보를 요청할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME",
+    "intent_name": "UnderstandCarbonManagement",
+    "description": "사용자가 탄소 관리 방법에 대해 질문할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "intent_name": "AskAboutRE100",
+    "description": "사용자가 RE100 캠페인에 대해 질문할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS",
+    "intent_name": "LearnAboutOffsetCredits",
+    "description": "사용자가 상쇄 배출권에 대해 질문할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "intent_name": "GetFAQ",
+    "description": "사용자가 자주 묻는 질문을 요청할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO",
+    "intent_name": "RequestProcessExplanation",
+    "description": "사용자가 탄소중립 달성을 위한 프로세스를 요청할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  },
+  {
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA",
+    "intent_name": "InquireRegulatoryCompliance",
+    "description": "사용자가 규제 대응 및 ESG 경영에 대해 질문할 때.",
+    "category": "SEARCH_DOC",
+    "action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "priority": 100,
+    "status": "active"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "entity_type": "CONCEPT",
+    "display_name": "RE100",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": null,
+    "description": null,
+    "status": "active",
+    "synonym_count": 4
+  },
+  {
+    "entity_type": "CREDIT_TYPE",
+    "display_name": "KOC",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": null,
+    "description": null,
+    "status": "active",
+    "synonym_count": 2
+  },
+  {
+    "entity_type": "SYSTEM_NAME",
+    "display_name": "DPPA",
+    "value_type": "string",
+    "required_validation": false,
+    "normalization_rule": null,
+    "description": null,
+    "status": "active",
+    "synonym_count": 3
+  }
+]

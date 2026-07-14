@@ -1,0 +1,8 @@
+{
+  "pack_id": "KT-NetZero-intent-pack",
+  "pack_version": "0.1.0",
+  "service_id": "KT-NetZero",
+  "service_name": "KT-NetZero",
+  "target_environment": "closed_network",
+  "runtime_mode": "local_pack"
+}

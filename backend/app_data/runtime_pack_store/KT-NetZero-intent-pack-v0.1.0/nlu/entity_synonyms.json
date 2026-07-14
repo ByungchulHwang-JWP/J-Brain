@@ -1,0 +1,83 @@
+[
+  {
+    "entity_type": "CONCEPT",
+    "canonical_value": "Renewable Energy 100%",
+    "synonyms": [
+      "재생에너지 100%"
+    ],
+    "code": "RENEWABLE_ENERGY_100",
+    "is_active": true
+  },
+  {
+    "entity_type": "CONCEPT",
+    "canonical_value": "간접 배출",
+    "synonyms": [
+      "간접 배출"
+    ],
+    "code": "간접_배출",
+    "is_active": true
+  },
+  {
+    "entity_type": "CONCEPT",
+    "canonical_value": "기타 간접 배출",
+    "synonyms": [
+      "기타 간접 배출"
+    ],
+    "code": "기타_간접_배출",
+    "is_active": true
+  },
+  {
+    "entity_type": "CONCEPT",
+    "canonical_value": "직접 배출",
+    "synonyms": [
+      "직접 배출"
+    ],
+    "code": "직접_배출",
+    "is_active": true
+  },
+  {
+    "entity_type": "CREDIT_TYPE",
+    "canonical_value": "Korean Credit Unit",
+    "synonyms": [
+      "한국 신용 단위"
+    ],
+    "code": "KOREAN_CREDIT_UNIT",
+    "is_active": true
+  },
+  {
+    "entity_type": "CREDIT_TYPE",
+    "canonical_value": "Korean Offset Credit",
+    "synonyms": [
+      "한국 상쇄 배출권"
+    ],
+    "code": "KOREAN_OFFSET_CREDIT",
+    "is_active": true
+  },
+  {
+    "entity_type": "SYSTEM_NAME",
+    "canonical_value": "Direct Power Purchase Agreement",
+    "synonyms": [
+      "직접전력거래계약"
+    ],
+    "code": "DIRECT_POWER_PURCHASE_AGREEMENT",
+    "is_active": true
+  },
+  {
+    "entity_type": "SYSTEM_NAME",
+    "canonical_value": "Greenhouse Gas Inventory Management System",
+    "synonyms": [
+      "온실가스 인벤토리 관리 시스템"
+    ],
+    "code": "GREENHOUSE_GAS_INVENTORY_MANAGEMENT_SYSTEM",
+    "is_active": true
+  },
+  {
+    "entity_type": "SYSTEM_NAME",
+    "canonical_value": "Offset Credit Management System",
+    "synonyms": [
+      "상쇄 배출권 관리 시스템"
+    ],
+    "code": "OFFSET_CREDIT_MANAGEMENT_SYSTEM",
+    "is_active": true
+  }
+]

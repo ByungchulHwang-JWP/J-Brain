@@ -1,0 +1,58 @@
+[
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERV",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEM",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBON",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSET",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEX",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  },
+  {
+    "question_id": "VAL-AUTO-INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATOR",
+    "expected_intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA",
+    "expected_action_id": "ACT_KT_NETZERO_SEARCH_DOC",
+    "min_confidence_score": 0.65,
+    "expected_entities": []
+  }
+]

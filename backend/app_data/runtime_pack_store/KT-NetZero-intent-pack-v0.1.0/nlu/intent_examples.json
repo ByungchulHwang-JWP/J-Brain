@@ -1,0 +1,202 @@
+[
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW",
+    "text": "탄소중립플랫폼에 대해 설명해 주세요.",
+    "example": "탄소중립플랫폼에 대해 설명해 주세요.",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW",
+    "text": "이 플랫폼의 주요 목표는 무엇인가요?",
+    "example": "이 플랫폼의 주요 목표는 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW",
+    "text": "탄소중립플랫폼의 기능은 어떤 것들이 있나요?",
+    "example": "탄소중립플랫폼의 기능은 어떤 것들이 있나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW-04",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_01_GETPLATFORMOVERVIEW",
+    "text": "이 프로젝트의 핵심 목표는 무엇인가요?",
+    "example": "이 프로젝트의 핵심 목표는 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS",
+    "text": "DPPA 시스템에 대해 알려주세요.",
+    "example": "DPPA 시스템에 대해 알려주세요.",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS",
+    "text": "GIMS의 기능은 무엇인가요?",
+    "example": "GIMS의 기능은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_02_INQUIRESUBSYSTEMS",
+    "text": "OCMS는 어떤 역할을 하나요?",
+    "example": "OCMS는 어떤 역할을 하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME",
+    "text": "데이터 기반 탄소 관리는 어떻게 이루어지나요?",
+    "example": "데이터 기반 탄소 관리는 어떻게 이루어지나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME",
+    "text": "온실가스 배출량을 어떻게 측정하나요?",
+    "example": "온실가스 배출량을 어떻게 측정하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_03_UNDERSTANDCARBONMANAGEME",
+    "text": "Scope 1, 2, 3의 차이는 무엇인가요?",
+    "example": "Scope 1, 2, 3의 차이는 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "text": "RE100이란 무엇인가요?",
+    "example": "RE100이란 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "text": "RE100에 참여하는 방법은 무엇인가요?",
+    "example": "RE100에 참여하는 방법은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_04_ASKABOUTRE100",
+    "text": "RE100의 목표는 무엇인가요?",
+    "example": "RE100의 목표는 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS",
+    "text": "KOC와 KCU의 차이는 무엇인가요?",
+    "example": "KOC와 KCU의 차이는 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS",
+    "text": "상쇄 배출권은 어떻게 관리하나요?",
+    "example": "상쇄 배출권은 어떻게 관리하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_05_LEARNABOUTOFFSETCREDITS",
+    "text": "상쇄 배출권을 거래하는 방법은 무엇인가요?",
+    "example": "상쇄 배출권을 거래하는 방법은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "text": "탄소중립플랫폼은 어떤 서비스를 제공하나요?",
+    "example": "탄소중립플랫폼은 어떤 서비스를 제공하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "text": "탄소중립 달성을 위한 프로세스는 어떻게 되나요?",
+    "example": "탄소중립 달성을 위한 프로세스는 어떻게 되나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_06_GETFAQ",
+    "text": "자주 묻는 질문을 보여주세요.",
+    "example": "자주 묻는 질문을 보여주세요.",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO",
+    "text": "탄소중립 달성을 위한 전체 프로세스를 설명해 주세요.",
+    "example": "탄소중립 달성을 위한 전체 프로세스를 설명해 주세요.",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO",
+    "text": "넷제로 달성을 위한 단계는 무엇인가요?",
+    "example": "넷제로 달성을 위한 단계는 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_07_REQUESTPROCESSEXPLANATIO",
+    "text": "온실가스 감축 프로세스는 어떻게 되나요?",
+    "example": "온실가스 감축 프로세스는 어떻게 되나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA-01",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA",
+    "text": "규제 대응은 어떻게 하나요?",
+    "example": "규제 대응은 어떻게 하나요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA-02",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA",
+    "text": "ESG 경영을 강화하는 방법은 무엇인가요?",
+    "example": "ESG 경영을 강화하는 방법은 무엇인가요?",
+    "source": "intent_factory_db",
+    "is_validation": false
+  },
+  {
+    "example_id": "EX-INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA-03",
+    "intent_id": "INTENT_KT_NETZERO_SEARCH_DOC_08_INQUIREREGULATORYCOMPLIA",
+    "text": "K-ETS에 대해 설명해 주세요.",
+    "example": "K-ETS에 대해 설명해 주세요.",
+    "source": "intent_factory_db",
+    "is_validation": false
+  }
+]
