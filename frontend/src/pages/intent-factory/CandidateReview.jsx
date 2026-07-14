@@ -2,6 +2,7 @@ import { Skeleton, Spinner } from '../../components/common/Loader';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle2, CircleSlash2, DatabaseZap, RotateCcw, Sparkles } from 'lucide-react';
+import Pagination from '../../components/common/Pagination';
 import { useProjectContext } from '../../context/ProjectContext';
 import {
   applyApprovedDiscoveryCandidates,
@@ -44,6 +45,8 @@ const CandidateReview = ({ embedded = false }) => {
   const [running, setRunning] = useState(false);
   const [applying, setApplying] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
     if (routeProjectId && routeProjectId !== selectedProjectId) {
@@ -92,6 +95,17 @@ const CandidateReview = ({ embedded = false }) => {
       return String(b.updated_at || '').localeCompare(String(a.updated_at || ''));
     });
   }, [items]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [projectId, items.length]);
+
+  const totalItems = orderedItems.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return orderedItems.slice(start, start + pageSize);
+  }, [orderedItems, currentPage, pageSize]);
 
   const handleRun = async (scope = 'all') => {
     if (!projectId) {
@@ -341,7 +355,7 @@ const CandidateReview = ({ embedded = false }) => {
               <tr><td colSpan="6">후보 목록을 불러오는 중입니다.</td></tr>
             ) : items.length === 0 ? (
               <tr><td colSpan="6">생성된 후보가 없습니다. 자동 후보 생성을 실행해 주세요.</td></tr>
-            ) : orderedItems.map((item) => {
+            ) : paginatedItems.map((item) => {
               const names = sourceNames(item.payload);
               return (
               <tr key={item.candidate_id}>
@@ -376,6 +390,16 @@ const CandidateReview = ({ embedded = false }) => {
             })}
           </tbody>
         </table>
+        {!loading && items.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
+        )}
       </section>
     </div>
   );
