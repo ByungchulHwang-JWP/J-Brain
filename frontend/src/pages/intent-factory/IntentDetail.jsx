@@ -37,7 +37,8 @@ const IntentDetail = ({ mode = 'edit' }) => {
   const { intentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { projects, selectedProjectId, setSelectedProjectId } = useProjectContext();
-  const projectId = selectedProjectId;
+  const requestedProjectId = searchParams.get('project') || searchParams.get('projectId');
+  const projectId = requestedProjectId || selectedProjectId;
   const [form, setForm] = useState(() => (mode === 'new' ? { ...emptyForm, intent_id: generateIntentId(selectedProjectId) } : emptyForm));
   const [actionOptions, setActionOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
@@ -47,11 +48,10 @@ const IntentDetail = ({ mode = 'edit' }) => {
   const title = useMemo(() => (mode === 'new' ? 'Intent 등록' : 'Intent 상세/수정'), [mode]);
 
   useEffect(() => {
-    const requestedProjectId = searchParams.get('project') || searchParams.get('projectId');
     if (requestedProjectId && requestedProjectId !== selectedProjectId) {
       setSelectedProjectId(requestedProjectId);
     }
-  }, [searchParams, selectedProjectId, setSelectedProjectId]);
+  }, [requestedProjectId, selectedProjectId, setSelectedProjectId]);
 
   useEffect(() => {
     if (!searchParams.get('project') && projectId) {
