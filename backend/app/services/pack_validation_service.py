@@ -422,7 +422,9 @@ async def _load_pack_for_validation(
         if not row:
             raise FileNotFoundError(f"Runtime Pack을 찾을 수 없습니다: {payload.pack_id} v{payload.pack_version}")
         store_path = Path(row.store_path)
-        return IntentPackLoader(store_path.parent).load_pack(payload.pack_id, payload.pack_version)
+        if store_path.is_dir():
+            return IntentPackLoader(store_path.parent).load_pack(payload.pack_id, payload.pack_version)
+        return IntentPackLoader(PACK_STORE_ROOT).load_pack(payload.pack_id, payload.pack_version)
 
     if payload.target_type == "export":
         export = await get_pack_export(db, project_id, payload.pack_id)
