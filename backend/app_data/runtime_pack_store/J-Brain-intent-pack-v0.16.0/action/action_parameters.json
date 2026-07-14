@@ -1,0 +1,20 @@
+[
+  {
+    "intent_id": "INTENT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "parameter_name": null,
+    "entity_type": "MENU",
+    "required": false,
+    "default_policy": null,
+    "validation_rule": null
+  },
+  {
+    "intent_id": "INTENT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "parameter_name": null,
+    "entity_type": "ROLE",
+    "required": false,
+    "default_policy": null,
+    "validation_rule": null
+  }
+]

@@ -1,0 +1,5 @@
+{
+  "intent_top1_accuracy": 0.8,
+  "intent_top3_accuracy": 0.9,
+  "action_routing_success_rate": 0.95
+}

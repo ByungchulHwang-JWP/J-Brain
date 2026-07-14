@@ -1,0 +1,16 @@
+[
+  {
+    "template_id": "SQL-ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "sql_template": "SELECT COUNT(*)::int AS active_project_count FROM graphrag.projects WHERE status = 'active'",
+    "readonly": true,
+    "status": "active"
+  },
+  {
+    "template_id": "SQL-ACT-JBRAIN-QUERY-269518",
+    "action_id": "ACT-JBRAIN-QUERY-269518",
+    "sql_template": "SELECT name, role_id, email \nFROM graphrag.admin_users \nWHERE approval_status = 'approved' \nLIMIT 10;",
+    "readonly": true,
+    "status": "active"
+  }
+]

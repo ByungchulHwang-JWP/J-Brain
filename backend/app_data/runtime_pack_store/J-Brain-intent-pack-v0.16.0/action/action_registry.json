@@ -1,0 +1,53 @@
+[
+  {
+    "action_id": "ACT_J_BRAIN_NAV_PERMISSIONS",
+    "action_name": "권한 관리 화면 이동",
+    "action_type": "NAVIGATE",
+    "description": "권한 관리 화면으로 사용자를 이동합니다.",
+    "execution_mode": "local",
+    "enabled": true
+  },
+  {
+    "action_id": "ACT_J_BRAIN_API_DASHBOARD_STATS",
+    "action_name": "프로젝트 대시보드 API 조회",
+    "action_type": "API",
+    "description": "J-Brain 프로젝트 대시보드 통계를 내부 API로 조회합니다.",
+    "execution_mode": "internal_api",
+    "enabled": true
+  },
+  {
+    "action_id": "ACT_J_BRAIN_DOWNLOAD_PACK",
+    "action_name": "Runtime Pack 다운로드",
+    "action_type": "DOWNLOAD",
+    "description": "검증 완료된 J-Brain Runtime Pack ZIP을 다운로드합니다.",
+    "execution_mode": "local",
+    "enabled": true,
+    "route_value": "/api/v1/intent-factory/projects/J-Brain/pack-exports/EXP-88bdda9b03e2/download",
+    "menu_name": "J-Brain Runtime Pack v0.1.3",
+    "api_endpoint": null
+  },
+  {
+    "action_id": "ACT_J_BRAIN_QUERY_PROJECT_SUMMARY",
+    "action_name": "프로젝트 현황 SQL 조회",
+    "action_type": "QUERY",
+    "description": "J-Brain 프로젝트/소스 현황을 승인된 읽기 전용 SQL로 조회합니다.",
+    "execution_mode": "sql_template",
+    "enabled": true
+  },
+  {
+    "action_id": "ACT-JBRAIN-QUERY-269518",
+    "action_name": "사용자 조회 쿼리",
+    "action_type": "QUERY",
+    "description": null,
+    "execution_mode": "sql_template",
+    "enabled": true
+  },
+  {
+    "action_id": "ACT_J_BRAIN_SEARCH_DOC",
+    "action_name": "J-Brain 검색",
+    "action_type": "SEARCH_DOC",
+    "description": null,
+    "execution_mode": "local",
+    "enabled": true
+  }
+]
